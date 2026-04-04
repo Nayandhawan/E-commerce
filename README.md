@@ -68,7 +68,7 @@ A full-stack e-commerce platform built with **Spring Boot microservices** and **
 ## Features
 
 ### Customer
-- Browse products with Flipkart-style grid (hover zoom + slide-up Add to Cart)
+- Browse products with (hover zoom + slide-up Add to Cart)
 - Search products by name
 - Filter by category with icon nav
 - Wishlist with heart toggle (add/remove)
