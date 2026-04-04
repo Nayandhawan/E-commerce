@@ -1,0 +1,47 @@
+<div class="page-wrap">
+  <h2 class="section-title">My Orders</h2>
+
+  <div class="orders-list" *ngIf="myOrders && myOrders.length > 0; else noOrders">
+    <div class="order-card" *ngFor="let order of myOrders">
+      <div class="order-header">
+        <div class="order-meta">
+          <span class="tracking-id">Tracking ID: <strong>{{ order.trackingId }}</strong></span>
+          <span class="order-date">{{ order.date | date: 'dd MMM yyyy' }}</span>
+        </div>
+        <span class="status-chip"
+          [class.chip-green]="order.orderStatus === 'DELIVERED'"
+          [class.chip-orange]="order.orderStatus === 'SHIPPED'"
+          [class.chip-blue]="order.orderStatus === 'PLACED'"
+          [class.chip-red]="order.orderStatus === 'CANCELLED'">
+          {{ order.orderStatus }}
+        </span>
+      </div>
+
+      <div class="order-body">
+        <div class="order-info">
+          <p class="info-row"><mat-icon>receipt</mat-icon> {{ order.orderDescription }}</p>
+          <p class="info-row"><mat-icon>location_on</mat-icon> {{ order.address }}</p>
+        </div>
+        <div class="order-amount">
+          <span class="amount-label">Total</span>
+          <span class="amount-value">₹{{ order.amount | number }}</span>
+        </div>
+      </div>
+
+      <div class="order-footer" *ngIf="order.orderStatus === 'DELIVERED'">
+        <a class="btn-review" [routerLink]="['/customer/ordered_products', order.id]">
+          <mat-icon>rate_review</mat-icon> Write a Review
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <ng-template #noOrders>
+    <div class="empty-state">
+      <mat-icon>receipt_long</mat-icon>
+      <h3>No orders yet</h3>
+      <p>You haven't placed any orders.</p>
+      <a class="btn-shop" routerLink="/customer/dashboard">Start Shopping</a>
+    </div>
+  </ng-template>
+</div>

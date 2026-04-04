@@ -1,0 +1,232 @@
+/* ── Product Hero ── */
+.product-hero {
+  display: grid;
+  grid-template-columns: 420px 1fr;
+  gap: 32px;
+  background: #fff;
+  border-radius: 4px;
+  box-shadow: var(--shadow);
+  padding: 32px;
+  margin-bottom: 24px;
+}
+
+@media (max-width: 768px) {
+  .product-hero { grid-template-columns: 1fr; }
+}
+
+.hero-img-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #f0f0f0;
+  border-radius: 6px;
+  padding: 32px;
+  min-height: 340px;
+  overflow: hidden;
+  background: linear-gradient(145deg, #f9f9f9 0%, #eef0f4 100%);
+  position: relative;
+  transition: box-shadow .25s ease;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(circle, #dde0e6 1px, transparent 1px);
+    background-size: 20px 20px;
+    opacity: .35;
+    pointer-events: none;
+  }
+
+  &:hover {
+    box-shadow: 0 6px 24px rgba(0,0,0,.12);
+  }
+
+  &:hover .hero-img {
+    transform: scale(1.06);
+  }
+}
+
+.hero-img {
+  max-width: 100%;
+  max-height: 360px;
+  object-fit: contain;
+  position: relative;
+  z-index: 1;
+  filter: drop-shadow(0 8px 20px rgba(0,0,0,.14));
+  transition: transform .4s cubic-bezier(.34,1.56,.64,1);
+  transform-origin: center center;
+}
+
+.hero-details {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.hero-category {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #878787;
+  margin: 0;
+}
+
+.hero-name {
+  font-size: 26px;
+  font-weight: 600;
+  color: #212121;
+  margin: 0;
+  line-height: 1.3;
+}
+
+.hero-desc {
+  font-size: 14px;
+  color: #878787;
+  margin: 0;
+  line-height: 1.6;
+}
+
+.hero-price-block {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.hero-price {
+  font-size: 32px;
+  font-weight: 700;
+  color: #212121;
+}
+
+.free-delivery {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  color: #388e3c;
+  font-weight: 500;
+  mat-icon { font-size: 16px; }
+}
+
+/* ── Action Buttons ── */
+.hero-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.btn-wishlist {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #fff;
+  color: #2874f0;
+  border: 1.5px solid #2874f0;
+  border-radius: 4px;
+  padding: 11px 24px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .15s;
+  mat-icon { font-size: 18px; }
+  &:hover { background: #e3f2fd; }
+}
+
+/* ── Sections ── */
+.section-block {
+  background: #fff;
+  border-radius: 4px;
+  box-shadow: var(--shadow);
+  padding: 24px;
+  margin-bottom: 16px;
+}
+
+.section-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #212121;
+  margin: 0 0 16px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #2874f0;
+  display: inline-block;
+}
+
+/* ── Reviews ── */
+.reviews-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+}
+
+.review-card {
+  border: 1px solid #f0f0f0;
+  border-radius: 4px;
+  padding: 16px;
+  display: flex;
+  gap: 12px;
+}
+
+.review-img {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.review-body { flex: 1; }
+
+.rating-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  background: #388e3c;
+  color: #fff;
+  padding: 2px 8px;
+  border-radius: 3px;
+  font-size: 12px;
+  font-weight: 600;
+  mat-icon { font-size: 12px; height: 12px; width: 12px; }
+}
+
+.review-text {
+  font-size: 13px;
+  color: #212121;
+  margin: 8px 0 4px;
+}
+
+.review-user {
+  font-size: 12px;
+  color: #878787;
+  margin: 0;
+}
+
+/* ── FAQs ── */
+.faq-list { display: flex; flex-direction: column; gap: 12px; }
+
+.faq-item {
+  border: 1px solid #f0f0f0;
+  border-radius: 4px;
+  padding: 14px 16px;
+}
+
+.faq-q {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #212121;
+  margin: 0 0 6px;
+  mat-icon { font-size: 18px; color: #2874f0; flex-shrink: 0; margin-top: 1px; }
+}
+
+.faq-a {
+  font-size: 13px;
+  color: #555;
+  margin: 0;
+  padding-left: 24px;
+  line-height: 1.5;
+}

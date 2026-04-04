@@ -1,0 +1,61 @@
+html, body { height: 100%; }
+body {
+  margin: 0;
+  font-family: 'Roboto', 'Segoe UI', Arial, sans-serif;
+  background: #f1f3f6;
+  color: #212121;
+}
+
+:root {
+  --blue:    #2874f0;
+  --orange:  #fb641b;
+  --yellow:  #ff9f00;
+  --green:   #388e3c;
+  --red:     #ff6161;
+  --bg:      #f1f3f6;
+  --white:   #ffffff;
+  --text:    #212121;
+  --muted:   #878787;
+  --border:  #e0e0e0;
+  --shadow:  0 2px 8px rgba(0,0,0,.10);
+  --shadow-h:0 4px 20px rgba(0,0,0,.18);
+  --radius:  4px;
+}
+
+* { box-sizing: border-box; }
+a { text-decoration: none; color: inherit; }
+
+/* ── Snackbar ── */
+.mat-mdc-snack-bar-container { --mdc-snackbar-container-color: #212121; }
+
+/* ── Badge chips ── */
+.chip {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 3px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .3px;
+  &.chip-green  { background: #e8f5e9; color: var(--green); }
+  &.chip-orange { background: #fff3e0; color: var(--orange); }
+  &.chip-red    { background: #fce4ec; color: var(--red); }
+  &.chip-blue   { background: #e3f2fd; color: var(--blue); }
+}
+
+/* ── Page wrapper used by all customer pages ── */
+.page-wrap {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 16px 12px;
+}
+
+/* ── Section heading ── */
+.section-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0 0 12px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--blue);
+  display: inline-block;
+}

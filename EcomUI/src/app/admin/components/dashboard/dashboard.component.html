@@ -1,0 +1,38 @@
+<form [formGroup]="searchProductForm" class="search-bar" (submit)="submitForm()">
+  <div class="search-inner">
+    <mat-icon class="search-icon">search</mat-icon>
+    <input class="search-input" matInput formControlName="title" placeholder="Search products by name…" autocomplete="off" />
+    <button class="search-btn" type="submit" [disabled]="searchProductForm.invalid">Search</button>
+  </div>
+</form>
+
+<div class="product-grid">
+  <div class="product-card" *ngFor="let product of products">
+
+    <div class="card-img-wrap">
+      <img [src]="product.processedImg" [alt]="product.name" loading="lazy" class="card-img" />
+    </div>
+
+    <div class="card-body">
+      <p class="card-category">{{ product.categoryName }}</p>
+      <h3 class="card-name">{{ product.name }}</h3>
+      <p class="card-desc">{{ product.description }}</p>
+      <div class="card-meta">
+        <span class="meta-price">₹{{ product.price }}</span>
+      </div>
+    </div>
+
+    <div class="card-actions">
+      <button class="action-btn btn-faq" [routerLink]="['/admin/faq', product.id]">
+        <mat-icon>quiz</mat-icon> FAQ
+      </button>
+      <button class="action-btn btn-update" [routerLink]="['/admin/product', product.id]">
+        <mat-icon>edit</mat-icon> Edit
+      </button>
+      <button class="action-btn btn-delete" (click)="deleteProduct(product.id)">
+        <mat-icon>delete</mat-icon> Del
+      </button>
+    </div>
+
+  </div>
+</div>

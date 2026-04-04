@@ -1,0 +1,200 @@
+/* ════════════════════════════════════════
+   SEARCH BAR  (same pill style as customer)
+════════════════════════════════════════ */
+.search-bar {
+  margin-bottom: 20px;
+}
+
+.search-inner {
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border-radius: 40px;
+  border: 1.5px solid #d0d8f0;
+  box-shadow: 0 2px 14px rgba(40,116,240,.10);
+  overflow: hidden;
+  transition: border-color .2s, box-shadow .2s;
+
+  &:focus-within {
+    border-color: #2874f0;
+    box-shadow: 0 3px 18px rgba(40,116,240,.18);
+  }
+}
+
+.search-icon {
+  color: #2874f0;
+  font-size: 22px;
+  padding: 0 14px 0 18px;
+  flex-shrink: 0;
+}
+
+.search-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 14.5px;
+  color: #212121;
+  background: transparent;
+  padding: 13px 4px;
+  &::placeholder { color: #b0b8c8; }
+}
+
+.search-btn {
+  background: linear-gradient(135deg, #2874f0 0%, #1a5cbc 100%);
+  color: #fff;
+  border: none;
+  padding: 13px 28px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  border-radius: 0 40px 40px 0;
+  flex-shrink: 0;
+  transition: filter .15s;
+  &:hover   { filter: brightness(1.1); }
+  &:disabled { background: #b0b8c8; cursor: default; }
+}
+
+/* ════════════════════════════════════════
+   PRODUCT GRID
+════════════════════════════════════════ */
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+}
+
+@media (max-width: 1100px) { .product-grid { grid-template-columns: repeat(3,1fr); } }
+@media (max-width: 760px)  { .product-grid { grid-template-columns: repeat(2,1fr); } }
+@media (max-width: 480px)  { .product-grid { grid-template-columns: 1fr; } }
+
+/* ════════════════════════════════════════
+   TILE
+════════════════════════════════════════ */
+.product-card {
+  background: #fff;
+  border-radius: 4px;
+  border: 1px solid #f0f0f0;
+  display: flex;
+  flex-direction: column;
+  transition: box-shadow .22s ease, transform .22s ease;
+
+  &:hover {
+    box-shadow: 0 8px 28px rgba(0,0,0,.12);
+    transform: translateY(-2px);
+
+    .card-img { transform: scale(1.18); }
+  }
+}
+
+/* Image */
+.card-img-wrap {
+  height: 160px;
+  overflow: hidden;
+  background: #ffffff;
+  border-bottom: 1px solid #f5f5f5;
+  border-radius: 4px 4px 0 0;
+  position: relative;
+}
+
+.card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 14px;
+  transition: transform .45s cubic-bezier(.34,1.4,.64,1);
+  will-change: transform;
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,.10));
+}
+
+/* Body */
+.card-body {
+  padding: 10px 12px 6px;
+  flex: 1;
+}
+
+.card-category {
+  font-size: 10px;
+  font-weight: 500;
+  color: #9e9e9e;
+  text-transform: uppercase;
+  letter-spacing: .6px;
+  margin: 0 0 3px;
+}
+
+.card-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: #212121;
+  margin: 0 0 4px;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.card-desc {
+  font-size: 11px;
+  color: #9e9e9e;
+  margin: 0 0 6px;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.card-meta { display: flex; align-items: center; gap: 8px; }
+.meta-price { font-size: 15px; font-weight: 800; color: #212121; }
+
+/* ════════════════════════════════════════
+   ACTION BUTTONS  — pill style
+════════════════════════════════════════ */
+.card-actions {
+  display: flex;
+  gap: 6px;
+  padding: 8px 10px 11px;
+  border-top: 1px solid #f5f5f5;
+}
+
+.action-btn {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  border: none;
+  border-radius: 50px;           /* pill */
+  padding: 7px 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .2px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: transform .12s, box-shadow .15s, filter .15s;
+
+  mat-icon { font-size: 13px; height: 13px; width: 13px; }
+
+  &:hover  { transform: translateY(-1px); filter: brightness(1.08); }
+  &:active { transform: translateY(0);    filter: brightness(.93); }
+}
+
+/* FAQ — blue pill */
+.btn-faq {
+  background: #2874f0;
+  color: #fff;
+  box-shadow: 0 3px 10px rgba(40,116,240,.30);
+}
+
+/* Update — amber pill */
+.btn-update {
+  background: #ff9f00;
+  color: #fff;
+  box-shadow: 0 3px 10px rgba(255,159,0,.30);
+}
+
+/* Delete — red pill */
+.btn-delete {
+  background: #f44336;
+  color: #fff;
+  box-shadow: 0 3px 10px rgba(244,67,54,.28);
+}

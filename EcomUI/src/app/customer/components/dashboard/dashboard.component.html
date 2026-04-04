@@ -1,0 +1,116 @@
+<div class="fk-page">
+
+  <!-- ══ SEARCH ══════════════════════════════════════════════════════════ -->
+  <form [formGroup]="searchProductForm" class="fk-search" (submit)="submitForm()">
+    <div class="fk-search__inner">
+      <mat-icon class="fk-search__icon">search</mat-icon>
+      <input class="fk-search__input" matInput formControlName="title"
+             placeholder="Search for Products, Brands and More" autocomplete="off" />
+      <button class="fk-search__btn" type="submit" [disabled]="searchProductForm.invalid">
+        <mat-icon>search</mat-icon>&nbsp;Search
+      </button>
+    </div>
+  </form>
+
+  <!-- ══ CATEGORY NAV ════════════════════════════════════════════════════ -->
+  <div class="cat-nav">
+    <button class="cat-chip" [class.cat-chip--active]="selectedCategory === 'All'"
+            (click)="filterByCategory('All')">
+      <div class="cat-chip__icon-wrap">
+        <mat-icon>apps</mat-icon>
+      </div>
+      <span class="cat-chip__label">All</span>
+    </button>
+    <button class="cat-chip"
+            *ngFor="let cat of categories"
+            [class.cat-chip--active]="selectedCategory === cat"
+            (click)="filterByCategory(cat)">
+      <div class="cat-chip__icon-wrap">
+        <mat-icon>{{ getCatIcon(cat) }}</mat-icon>
+      </div>
+      <span class="cat-chip__label">{{ cat }}</span>
+    </button>
+  </div>
+
+  <!-- ══ HERO BANNERS ════════════════════════════════════════════════════ -->
+  <div class="hero-banners">
+
+    <div class="banner banner--blue">
+      <p class="banner__tag">BIG SAVING DAYS</p>
+      <h3 class="banner__title">Deals on Top Brands</h3>
+      <p class="banner__sub">Up to 80% off across categories</p>
+      <span class="banner__cta">Shop Now →</span>
+      <mat-icon class="banner__deco">local_offer</mat-icon>
+    </div>
+
+    <div class="banner banner--white">
+      <p class="banner__tag banner__tag--dark">TRENDING NOW</p>
+      <h3 class="banner__title banner__title--dark">New Arrivals</h3>
+      <p class="banner__sub banner__sub--dark">Fresh products added daily</p>
+      <span class="banner__cta banner__cta--dark">Explore →</span>
+      <mat-icon class="banner__deco banner__deco--dark">new_releases</mat-icon>
+    </div>
+
+    <div class="banner banner--dark">
+      <p class="banner__tag">FLASH SALE</p>
+      <h3 class="banner__title">Limited Time Offers</h3>
+      <p class="banner__sub">Grab deals before they're gone</p>
+      <span class="banner__cta">View Deals →</span>
+      <mat-icon class="banner__deco">bolt</mat-icon>
+    </div>
+
+  </div>
+
+  <!-- ══ PRODUCT SECTION ════════════════════════════════════════════════ -->
+  <div class="deals-section" *ngIf="products.length > 0; else noProducts">
+    <div class="deals-header">
+      <h2 class="deals-title">
+        {{ selectedCategory === 'All' ? 'Deals For You' : selectedCategory }}
+      </h2>
+      <span class="deals-count">{{ products.length }} products</span>
+    </div>
+
+    <div class="pk-grid">
+      <div class="pk-tile" *ngFor="let product of products">
+
+        <!-- Image + hover CTA -->
+        <div class="pk-tile__img-box" [routerLink]="['/customer/product', product.id]">
+          <img [src]="product.processedImg" [alt]="product.name"
+               loading="lazy" class="pk-tile__img" />
+          <button class="pk-tile__wish"
+                  [class.pk-tile__wish--active]="isWishlisted(product.id)"
+                  (click)="toggleWishlist(product.id, $event)"
+                  title="Add to Wishlist">
+            <mat-icon>{{ isWishlisted(product.id) ? 'favorite' : 'favorite_border' }}</mat-icon>
+          </button>
+          <div class="pk-tile__cta"
+               (click)="addToCart(product.id); $event.stopPropagation()">
+            <mat-icon>add_shopping_cart</mat-icon>
+            <span>Add to Cart</span>
+          </div>
+        </div>
+
+        <!-- Info -->
+        <div class="pk-tile__info" [routerLink]="['/customer/product', product.id]">
+          <p class="pk-tile__name">{{ product.name }}</p>
+          <p class="pk-tile__cat">{{ product.categoryName }}</p>
+          <div class="pk-tile__price-row">
+            <span class="pk-tile__price">₹{{ product.price }}</span>
+            <span class="pk-tile__badge">In Stock</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ EMPTY ═══════════════════════════════════════════════════════════ -->
+  <ng-template #noProducts>
+    <div class="pk-empty">
+      <mat-icon>search_off</mat-icon>
+      <h3>No products found</h3>
+      <p>Try a different keyword or browse another category</p>
+    </div>
+  </ng-template>
+
+</div>

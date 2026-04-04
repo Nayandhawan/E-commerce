@@ -1,0 +1,56 @@
+<header class="fk-header">
+  <div class="fk-header-inner">
+
+    <!-- Logo -->
+    <a class="fk-logo" routerLink="/">
+      <span class="logo-main">Shop<em>Kart</em></span>
+      <span class="logo-tag">India's Best</span>
+    </a>
+
+    <span class="fk-spacer"></span>
+
+    <!-- Guest Nav -->
+    <nav class="fk-nav" *ngIf="!isAdminLoggedIn && !isCustomerLoggedIn">
+      <a class="fk-nav-btn outline" routerLink="/order">
+        <mat-icon>local_shipping</mat-icon> Track Order
+      </a>
+      <a class="fk-nav-btn ghost" routerLink="/signup">Register</a>
+      <a class="fk-nav-btn primary" routerLink="/login">Login</a>
+    </nav>
+
+    <!-- Admin Nav -->
+    <nav class="fk-nav admin-nav" *ngIf="isAdminLoggedIn">
+      <a class="fk-nav-link" routerLink="/admin/dashboard" routerLinkActive="active">Dashboard</a>
+      <a class="fk-nav-link" routerLink="/admin/analytics"  routerLinkActive="active">Analytics</a>
+      <a class="fk-nav-link" routerLink="/admin/category"   routerLinkActive="active">Category</a>
+      <a class="fk-nav-link" routerLink="/admin/product"    routerLinkActive="active">Products</a>
+      <a class="fk-nav-link" routerLink="/admin/orders"     routerLinkActive="active">Orders</a>
+      <a class="fk-nav-link" routerLink="/admin/post-coupons" routerLinkActive="active">Coupons</a>
+      <button class="fk-nav-btn outline" (click)="logout()">Logout</button>
+    </nav>
+
+    <!-- Customer Nav -->
+    <nav class="fk-nav" *ngIf="isCustomerLoggedIn">
+      <a class="fk-icon-btn" routerLink="/customer/dashboard" routerLinkActive="active" title="Shop">
+        <mat-icon>storefront</mat-icon>
+        <span>Shop</span>
+      </a>
+      <a class="fk-icon-btn" routerLink="/customer/wishlist" routerLinkActive="active" title="Wishlist">
+        <mat-icon>favorite_border</mat-icon>
+        <span>Wishlist</span>
+      </a>
+      <a class="fk-icon-btn" routerLink="/customer/cart" routerLinkActive="active" title="Cart">
+        <mat-icon>shopping_cart</mat-icon>
+        <span>Cart</span>
+      </a>
+      <a class="fk-icon-btn" routerLink="/customer/my_orders" routerLinkActive="active" title="Orders">
+        <mat-icon>receipt_long</mat-icon>
+        <span>Orders</span>
+      </a>
+      <button class="fk-nav-btn outline" (click)="logout()">Logout</button>
+    </nav>
+
+  </div>
+</header>
+
+<router-outlet></router-outlet>

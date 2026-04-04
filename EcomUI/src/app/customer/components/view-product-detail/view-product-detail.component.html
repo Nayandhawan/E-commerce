@@ -1,0 +1,54 @@
+<div class="page-wrap" *ngIf="product">
+
+  <!-- Product Hero -->
+  <div class="product-hero">
+    <div class="hero-img-wrap">
+      <img [src]="product.processedImg" [alt]="product.name" class="hero-img" />
+    </div>
+    <div class="hero-details">
+      <p class="hero-category">{{ product.categoryName }}</p>
+      <h1 class="hero-name">{{ product.name }}</h1>
+      <p class="hero-desc">{{ product.description }}</p>
+
+      <div class="hero-price-block">
+        <span class="hero-price">₹{{ product.price }}</span>
+        <span class="free-delivery"><mat-icon>local_shipping</mat-icon> Free Delivery</span>
+      </div>
+
+      <div class="hero-actions">
+        <button class="btn-wishlist" (click)="addToWishlist()">
+          <mat-icon>favorite_border</mat-icon> Wishlist
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reviews -->
+  <section class="section-block" *ngIf="reviews.length > 0">
+    <h2 class="section-title">Customer Reviews</h2>
+    <div class="reviews-grid">
+      <div class="review-card" *ngFor="let review of reviews">
+        <img *ngIf="review.processedImg" [src]="review.processedImg" [alt]="review.description" loading="lazy" class="review-img" />
+        <div class="review-body">
+          <div class="review-rating">
+            <span class="rating-badge">{{ review.rating }} <mat-icon>star</mat-icon></span>
+          </div>
+          <p class="review-text">{{ review.description }}</p>
+          <p class="review-user">— {{ review.username }}</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQs -->
+  <section class="section-block" *ngIf="FAQS.length > 0">
+    <h2 class="section-title">Frequently Asked Questions</h2>
+    <div class="faq-list">
+      <div class="faq-item" *ngFor="let faq of FAQS">
+        <p class="faq-q"><mat-icon>help_outline</mat-icon> {{ faq.question }}</p>
+        <p class="faq-a">{{ faq.answer }}</p>
+      </div>
+    </div>
+  </section>
+
+</div>
