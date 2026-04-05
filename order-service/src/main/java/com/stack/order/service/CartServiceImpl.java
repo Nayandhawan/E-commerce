@@ -121,6 +121,7 @@ public class CartServiceImpl {
         activeOrder.setAddress(dto.getAddress());
         activeOrder.setDate(new Date());
         activeOrder.setOrderStatus(OrderStatus.PLACED);
+        if (dto.getRazorpayPaymentId() != null) activeOrder.setRazorpayPaymentId(dto.getRazorpayPaymentId());
         activeOrder.setTrackingId(UUID.randomUUID());
         orderRepository.save(activeOrder);
 
@@ -136,6 +137,10 @@ public class CartServiceImpl {
         return orderRepository.findByUserIdAndOrderStatusIn(userId,
                 List.of(OrderStatus.PLACED, OrderStatus.SHIPPED, OrderStatus.DELIVERED))
                 .stream().map(this::toOrderDto).toList();
+    }
+
+    public OrderDto getOrderById(Long orderId) {
+        return orderRepository.findById(orderId).map(this::toOrderDto).orElse(null);
     }
 
     public OrderDto searchByTrackingId(UUID trackingId) {

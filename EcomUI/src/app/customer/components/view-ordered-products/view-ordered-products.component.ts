@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { CustomerService } from '../../services/customer.service';
 
@@ -7,31 +7,28 @@ import { CustomerService } from '../../services/customer.service';
   templateUrl: './view-ordered-products.component.html',
   styleUrl: './view-ordered-products.component.scss'
 })
-export class ViewOrderedProductsComponent {
+export class ViewOrderedProductsComponent implements OnInit {
 
   orderId: any;
-  orderedProductDetailsList = [];
+  orderedProductDetailsList: any[] = [];
   totalAmount: any;
 
   constructor(private activatedRoute: ActivatedRoute,
-    private customerService: CustomerService){
+    private customerService: CustomerService) {}
 
-  }
-
-  ngOnInit(){
+  ngOnInit() {
     this.orderId = this.activatedRoute.snapshot.params['orderId'];
     this.getOrderedProductsDetailsByOrderId();
   }
 
-  getOrderedProductsDetailsByOrderId(){
-    this.customerService.getOrderedProducts(this.orderId).subscribe(res =>{
-      res.productDtoList.forEach(element => {
-        element.processedImg = 'data:image/jpeg;base64,' + element.byteImg;
-        this.orderedProductDetailsList.push(element);
-        console.log(this.orderedProductDetailsList);
-      });
-      this.totalAmount =res.orderAmount;
-    })
+  getOrderedProductsDetailsByOrderId() {
+    this.customerService.getOrderedProducts(this.orderId).subscribe(res => {
+      this.totalAmount = res.amount;
+      this.orderedProductDetailsList = (res.cartItems ?? []).map((item: any) => ({
+        ...item,
+        name: item.productName,
+        processedImg: null   // CartItemsDto has no image; shown as placeholder
+      }));
+    });
   }
-
 }

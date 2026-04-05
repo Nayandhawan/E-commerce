@@ -10,4 +10,5 @@ public class WishlistDto {
     private String productDescription;
     private Long price;
     private Long userId;
+    private byte[] byteImg;
 }

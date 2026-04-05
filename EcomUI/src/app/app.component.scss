@@ -135,3 +135,196 @@
 .admin-nav {
   flex-wrap: wrap;
 }
+
+/* ── User dropdown ─────────────────────────────── */
+.user-menu {
+  position: relative;
+
+  &__trigger {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255,255,255,.15);
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    padding: 5px 10px 5px 6px;
+    color: #fff;
+    transition: background .15s;
+
+    &:hover { background: rgba(255,255,255,.25); }
+  }
+
+  &__avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: #ffe500;
+    color: #2874f0;
+    font-size: 13px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  &__name {
+    font-size: 13px;
+    font-weight: 600;
+    max-width: 90px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__caret {
+    font-size: 18px !important;
+    height: 18px !important;
+    width: 18px !important;
+    opacity: .8;
+  }
+
+  &__dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    background: #fff;
+    border-radius: 6px;
+    box-shadow: 0 8px 24px rgba(0,0,0,.18);
+    min-width: 160px;
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(-8px);
+    pointer-events: none;
+    transition: opacity .18s, transform .18s;
+    z-index: 2000;
+
+    &--open {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: all;
+    }
+  }
+
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 11px 16px;
+    border: none;
+    background: transparent;
+    font-size: 13px;
+    font-weight: 500;
+    color: #212121;
+    cursor: pointer;
+    transition: background .12s;
+    text-align: left;
+
+    mat-icon { font-size: 18px; height: 18px; width: 18px; color: #555; }
+
+    &:hover { background: #f5f5f5; }
+
+    &--danger {
+      color: #e53935;
+      mat-icon { color: #e53935; }
+      &:hover { background: #fff5f5; }
+    }
+  }
+
+  &__divider {
+    height: 1px;
+    background: #f0f0f0;
+  }
+}
+
+/* ── Profile dialog ────────────────────────────── */
+.profile-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.45);
+  z-index: 3000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.profile-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 36px 32px 28px;
+  width: 340px;
+  position: relative;
+  text-align: center;
+  box-shadow: 0 16px 48px rgba(0,0,0,.22);
+
+  &__close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #888;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    padding: 4px;
+    transition: background .15s;
+    &:hover { background: #f0f0f0; color: #333; }
+    mat-icon { font-size: 20px; height: 20px; width: 20px; }
+  }
+
+  &__avatar {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #2874f0, #1a5cbc);
+    color: #fff;
+    font-size: 30px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 14px;
+    box-shadow: 0 4px 16px rgba(40,116,240,.35);
+  }
+
+  &__name {
+    font-size: 20px;
+    font-weight: 700;
+    color: #212121;
+    margin: 0 0 4px;
+  }
+
+  &__role {
+    font-size: 12px;
+    color: #2874f0;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .6px;
+    margin: 0 0 20px;
+  }
+
+  &__info {
+    background: #f7f9ff;
+    border-radius: 8px;
+    padding: 12px 16px;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  &__row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    color: #444;
+
+    mat-icon { font-size: 17px; height: 17px; width: 17px; color: #2874f0; flex-shrink: 0; }
+  }
+}

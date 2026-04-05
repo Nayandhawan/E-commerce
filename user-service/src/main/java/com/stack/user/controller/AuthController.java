@@ -50,7 +50,7 @@ public class AuthController {
                 .orElseThrow();
 
         String token = jwtUtil.generateToken(user.getEmail(), user.getRole().name());
-        LoginResponse response = new LoginResponse(user.getId(), user.getRole().name(), token);
+        LoginResponse response = new LoginResponse(user.getId(), user.getRole().name(), token, user.getName(), user.getEmail());
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)

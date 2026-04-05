@@ -72,6 +72,6 @@ export class CartComponent {
     }
 
     placeOrder(){
-      this.dialog.open(PlaceOrderComponent);
+      this.dialog.open(PlaceOrderComponent, { data: { amount: this.order?.amount } });
     }
 }

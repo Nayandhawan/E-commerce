@@ -55,6 +55,19 @@ export class CustomerService {
     });
   }
 
+  createPaymentOrder(amount: number): Observable<any> {
+    const userId = UserStorageService.getUserId();
+    return this.http.post(BASIC_URL + `api/payment/create-order`, { amount, userId }, {
+      headers: this.createAuthorizationHeader(),
+    });
+  }
+
+  verifyPayment(verifyDto: any): Observable<any> {
+    return this.http.post(BASIC_URL + `api/payment/verify`, verifyDto, {
+      headers: this.createAuthorizationHeader(),
+    });
+  }
+
   getOrdersByUserId(): Observable<any> {
     const userId = UserStorageService.getUserId();
     return this.http.get(BASIC_URL + `api/customer/cart/${userId}/orders`, {
@@ -63,8 +76,7 @@ export class CustomerService {
   }
 
   getOrderedProducts(orderId: number): Observable<any> {
-    const userId = UserStorageService.getUserId();
-    return this.http.get(BASIC_URL + `api/customer/cart/${userId}/orders`, {
+    return this.http.get(BASIC_URL + `api/customer/cart/order/${orderId}`, {
       headers: this.createAuthorizationHeader(),
     });
   }

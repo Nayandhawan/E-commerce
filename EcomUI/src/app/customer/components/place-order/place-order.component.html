@@ -1,24 +1,30 @@
 <div class="container">
     <mat-card>
-        <mat-card-title>
-            Place Order
-        </mat-card-title>
+        <mat-card-title>Place Order</mat-card-title>
         <mat-card-content>
+            <div *ngIf="data?.amount" class="order-amount">
+                Total: <strong>{{ data.amount | currency:'INR':'symbol':'1.0-0' }}</strong>
+            </div>
             <form [formGroup]="orderForm">
                 <mat-form-field appearance="outline">
-                    <mat-label>Address</mat-label>
-                    <input matInput formControlName="address" placeholder="Address" required >
-                    <mat-error *ngIf="orderForm.get('address').invalid && orderForm.get('address').touched">This input is required!</mat-error>
+                    <mat-label>Delivery Address</mat-label>
+                    <input matInput formControlName="address" placeholder="Enter full address" required>
+                    <mat-error *ngIf="orderForm.get('address').invalid && orderForm.get('address').touched">Address is required</mat-error>
                 </mat-form-field>
 
                 <mat-form-field appearance="outline">
-                    <mat-label>Description</mat-label>
-                    <input matInput formControlName="orderDescription" placeholder="Description" >
+                    <mat-label>Order Note (optional)</mat-label>
+                    <input matInput formControlName="orderDescription" placeholder="Any special instructions">
                 </mat-form-field>
 
                 <div class="button-row">
-                    <button mat-raised-button color="primary" type="submit" [disabled]="orderForm.invalid" (click)="placeOrder()" class="order-button">Order</button>
-                    <button mat-stroked-button color="warn" (click)="closeForm()" class="close-button">Close</button>
+                    <button mat-raised-button class="pay-btn" type="button"
+                        [disabled]="orderForm.invalid || loading"
+                        (click)="placeOrder()">
+                        <span *ngIf="!loading">Pay with Razorpay</span>
+                        <span *ngIf="loading">Processing...</span>
+                    </button>
+                    <button mat-stroked-button color="warn" (click)="closeForm()" [disabled]="loading">Cancel</button>
                 </div>
             </form>
         </mat-card-content>

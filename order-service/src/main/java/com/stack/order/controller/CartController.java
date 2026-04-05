@@ -48,6 +48,12 @@ public class CartController {
         return ResponseEntity.ok(cartService.getPlacedOrders(userId));
     }
 
+    @GetMapping("/order/{orderId}")
+    public ResponseEntity<OrderDto> getOrderById(@PathVariable Long orderId) {
+        OrderDto dto = cartService.getOrderById(orderId);
+        return dto != null ? ResponseEntity.ok(dto) : ResponseEntity.notFound().build();
+    }
+
     @GetMapping("/track/{trackingId}")
     public ResponseEntity<OrderDto> track(@PathVariable UUID trackingId) {
         OrderDto dto = cartService.searchByTrackingId(trackingId);

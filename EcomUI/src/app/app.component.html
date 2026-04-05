@@ -47,8 +47,53 @@
         <mat-icon>receipt_long</mat-icon>
         <span>Orders</span>
       </a>
-      <button class="fk-nav-btn outline" (click)="logout()">Logout</button>
+
+      <!-- User dropdown -->
+      <div class="user-menu" (mouseenter)="dropdownOpen=true" (mouseleave)="dropdownOpen=false">
+        <button class="user-menu__trigger">
+          <div class="user-menu__avatar">{{ userInitial }}</div>
+          <span class="user-menu__name">{{ userName }}</span>
+          <mat-icon class="user-menu__caret">{{ dropdownOpen ? 'arrow_drop_up' : 'arrow_drop_down' }}</mat-icon>
+        </button>
+        <div class="user-menu__dropdown" [class.user-menu__dropdown--open]="dropdownOpen">
+          <button class="user-menu__item" (click)="openProfile()">
+            <mat-icon>person</mat-icon>
+            <span>Profile</span>
+          </button>
+          <div class="user-menu__divider"></div>
+          <button class="user-menu__item user-menu__item--danger" (click)="logout()">
+            <mat-icon>logout</mat-icon>
+            <span>Logout</span>
+          </button>
+        </div>
+      </div>
     </nav>
+
+    <!-- Profile dialog -->
+    <div class="profile-overlay" *ngIf="profileOpen" (click)="profileOpen=false">
+      <div class="profile-card" (click)="$event.stopPropagation()">
+        <button class="profile-card__close" (click)="profileOpen=false">
+          <mat-icon>close</mat-icon>
+        </button>
+        <div class="profile-card__avatar">{{ userInitial }}</div>
+        <h2 class="profile-card__name">{{ userDetails?.name }}</h2>
+        <p class="profile-card__role">Customer</p>
+        <div class="profile-card__info">
+          <div class="profile-card__row">
+            <mat-icon>email</mat-icon>
+            <span>{{ userDetails?.email }}</span>
+          </div>
+          <div class="profile-card__row" *ngIf="userDetails?.phone">
+            <mat-icon>phone</mat-icon>
+            <span>{{ userDetails?.phone }}</span>
+          </div>
+          <div class="profile-card__row">
+            <mat-icon>badge</mat-icon>
+            <span>User ID: {{ userDetails?.userId }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
 
   </div>
 </header>
