@@ -1,8 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { Store } from '@ngrx/store';
+import { Observable } from 'rxjs';
 import { CustomerService } from '../../services/customer.service';
-import { UserStorageService } from '../../../services/storage/user-storage.service';
+import { loadWishlist, addToWishlist, removeFromWishlist } from '../../../store/wishlist/wishlist.actions';
+import { selectWishlistIds } from '../../../store/wishlist/wishlist.selectors';
 
 const CAT_ICONS: Record<string, string> = {
   fashion:     'checkroom',
@@ -44,52 +47,35 @@ export class DashboardComponent implements OnInit {
   categories: string[] = [];
   selectedCategory = 'All';
   searchProductForm!: FormGroup;
-  wishlistedIds = new Set<number>();
+  wishlistedIds$: Observable<number[]>;
+  private _wishlistedIds: number[] = [];
 
   constructor(
     private customerService: CustomerService,
     private fb: FormBuilder,
-    private snackBar: MatSnackBar
-  ) {}
+    private snackBar: MatSnackBar,
+    private store: Store
+  ) {
+    this.wishlistedIds$ = this.store.select(selectWishlistIds);
+  }
 
   ngOnInit() {
     this.searchProductForm = this.fb.group({ title: [null, Validators.required] });
     this.getAllProducts();
-    this.loadWishlist();
-  }
-
-  loadWishlist() {
-    this.customerService.getWishlistByUserId().subscribe({
-      next: (res: any[]) => {
-        this.wishlistedIds = new Set(res.map((item: any) => item.productId ?? item.product?.id ?? item.id));
-      },
-      error: () => {}
-    });
+    this.store.dispatch(loadWishlist());
+    this.wishlistedIds$.subscribe(ids => { this._wishlistedIds = ids; });
   }
 
   isWishlisted(productId: number): boolean {
-    return this.wishlistedIds.has(productId);
+    return this._wishlistedIds.includes(productId);
   }
 
   toggleWishlist(productId: number, event: Event) {
     event.stopPropagation();
-    if (this.wishlistedIds.has(productId)) {
-      this.customerService.removeFromWishlist(productId).subscribe({
-        next: () => {
-          this.wishlistedIds.delete(productId);
-          this.snackBar.open('Removed from wishlist', 'Close', { duration: 2000 });
-        },
-        error: () => this.snackBar.open('Could not remove from wishlist', 'Close', { duration: 2000 })
-      });
+    if (this.isWishlisted(productId)) {
+      this.store.dispatch(removeFromWishlist({ productId }));
     } else {
-      const dto = { userId: UserStorageService.getUserId(), productId };
-      this.customerService.addProductToWishlist(dto).subscribe({
-        next: () => {
-          this.wishlistedIds.add(productId);
-          this.snackBar.open('Added to wishlist!', 'Close', { duration: 2000 });
-        },
-        error: () => this.snackBar.open('Could not add to wishlist', 'Close', { duration: 2000 })
-      });
+      this.store.dispatch(addToWishlist({ productId }));
     }
   }
 
