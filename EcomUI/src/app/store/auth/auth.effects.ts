@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
+import { Action } from '@ngrx/store';
 import { Router } from '@angular/router';
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import { Observable, of } from 'rxjs';
@@ -12,7 +13,7 @@ export class AuthEffects {
   login$ = createEffect(() =>
     this.actions$.pipe(
       ofType(login),
-      switchMap(({ username, password }) =>
+      switchMap(({ username, password }): Observable<Action> =>
         (this.authService.login(username, password) as Observable<boolean>).pipe(
           map(() => {
             const user = UserStorageService.getUser();
