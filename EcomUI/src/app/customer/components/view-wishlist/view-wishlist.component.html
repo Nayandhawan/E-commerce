@@ -2,40 +2,42 @@
 
   <div class="wl-header">
     <mat-icon>favorite</mat-icon>
-    <h2>My Wishlist <span class="wl-count" *ngIf="products.length">({{ products.length }})</span></h2>
+    <h2>My Wishlist <span class="wl-count" *ngIf="(products$ | async)?.length">({{ (products$ | async)?.length }})</span></h2>
   </div>
 
-  <div class="wl-grid" *ngIf="products.length > 0; else empty">
-    <div class="wl-card" *ngFor="let product of products">
+  <ng-container *ngIf="products$ | async as products">
+    <div class="wl-grid" *ngIf="products.length > 0; else empty">
+      <div class="wl-card" *ngFor="let product of products">
 
-      <button class="wl-card__remove" (click)="removeFromWishlist(product.productId)" title="Remove">
-        <mat-icon>close</mat-icon>
-      </button>
+        <button class="wl-card__remove" (click)="removeFromWishlist(product.productId)" title="Remove">
+          <mat-icon>close</mat-icon>
+        </button>
 
-      <div class="wl-card__img-box" [routerLink]="['/customer/product', product.productId]">
-        <img [src]="product.processedImg" [alt]="product.productName" class="wl-card__img" />
+        <div class="wl-card__img-box" [routerLink]="['/customer/product', product.productId]">
+          <img [src]="product.processedImg" [alt]="product.productName" class="wl-card__img" />
+        </div>
+
+        <div class="wl-card__info">
+          <p class="wl-card__name">{{ product.productName }}</p>
+          <p class="wl-card__price">₹{{ product.price }}</p>
+        </div>
+
+        <button class="wl-card__cart-btn" (click)="moveToCart(product.productId)">
+          <mat-icon>add_shopping_cart</mat-icon>
+          Add to Cart
+        </button>
+
       </div>
+    </div>
 
-      <div class="wl-card__info">
-        <p class="wl-card__name">{{ product.productName }}</p>
-        <p class="wl-card__price">₹{{ product.price }}</p>
+    <ng-template #empty>
+      <div class="wl-empty">
+        <mat-icon>favorite_border</mat-icon>
+        <h3>Your wishlist is empty</h3>
+        <p>Save items you love and shop them anytime</p>
+        <a class="wl-empty__cta" routerLink="/customer/dashboard">Start Shopping</a>
       </div>
-
-      <button class="wl-card__cart-btn" (click)="moveToCart(product.productId)">
-        <mat-icon>add_shopping_cart</mat-icon>
-        Add to Cart
-      </button>
-
-    </div>
-  </div>
-
-  <ng-template #empty>
-    <div class="wl-empty">
-      <mat-icon>favorite_border</mat-icon>
-      <h3>Your wishlist is empty</h3>
-      <p>Save items you love and shop them anytime</p>
-      <a class="wl-empty__cta" routerLink="/customer/dashboard">Start Shopping</a>
-    </div>
-  </ng-template>
+    </ng-template>
+  </ng-container>
 
 </div>

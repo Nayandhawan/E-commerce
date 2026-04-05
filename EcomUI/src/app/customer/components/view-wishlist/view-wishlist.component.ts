@@ -1,6 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { Store } from '@ngrx/store';
+import { Observable } from 'rxjs';
 import { CustomerService } from '../../services/customer.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { loadWishlist, removeFromWishlist } from '../../../store/wishlist/wishlist.actions';
+import { selectWishlistProducts } from '../../../store/wishlist/wishlist.selectors';
 
 @Component({
   selector: 'app-view-wishlist',
@@ -9,31 +13,22 @@ import { CustomerService } from '../../services/customer.service';
 })
 export class ViewWishlistComponent implements OnInit {
 
-  products: any[] = [];
+  products$: Observable<any[]>;
 
-  constructor(private customerService: CustomerService, private snackBar: MatSnackBar) {}
-
-  ngOnInit() {
-    this.loadWishlist();
+  constructor(
+    private store: Store,
+    private customerService: CustomerService,
+    private snackBar: MatSnackBar
+  ) {
+    this.products$ = this.store.select(selectWishlistProducts);
   }
 
-  loadWishlist() {
-    this.customerService.getWishlistByUserId().subscribe(res => {
-      this.products = res.map((item: any) => ({
-        ...item,
-        processedImg: item.byteImg ? 'data:image/jpeg;base64,' + item.byteImg : null
-      }));
-    });
+  ngOnInit() {
+    this.store.dispatch(loadWishlist());
   }
 
   removeFromWishlist(productId: number) {
-    this.customerService.removeFromWishlist(productId).subscribe({
-      next: () => {
-        this.products = this.products.filter(p => p.productId !== productId);
-        this.snackBar.open('Removed from wishlist', 'Close', { duration: 2000 });
-      },
-      error: () => this.snackBar.open('Could not remove item', 'Close', { duration: 2000 })
-    });
+    this.store.dispatch(removeFromWishlist({ productId }));
   }
 
   moveToCart(productId: number) {

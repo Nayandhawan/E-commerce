@@ -1,5 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { StoreModule } from '@ngrx/store';
+import { EffectsModule } from '@ngrx/effects';
 
 import { CustomerRoutingModule } from './customer-routing.module';
 import { CustomerComponent } from './customer.component';
@@ -14,6 +16,10 @@ import { ViewOrderedProductsComponent } from './components/view-ordered-products
 import { ReviewOrderedProductComponent } from './components/review-ordered-product/review-ordered-product.component';
 import { ViewProductDetailComponent } from './components/view-product-detail/view-product-detail.component';
 import { ViewWishlistComponent } from './components/view-wishlist/view-wishlist.component';
+import { cartReducer } from '../store/cart/cart.reducer';
+import { wishlistReducer } from '../store/wishlist/wishlist.reducer';
+import { CartEffects } from '../store/cart/cart.effects';
+import { WishlistEffects } from '../store/wishlist/wishlist.effects';
 
 
 @NgModule({
@@ -34,7 +40,10 @@ import { ViewWishlistComponent } from './components/view-wishlist/view-wishlist.
     FormsModule,
     ReactiveFormsModule,
     DemoAngularMaterialModule,
-    HttpClientModule
+    HttpClientModule,
+    StoreModule.forFeature('cart', cartReducer),
+    StoreModule.forFeature('wishlist', wishlistReducer),
+    EffectsModule.forFeature([CartEffects, WishlistEffects])
   ]
 })
 export class CustomerModule { }

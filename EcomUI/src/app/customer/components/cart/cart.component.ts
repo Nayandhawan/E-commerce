@@ -1,77 +1,55 @@
-import { Component } from '@angular/core';
-import { CustomerService } from '../../services/customer.service';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
+import { Store } from '@ngrx/store';
+import { Observable } from 'rxjs';
 import { PlaceOrderComponent } from '../place-order/place-order.component';
+import { loadCart, increaseQuantity, decreaseQuantity, applyCoupon } from '../../../store/cart/cart.actions';
+import { selectCartItems, selectCartOrder, selectCartLoading } from '../../../store/cart/cart.selectors';
 
 @Component({
   selector: 'app-cart',
   templateUrl: './cart.component.html',
   styleUrl: './cart.component.scss'
 })
-export class CartComponent {
+export class CartComponent implements OnInit {
 
-  cartItems:any []=[];
-  order: any;
+  cartItems$: Observable<any[]>;
+  order$: Observable<any>;
+  loading$: Observable<boolean>;
   couponForm!: FormGroup;
 
-  constructor(private customerService: CustomerService,
-    private snackbar: MatSnackBar,
+  constructor(
+    private store: Store,
     private fb: FormBuilder,
-    public dialog:MatDialog){
-    }
+    public dialog: MatDialog
+  ) {
+    this.cartItems$ = this.store.select(selectCartItems);
+    this.order$ = this.store.select(selectCartOrder);
+    this.loading$ = this.store.select(selectCartLoading);
+  }
 
-    ngOnInit(): void{
-      this.couponForm = this.fb.group({
-        code: [null, [Validators.required]]
-      });
-      this.getCart();
-    }
+  ngOnInit(): void {
+    this.couponForm = this.fb.group({
+      code: [null, [Validators.required]]
+    });
+    this.store.dispatch(loadCart());
+  }
 
-    applyCoupon(){
-      this.customerService.applyCoupon(this.couponForm.get(['code'])!.value).subscribe(res =>{
-        this.snackbar.open("Coupon Applied Successfully",'Close',{
-          duration: 5000
-        });
-        this.getCart();
-      },error =>{
-        this.snackbar.open(error.error,'Close',{
-          duration: 5000
-        });
-      });
-    }
+  applyCoupon() {
+    const code = this.couponForm.get(['code'])!.value;
+    this.store.dispatch(applyCoupon({ code }));
+  }
 
-    getCart(){
-      this.cartItems =[];
-      this.customerService.getCartByUserId().subscribe(res =>{
-        this.order = res ;
-        res.cartItems.forEach(element => {
-          element.processedImg = 'data:image/jpeg;base64,' + element.returnedImg;
-          this.cartItems.push(element);
-        });
-      })
-    }
+  increaseProductQuantity(productId: any) {
+    this.store.dispatch(increaseQuantity({ productId }));
+  }
 
-    increaseProductQuantity(productId:any){
-      this.customerService.increaseProductQuantity(productId).subscribe(res =>{
-        this.snackbar.open('Product Quantity Increased','Close',{
-          duration: 5000
-        })
-        this.getCart();
-      })
-    }
+  decreaseProductQuantity(productId: any) {
+    this.store.dispatch(decreaseQuantity({ productId }));
+  }
 
-    decreaseProductQuantity(productId:any){
-      this.customerService.descreaseProductQuantity(productId).subscribe(res =>{
-        this.snackbar.open('Product Quantity Decreased','Close',{
-          duration: 5000
-        })
-        this.getCart();
-      })
-    }
-
-    placeOrder(){
-      this.dialog.open(PlaceOrderComponent, { data: { amount: this.order?.amount } });
-    }
+  placeOrder(order: any) {
+    this.dialog.open(PlaceOrderComponent, { data: { amount: order?.amount } });
+  }
 }

@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { Router } from '@angular/router';
-import { AuthService } from '../services/auth/auth.service';
-import { UserStorageService } from '../services/storage/user-storage.service';
+import { Store } from '@ngrx/store';
+import { Observable } from 'rxjs';
+import { login } from '../store/auth/auth.actions';
+import { selectAuthError, selectAuthLoading } from '../store/auth/auth.selectors';
 
 @Component({
   selector: 'app-login',
@@ -13,18 +14,28 @@ import { UserStorageService } from '../services/storage/user-storage.service';
 export class LoginComponent implements OnInit {
   loginForm!: FormGroup;
   hidePassword = true;
+  loading$: Observable<boolean>;
+  error$: Observable<string | null>;
 
   constructor(
     private formBuilder: FormBuilder,
     private snackBar: MatSnackBar,
-    private authService: AuthService,
-    private router: Router
-  ) {}
+    private store: Store
+  ) {
+    this.loading$ = this.store.select(selectAuthLoading);
+    this.error$ = this.store.select(selectAuthError);
+  }
 
   ngOnInit(): void {
     this.loginForm = this.formBuilder.group({
       email: [null, [Validators.required, Validators.email]],
       password: [null, [Validators.required]],
+    });
+
+    this.error$.subscribe(error => {
+      if (error) {
+        this.snackBar.open(error, 'ERROR', { duration: 5000 });
+      }
     });
   }
 
@@ -35,18 +46,6 @@ export class LoginComponent implements OnInit {
   onSubmit(): void {
     const username = this.loginForm.get('email')?.value;
     const password = this.loginForm.get('password')?.value;
-
-    this.authService.login(username,password).subscribe({
-      next: (response) => {
-        if(UserStorageService.isAdminLoggedIn() ){
-          this.router.navigateByUrl("admin/dashboard");
-        } else if(UserStorageService.isCustomerLoggedIn()){
-          this.router.navigateByUrl("customer/dashboard");
-        }
-      },
-      error: (error) => {
-        this.snackBar.open('Bad Credentials', 'ERROR', { duration: 5000 });
-      },
-    });
+    this.store.dispatch(login({ username, password }));
   }
 }
