@@ -24,6 +24,7 @@ public class Order {
     private Long discount;
     private UUID trackingId;
     private Long userId;
+    private String razorpayPaymentId;
 
     @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "coupon_id")

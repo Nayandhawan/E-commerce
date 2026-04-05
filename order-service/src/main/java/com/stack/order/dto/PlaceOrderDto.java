@@ -7,4 +7,5 @@ public class PlaceOrderDto {
     private Long userId;
     private String orderDescription;
     private String address;
+    private String razorpayPaymentId;
 }

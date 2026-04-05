@@ -36,8 +36,6 @@ export class LoginComponent implements OnInit {
     const username = this.loginForm.get('email')?.value;
     const password = this.loginForm.get('password')?.value;
 
-    console.log(username , password);
-
     this.authService.login(username,password).subscribe({
       next: (response) => {
         if(UserStorageService.isAdminLoggedIn() ){

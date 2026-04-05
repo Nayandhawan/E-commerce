@@ -1,20 +1,17 @@
-<div style="padding: 30px;">
+<div *ngIf="data" style="padding: 30px;">
     <app-order-by-status [data]="data"></app-order-by-status>
 </div>
 
-<div class="analytics-container">
+<div class="analytics-container" *ngIf="data">
     <mat-card class="analytics-card">
         <mat-card-header>
-            <div mat-card-avatar class="metric-avator">
-                O
-            </div>
+            <div mat-card-avatar class="metric-avator">O</div>
             <mat-card-title>Orders</mat-card-title>
         </mat-card-header>
         <mat-card-content>
             <div class="metric-value">{{ data.currentMonthOrder }}</div>
             <div class="metric-subtext">Current Month</div>
         </mat-card-content>
-
         <mat-card-content class="previous-month">
             <div class="metric-value">{{ data.previousMonthOrder }}</div>
             <div class="metric-subtext">Previous Month</div>
@@ -23,19 +20,20 @@
 
     <mat-card class="analytics-card">
         <mat-card-header>
-            <div mat-card-avatar class="metric-avator">
-                E
-            </div>
+            <div mat-card-avatar class="metric-avator">E</div>
             <mat-card-title>Earnings</mat-card-title>
         </mat-card-header>
         <mat-card-content>
-            <div class="metric-value">{{ data.currentMonthEarnings | currency: 'USD':true }}</div>
+            <div class="metric-value">{{ data.currentMonthEarnings | currency: 'INR':'symbol':'1.0-0' }}</div>
             <div class="metric-subtext">Current Month</div>
         </mat-card-content>
-
         <mat-card-content class="previous-month">
-            <div class="metric-value">{{ data.previousMonthEarnings | currency: 'USD':true}}</div>
+            <div class="metric-value">{{ data.previousMonthEarnings | currency: 'INR':'symbol':'1.0-0' }}</div>
             <div class="metric-subtext">Previous Month</div>
         </mat-card-content>
     </mat-card>
+</div>
+
+<div *ngIf="!data" style="padding: 40px; text-align: center; color: #878787;">
+    Loading analytics...
 </div>

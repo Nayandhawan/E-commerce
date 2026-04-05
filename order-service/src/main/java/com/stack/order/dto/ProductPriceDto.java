@@ -8,4 +8,5 @@ public class ProductPriceDto {
     private Long price;
     private String name;
     private boolean exists;
+    private byte[] img;
 }

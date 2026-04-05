@@ -41,7 +41,7 @@ public class WishlistServiceImpl {
         dto.setId(w.getId()); dto.setProductId(w.getProductId()); dto.setUserId(w.getUserId());
         try {
             ProductPriceDto p = productServiceClient.getProduct(w.getProductId());
-            dto.setProductName(p.getName()); dto.setPrice(p.getPrice());
+            dto.setProductName(p.getName()); dto.setPrice(p.getPrice()); dto.setByteImg(p.getImg());
         } catch (Exception e) { dto.setProductName("Product #" + w.getProductId()); }
         return dto;
     }

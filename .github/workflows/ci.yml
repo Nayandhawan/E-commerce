@@ -1,0 +1,63 @@
+name: CI
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+    branches: [main]
+
+jobs:
+  # ── Java microservices ─────────────────────────────────────────────────────
+  build-services:
+    name: Build ${{ matrix.service }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        service:
+          - user-service
+          - product-service
+          - order-service
+          - api-gateway
+          - eureka-server
+          - payment-service
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: temurin
+          cache: maven
+
+      - name: Build ${{ matrix.service }}
+        run: cd ${{ matrix.service }} && ./mvnw package -DskipTests -q
+
+  # ── Angular frontend ───────────────────────────────────────────────────────
+  build-frontend:
+    name: Build Angular
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: EcomUI/package-lock.json
+
+      - name: Install dependencies
+        run: cd EcomUI && npm ci
+
+      - name: Build production bundle
+        run: cd EcomUI && npm run build -- --configuration production
+
+  # ── Gate job (branch protection target) ───────────────────────────────────
+  ci-success:
+    name: CI passed
+    runs-on: ubuntu-latest
+    needs: [build-services, build-frontend]
+    steps:
+      - run: echo "All builds passed"

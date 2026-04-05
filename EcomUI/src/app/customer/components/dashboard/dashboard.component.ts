@@ -97,7 +97,7 @@ export class DashboardComponent implements OnInit {
     this.customerService.getAllProducts().subscribe(res => {
       this.allProducts = res.map((p: any) => ({
         ...p,
-        processedImg: 'data:image/jpeg;base64,' + p.byteImg
+        processedImg: p.byteImg ? 'data:image/jpeg;base64,' + p.byteImg : null
       }));
       this.categories = [...new Set<string>(this.allProducts.map(p => p.categoryName))];
       this.applyFilter();
@@ -120,7 +120,7 @@ export class DashboardComponent implements OnInit {
     this.customerService.getAllProductsByName(title).subscribe(res => {
       this.allProducts = res.map((p: any) => ({
         ...p,
-        processedImg: 'data:image/jpeg;base64,' + p.byteImg
+        processedImg: p.byteImg ? 'data:image/jpeg;base64,' + p.byteImg : null
       }));
       this.selectedCategory = 'All';
       this.categories = [...new Set<string>(this.allProducts.map(p => p.categoryName))];

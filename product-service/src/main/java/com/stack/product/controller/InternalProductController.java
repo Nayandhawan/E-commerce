@@ -19,7 +19,7 @@ public class InternalProductController {
     @GetMapping("/{id}")
     public ResponseEntity<ProductPriceDto> getProductPrice(@PathVariable Long id) {
         return productRepository.findById(id)
-                .map(p -> ResponseEntity.ok(new ProductPriceDto(p.getId(), p.getPrice(), p.getName(), true)))
-                .orElse(ResponseEntity.ok(new ProductPriceDto(id, 0L, "Unknown", false)));
+                .map(p -> ResponseEntity.ok(new ProductPriceDto(p.getId(), p.getPrice(), p.getName(), true, p.getImg())))
+                .orElse(ResponseEntity.ok(new ProductPriceDto(id, 0L, "Unknown", false, null)));
     }
 }

@@ -27,19 +27,40 @@ export class AppComponent {
     'register': 'normal',
     'login': 'normal'
   };
-  isAdminLoggedIn : boolean = UserStorageService.isAdminLoggedIn();
-  isCustomerLoggedIn : boolean = UserStorageService.isCustomerLoggedIn();
+  isAdminLoggedIn: boolean = UserStorageService.isAdminLoggedIn();
+  isCustomerLoggedIn: boolean = UserStorageService.isCustomerLoggedIn();
+  dropdownOpen = false;
+  profileOpen = false;
+  userDetails: any = null;
+  userName = '';
+  userInitial = '';
 
-  constructor(private router : Router){}
+  constructor(private router: Router) {}
 
-  ngOnInit():void {
-    this.router.events.subscribe(events =>{
+  ngOnInit(): void {
+    this.router.events.subscribe(() => {
       this.isAdminLoggedIn = UserStorageService.isAdminLoggedIn();
-      this.isCustomerLoggedIn  = UserStorageService.isCustomerLoggedIn();
-    })
+      this.isCustomerLoggedIn = UserStorageService.isCustomerLoggedIn();
+      this.loadUser();
+    });
+    this.loadUser();
   }
 
-  logout(){
+  private loadUser() {
+    if (UserStorageService.isCustomerLoggedIn()) {
+      this.userDetails = UserStorageService.getUser();
+      const name: string = this.userDetails?.name ?? this.userDetails?.email ?? 'User';
+      this.userName = name.split(' ')[0];
+      this.userInitial = name.charAt(0).toUpperCase();
+    }
+  }
+
+  openProfile() {
+    this.dropdownOpen = false;
+    this.profileOpen = true;
+  }
+
+  logout() {
     UserStorageService.signOut();
     this.router.navigateByUrl('login');
   }
