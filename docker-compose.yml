@@ -178,6 +178,39 @@ services:
       - "8080:8080"
     networks: [ecom-network]
 
+  # ── Monitoring ───────────────────────────────────────────────────────────────
+  prometheus:
+    image: prom/prometheus:v2.53.0
+    container_name: ecom-prometheus
+    restart: unless-stopped
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.retention.time=7d'
+    ports:
+      - "9090:9090"
+    networks: [ecom-network]
+
+  grafana:
+    image: grafana/grafana:11.1.0
+    container_name: ecom-grafana
+    restart: unless-stopped
+    depends_on:
+      - prometheus
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-shopkart}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    ports:
+      - "3000:3000"
+    networks: [ecom-network]
+
   # ── Frontend ─────────────────────────────────────────────────────────────────
   frontend:
     build:
@@ -191,6 +224,8 @@ services:
 volumes:
   mysql_data:
   redis_data:
+  prometheus_data:
+  grafana_data:
 
 networks:
   ecom-network:
