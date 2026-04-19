@@ -1,34 +1,194 @@
-<div class="container" style="padding: 30px;">
-    <mat-card>
-        <mat-card-content>
-            <table mat-table [dataSource]="coupons" class="mat-elevation-z8">
-                <ng-container matColumnDef="id">
-                    <th mat-header-cell *matHeaderCellDef>Coupon Id</th>
-                    <td mat-cell *matCellDef="let coupon">{{coupon.id}}</td>
-                </ng-container>
-                <ng-container matColumnDef="name">
-                    <th mat-header-cell *matHeaderCellDef>Coupon Name</th>
-                    <td mat-cell *matCellDef="let coupon">{{coupon.name}}</td>
-                </ng-container>
+<p-toast position="top-right"></p-toast>
 
-                <ng-container matColumnDef="discount">
-                    <th mat-header-cell *matHeaderCellDef>Discount</th>
-                    <td mat-cell *matCellDef="let coupon">{{coupon.discount}}%</td>
-                </ng-container>
+<div class="page-wrap">
 
-                <ng-container matColumnDef="code">
-                    <th mat-header-cell *matHeaderCellDef>Code</th>
-                    <td mat-cell *matCellDef="let coupon">{{coupon.code}}</td>
-                </ng-container>
+  <div class="mb-6">
+    <h2 class="section-title mb-1">Coupons</h2>
+    <p class="text-sm" style="color:var(--text-muted)">Create, manage and filter discount coupons</p>
+  </div>
 
-                <ng-container matColumnDef="expirationDate">
-                    <th mat-header-cell *matHeaderCellDef>Expiration Date</th>
-                    <td mat-cell *matCellDef="let coupon">{{coupon.expirationDate | date: 'dd/MM/yyyy'}}</td>
-                </ng-container>
+  <div class="coupon-split">
 
-                <tr mat-header-row *matHeaderRowDef="['id','name','discount','code','expirationDate']"></tr>
-                <tr mat-row *matRowDef="let row; columns:['id','name','discount','code','expirationDate']"></tr>
-            </table>
-        </mat-card-content>
-    </mat-card>
+    <!-- ── LEFT: Add / Edit form ── -->
+    <div class="coupon-form-card">
+      <div class="form-header">
+        <div class="icon-wrap">
+          <lucide-angular [name]="editingCoupon ? 'pencil' : 'tag'" [size]="20" strokeWidth="1.5"></lucide-angular>
+        </div>
+        <div>
+          <h3>{{ editingCoupon ? 'Edit Coupon' : 'Add Coupon' }}</h3>
+          <p>{{ editingCoupon ? 'Update coupon details below' : 'Create a new discount coupon' }}</p>
+        </div>
+      </div>
+
+      <div class="form-body">
+        <form [formGroup]="couponForm" (ngSubmit)="submitForm()" class="space-y-4">
+
+          <div class="form-group">
+            <label>Coupon Name <span style="color:var(--danger)">*</span></label>
+            <input pInputText formControlName="name" placeholder="e.g. Summer Sale" />
+            <p class="field-error flex items-center gap-1"
+               *ngIf="couponForm.get('name')?.invalid && couponForm.get('name')?.touched">
+              <lucide-angular name="circle-alert" [size]="13" strokeWidth="2"></lucide-angular> Required
+            </p>
+          </div>
+
+          <div class="form-row-2">
+            <div class="form-group">
+              <label>Coupon Code <span style="color:var(--danger)">*</span></label>
+              <input pInputText formControlName="code" placeholder="e.g. SUM20OFF"
+                     style="font-family:var(--font-mono);letter-spacing:.05em;text-transform:uppercase" />
+              <p class="field-error flex items-center gap-1"
+                 *ngIf="couponForm.get('code')?.invalid && couponForm.get('code')?.touched">
+                <lucide-angular name="circle-alert" [size]="13" strokeWidth="2"></lucide-angular> Required
+              </p>
+            </div>
+
+            <div class="form-group">
+              <label>Discount % <span style="color:var(--danger)">*</span></label>
+              <input pInputText type="number" formControlName="discount" placeholder="Enter 1 – 100" min="1" max="100" />
+              <p class="field-error flex items-center gap-1"
+                 *ngIf="couponForm.get('discount')?.invalid && couponForm.get('discount')?.touched">
+                <lucide-angular name="circle-alert" [size]="13" strokeWidth="2"></lucide-angular> Enter 1–100
+              </p>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Expiration Date <span style="color:var(--danger)">*</span></label>
+            <p-calendar formControlName="expirationDate" dateFormat="dd/mm/yy" [showIcon]="true"
+                        placeholder="Select date" appendTo="body"></p-calendar>
+            <p class="field-error flex items-center gap-1"
+               *ngIf="couponForm.get('expirationDate')?.invalid && couponForm.get('expirationDate')?.touched">
+              <lucide-angular name="circle-alert" [size]="13" strokeWidth="2"></lucide-angular> Required
+            </p>
+          </div>
+
+          <div style="border-top:1px solid var(--border);padding-top:.75rem;display:flex;gap:.75rem">
+
+            <button type="submit"
+                    class="flex-1 h-11 flex items-center justify-center gap-2 rounded-lg font-bold text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    style="background:var(--primary);color:#0F1111"
+                    onmouseenter="if(!this.disabled)this.style.background='var(--primary-h)'"
+                    onmouseleave="this.style.background='var(--primary)'"
+                    [disabled]="couponForm.invalid">
+              <lucide-angular [name]="editingCoupon ? 'save' : 'plus'" [size]="16" strokeWidth="2.5"></lucide-angular>
+              {{ editingCoupon ? 'Update Coupon' : 'Add Coupon' }}
+            </button>
+
+            <button type="button" (click)="cancelEdit()"
+                    class="h-11 px-4 flex items-center gap-2 rounded-lg font-bold text-sm border transition-colors"
+                    style="border-color:var(--border);color:var(--text-muted);background:transparent">
+              <lucide-angular [name]="editingCoupon ? 'x' : 'refresh-cw'" [size]="16" strokeWidth="2.5"></lucide-angular>
+              {{ editingCoupon ? 'Cancel' : 'Reset' }}
+            </button>
+
+          </div>
+
+        </form>
+      </div>
+    </div>
+
+    <!-- ── RIGHT: filter + table ── -->
+    <div class="coupon-panel">
+
+      <div class="coupon-panel-header">
+        <div class="icon-wrap">
+          <lucide-angular name="ticket" [size]="20" strokeWidth="1.5"></lucide-angular>
+        </div>
+        <div>
+          <h3>{{ (filterMonth && filterYear) ? 'Filtered Coupons' : 'Active This Month' }}</h3>
+          <p>{{ coupons?.length || 0 }} coupon{{ (coupons?.length !== 1) ? 's' : '' }} found</p>
+        </div>
+      </div>
+
+      <div class="coupon-panel-body">
+
+        <!-- Filter bar -->
+        <div class="coupon-filter-bar">
+          <div class="coupon-filter-fields">
+            <div class="form-group" style="margin:0">
+              <label>Month</label>
+              <select class="coupon-select" [(ngModel)]="filterMonth">
+                <option [ngValue]="null">All months</option>
+                <option *ngFor="let m of months" [value]="m.value">{{ m.label }}</option>
+              </select>
+            </div>
+            <div class="form-group" style="margin:0">
+              <label>Year</label>
+              <select class="coupon-select" [(ngModel)]="filterYear">
+                <option [ngValue]="null">All years</option>
+                <option *ngFor="let y of years" [value]="y">{{ y }}</option>
+              </select>
+            </div>
+          </div>
+          <div class="coupon-filter-actions">
+            <button class="cf-btn cf-btn-primary" (click)="filterCoupons()"
+                    [disabled]="!filterMonth || !filterYear">
+              <lucide-angular name="search" [size]="14" strokeWidth="2"></lucide-angular> Search
+            </button>
+            <button class="cf-btn cf-btn-ghost" (click)="clearFilter()">
+              <lucide-angular name="refresh-cw" [size]="14" strokeWidth="2"></lucide-angular> Reset
+            </button>
+          </div>
+        </div>
+
+        <!-- Table -->
+        <div *ngIf="coupons && coupons.length > 0" class="coupon-table-wrap">
+          <table class="coupon-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Code</th>
+                <th>Discount</th>
+                <th>Expires</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let c of coupons; let i = index" [class.ct-expired-row]="isExpired(c.expirationDate)">
+                <td class="ct-index">{{ i + 1 }}</td>
+                <td class="ct-name">{{ c.name }}</td>
+                <td>
+                  <span class="ct-code">{{ c.code }}</span>
+                </td>
+                <td>
+                  <span class="ct-discount" [style.color]="discountColor(c.discount)">{{ c.discount }}% OFF</span>
+                </td>
+                <td class="ct-date">{{ c.expirationDate | date:'dd MMM yyyy' }}</td>
+                <td>
+                  <span class="ct-badge" [class.ct-badge-expired]="isExpired(c.expirationDate)"
+                        [class.ct-badge-active]="!isExpired(c.expirationDate)">
+                    {{ isExpired(c.expirationDate) ? 'Expired' : 'Active' }}
+                  </span>
+                </td>
+                <td>
+                  <div style="display:flex;gap:.4rem">
+                    <button class="ct-edit-btn" (click)="editCoupon(c)" title="Edit coupon">
+                      <lucide-angular name="pencil" [size]="14" strokeWidth="2"></lucide-angular>
+                    </button>
+                    <button class="ct-delete-btn" (click)="deleteCoupon(c)" title="Delete coupon">
+                      <lucide-angular name="trash-2" [size]="14" strokeWidth="2"></lucide-angular>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Empty state -->
+        <div class="empty-state" *ngIf="!coupons || coupons.length === 0">
+          <lucide-angular name="ticket" [size]="44" strokeWidth="1" style="color:var(--text-dim)"></lucide-angular>
+          <h3>No coupons found</h3>
+          <p>{{ (filterMonth && filterYear) ? 'No coupons found for the selected period.' : 'No active coupons expiring this month.' }}</p>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
 </div>

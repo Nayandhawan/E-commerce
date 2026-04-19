@@ -1,38 +1,65 @@
-<form [formGroup]="searchProductForm" class="search-bar" (submit)="submitForm()">
-  <div class="search-inner">
-    <mat-icon class="search-icon">search</mat-icon>
-    <input class="search-input" matInput formControlName="title" placeholder="Search products by name…" autocomplete="off" />
-    <button class="search-btn" type="submit" [disabled]="searchProductForm.invalid">Search</button>
-  </div>
-</form>
+<div class="page-wrap">
 
-<div class="product-grid">
-  <div class="product-card" *ngFor="let product of products">
-
-    <div class="card-img-wrap">
-      <img [src]="product.processedImg" [alt]="product.name" loading="lazy" class="card-img" />
+  <!-- Page header -->
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h2 class="section-title mb-1">Products</h2>
+      <p class="text-sm" style="color:var(--text-muted)">Manage your product catalogue</p>
     </div>
+    <a routerLink="/admin/product"
+       class="flex items-center gap-2 px-4 py-2.5 font-semibold text-sm rounded-lg transition-colors"
+       style="background:#131921;color:#fff;">
+      <lucide-angular name="plus" [size]="15" strokeWidth="2.5"></lucide-angular>
+      Add Product
+    </a>
+  </div>
 
-    <div class="card-body">
-      <p class="card-category">{{ product.categoryName }}</p>
-      <h3 class="card-name">{{ product.name }}</h3>
-      <p class="card-desc">{{ product.description }}</p>
-      <div class="card-meta">
-        <span class="meta-price">₹{{ product.price }}</span>
+  <!-- Search -->
+  <form [formGroup]="searchProductForm" class="search-bar" (submit)="submitForm()">
+    <div class="search-inner">
+      <lucide-angular name="search" [size]="18" class="search-icon" strokeWidth="1.5"></lucide-angular>
+      <input class="search-input" formControlName="title" placeholder="Search products by name…" autocomplete="off" />
+      <button class="search-btn" type="submit" [disabled]="searchProductForm.invalid">Search</button>
+    </div>
+  </form>
+
+  <!-- Product grid -->
+  <div class="product-grid">
+    <div class="product-card" *ngFor="let product of products">
+
+      <div class="card-img-wrap">
+        <img [src]="product.processedImg" [alt]="product.name" loading="lazy" class="card-img" />
       </div>
-    </div>
 
-    <div class="card-actions">
-      <button class="action-btn btn-faq" [routerLink]="['/admin/faq', product.id]">
-        <mat-icon>quiz</mat-icon> FAQ
-      </button>
-      <button class="action-btn btn-update" [routerLink]="['/admin/product', product.id]">
-        <mat-icon>edit</mat-icon> Edit
-      </button>
-      <button class="action-btn btn-delete" (click)="deleteProduct(product.id)">
-        <mat-icon>delete</mat-icon> Del
-      </button>
-    </div>
+      <div class="card-body">
+        <p class="card-category">{{ product.categoryName }}</p>
+        <h3 class="card-name">{{ product.name }}</h3>
+        <p class="card-desc">{{ product.description }}</p>
+        <div class="card-meta">
+          <span class="meta-price">₹{{ product.price }}</span>
+        </div>
+      </div>
 
+      <div class="card-actions">
+        <button class="action-btn btn-faq" [routerLink]="['/admin/faq', product.id]">
+          <lucide-angular name="message-circle-question-mark" [size]="14" strokeWidth="2"></lucide-angular> FAQ
+        </button>
+        <button class="action-btn btn-update" [routerLink]="['/admin/product', product.id]">
+          <lucide-angular name="pencil" [size]="14" strokeWidth="2"></lucide-angular> Edit
+        </button>
+        <button class="action-btn btn-delete" (click)="deleteProduct(product.id)">
+          <lucide-angular name="trash-2" [size]="14" strokeWidth="2"></lucide-angular> Delete
+        </button>
+      </div>
+
+    </div>
   </div>
+
+  <!-- Empty state -->
+  <div class="empty-state" *ngIf="products?.length === 0">
+    <lucide-angular name="package" [size]="48" strokeWidth="1" style="color:var(--text-dim)"></lucide-angular>
+    <h3>No products yet</h3>
+    <p>Add your first product to get started.</p>
+  </div>
+
 </div>

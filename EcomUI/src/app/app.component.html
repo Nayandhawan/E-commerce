@@ -1,101 +1,77 @@
-<header class="fk-header">
-  <div class="fk-header-inner">
+<p-toast position="top-right"></p-toast>
+
+<header class="sk-header">
+  <div class="sk-header-inner">
 
     <!-- Logo -->
-    <a class="fk-logo" routerLink="/">
-      <span class="logo-main">Shop<em>Kart</em></span>
-      <span class="logo-tag">India's Best</span>
+    <a class="sk-logo" routerLink="/">
+      <span class="logo-brand">Shop<em>Kart</em></span>
     </a>
 
-    <span class="fk-spacer"></span>
+    <span class="sk-spacer"></span>
 
     <!-- Guest Nav -->
-    <nav class="fk-nav" *ngIf="!isAdminLoggedIn && !isCustomerLoggedIn">
-      <a class="fk-nav-btn outline" routerLink="/order">
-        <mat-icon>local_shipping</mat-icon> Track Order
+    <nav class="sk-nav" *ngIf="!isAdminLoggedIn && !isCustomerLoggedIn">
+      <a class="sk-link" routerLink="/order">
+        <lucide-angular name="truck" [size]="14" strokeWidth="2"></lucide-angular> Track Order
       </a>
-      <a class="fk-nav-btn ghost" routerLink="/signup">Register</a>
-      <a class="fk-nav-btn primary" routerLink="/login">Login</a>
+      <a class="sk-link" routerLink="/signup">Register</a>
+      <a class="sk-btn-primary" routerLink="/login">Sign In</a>
     </nav>
 
     <!-- Admin Nav -->
-    <nav class="fk-nav admin-nav" *ngIf="isAdminLoggedIn">
-      <a class="fk-nav-link" routerLink="/admin/dashboard" routerLinkActive="active">Dashboard</a>
-      <a class="fk-nav-link" routerLink="/admin/analytics"  routerLinkActive="active">Analytics</a>
-      <a class="fk-nav-link" routerLink="/admin/category"   routerLinkActive="active">Category</a>
-      <a class="fk-nav-link" routerLink="/admin/product"    routerLinkActive="active">Products</a>
-      <a class="fk-nav-link" routerLink="/admin/orders"     routerLinkActive="active">Orders</a>
-      <a class="fk-nav-link" routerLink="/admin/post-coupons" routerLinkActive="active">Coupons</a>
-      <button class="fk-nav-btn outline" (click)="logout()">Logout</button>
+    <nav class="sk-nav admin-nav" *ngIf="isAdminLoggedIn">
+      <a class="sk-link" routerLink="/admin/dashboard"    routerLinkActive="active">Dashboard</a>
+      <a class="sk-link" routerLink="/admin/analytics"    routerLinkActive="active">Analytics</a>
+      <a class="sk-link" routerLink="/admin/category"     routerLinkActive="active">Category</a>
+      <a class="sk-link" routerLink="/admin/product"      routerLinkActive="active">Products</a>
+      <a class="sk-link" routerLink="/admin/orders"       routerLinkActive="active">Orders</a>
+      <a class="sk-link" routerLink="/admin/coupons" routerLinkActive="active">Coupons</a>
+      <button class="sk-btn-ghost" (click)="logout()">
+        <lucide-angular name="log-out" [size]="14" strokeWidth="2"></lucide-angular> Logout
+      </button>
     </nav>
 
     <!-- Customer Nav -->
-    <nav class="fk-nav" *ngIf="isCustomerLoggedIn">
-      <a class="fk-icon-btn" routerLink="/customer/dashboard" routerLinkActive="active" title="Shop">
-        <mat-icon>storefront</mat-icon>
+    <nav class="sk-nav" *ngIf="isCustomerLoggedIn">
+      <a class="sk-icon-link" routerLink="/customer/dashboard" routerLinkActive="active" title="Shop">
+        <lucide-angular name="shopping-bag" [size]="18" strokeWidth="1.5"></lucide-angular>
         <span>Shop</span>
       </a>
-      <a class="fk-icon-btn" routerLink="/customer/wishlist" routerLinkActive="active" title="Wishlist">
-        <mat-icon>favorite_border</mat-icon>
+      <a class="sk-icon-link" routerLink="/customer/wishlist" routerLinkActive="active" title="Wishlist">
+        <lucide-angular name="heart" [size]="18" strokeWidth="1.5"></lucide-angular>
         <span>Wishlist</span>
       </a>
-      <a class="fk-icon-btn" routerLink="/customer/cart" routerLinkActive="active" title="Cart">
-        <mat-icon>shopping_cart</mat-icon>
+      <a class="sk-icon-link" routerLink="/customer/cart" routerLinkActive="active" title="Cart">
+        <lucide-angular name="shopping-cart" [size]="18" strokeWidth="1.5"></lucide-angular>
         <span>Cart</span>
       </a>
-      <a class="fk-icon-btn" routerLink="/customer/my_orders" routerLinkActive="active" title="Orders">
-        <mat-icon>receipt_long</mat-icon>
+      <a class="sk-icon-link" routerLink="/customer/my_orders" routerLinkActive="active" title="Orders">
+        <lucide-angular name="receipt" [size]="18" strokeWidth="1.5"></lucide-angular>
         <span>Orders</span>
       </a>
 
-      <!-- User dropdown -->
-      <div class="user-menu" (mouseenter)="dropdownOpen=true" (mouseleave)="dropdownOpen=false">
-        <button class="user-menu__trigger">
-          <div class="user-menu__avatar">{{ userInitial }}</div>
-          <span class="user-menu__name">{{ userName }}</span>
-          <mat-icon class="user-menu__caret">{{ dropdownOpen ? 'arrow_drop_up' : 'arrow_drop_down' }}</mat-icon>
+      <!-- User menu -->
+      <div class="sk-user" (mouseenter)="dropdownOpen=true" (mouseleave)="dropdownOpen=false">
+        <button class="sk-user__trigger">
+          <div class="sk-user__avatar">{{ userInitial }}</div>
+          <span class="sk-user__name">{{ userName }}</span>
+          <lucide-angular [name]="dropdownOpen ? 'chevron-up' : 'chevron-down'" [size]="14" strokeWidth="2"></lucide-angular>
         </button>
-        <div class="user-menu__dropdown" [class.user-menu__dropdown--open]="dropdownOpen">
-          <button class="user-menu__item" (click)="openProfile()">
-            <mat-icon>person</mat-icon>
-            <span>Profile</span>
+        <div class="sk-user__dropdown" [class.open]="dropdownOpen">
+          <button class="sk-user__item" (click)="openProfile()">
+            <lucide-angular name="user" [size]="14" strokeWidth="2"></lucide-angular> Profile
           </button>
-          <div class="user-menu__divider"></div>
-          <button class="user-menu__item user-menu__item--danger" (click)="logout()">
-            <mat-icon>logout</mat-icon>
-            <span>Logout</span>
+          <div class="sk-user__sep"></div>
+          <button class="sk-user__item danger" (click)="logout()">
+            <lucide-angular name="log-out" [size]="14" strokeWidth="2"></lucide-angular> Logout
           </button>
         </div>
       </div>
     </nav>
-
-    <!-- Profile dialog -->
-    <div class="profile-overlay" *ngIf="profileOpen" (click)="profileOpen=false">
-      <div class="profile-card" (click)="$event.stopPropagation()">
-        <button class="profile-card__close" (click)="profileOpen=false">
-          <mat-icon>close</mat-icon>
-        </button>
-        <div class="profile-card__avatar">{{ userInitial }}</div>
-        <h2 class="profile-card__name">{{ userDetails?.name }}</h2>
-        <p class="profile-card__role">Customer</p>
-        <div class="profile-card__info">
-          <div class="profile-card__row">
-            <mat-icon>email</mat-icon>
-            <span>{{ userDetails?.email }}</span>
-          </div>
-          <div class="profile-card__row" *ngIf="userDetails?.phone">
-            <mat-icon>phone</mat-icon>
-            <span>{{ userDetails?.phone }}</span>
-          </div>
-          <div class="profile-card__row">
-            <mat-icon>badge</mat-icon>
-            <span>User ID: {{ userDetails?.userId }}</span>
-          </div>
-        </div>
-      </div>
-    </div>
 
   </div>
 </header>
 
 <router-outlet></router-outlet>
+

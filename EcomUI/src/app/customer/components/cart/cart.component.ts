@@ -1,10 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { MatDialog } from '@angular/material/dialog';
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
-import { PlaceOrderComponent } from '../place-order/place-order.component';
-import { loadCart, increaseQuantity, decreaseQuantity, applyCoupon } from '../../../store/cart/cart.actions';
+import { loadCart, increaseQuantity, decreaseQuantity, applyCoupon, removeFromCart } from '../../../store/cart/cart.actions';
 import { selectCartItems, selectCartOrder, selectCartLoading } from '../../../store/cart/cart.selectors';
 
 @Component({
@@ -18,12 +16,10 @@ export class CartComponent implements OnInit {
   order$: Observable<any>;
   loading$: Observable<boolean>;
   couponForm!: FormGroup;
+  showOrderDialog = false;
+  dialogAmount = 0;
 
-  constructor(
-    private store: Store,
-    private fb: FormBuilder,
-    public dialog: MatDialog
-  ) {
+  constructor(private store: Store, private fb: FormBuilder) {
     this.cartItems$ = this.store.select(selectCartItems);
     this.order$ = this.store.select(selectCartOrder);
     this.loading$ = this.store.select(selectCartLoading);
@@ -49,7 +45,12 @@ export class CartComponent implements OnInit {
     this.store.dispatch(decreaseQuantity({ productId }));
   }
 
+  removeProduct(productId: any) {
+    this.store.dispatch(removeFromCart({ productId }));
+  }
+
   placeOrder(order: any) {
-    this.dialog.open(PlaceOrderComponent, { data: { amount: order?.amount } });
+    this.dialogAmount = order?.amount ?? 0;
+    this.showOrderDialog = true;
   }
 }

@@ -43,7 +43,7 @@ public class AuthController {
         this.authService = authService;
     }
 
-    @PostMapping("/authenticate")
+    @PostMapping("/api/auth/login")
     public ResponseEntity<LoginResponse> createAuthenticationToken(
             @Valid @RequestBody AuthenticationRequest request) {
 
@@ -61,14 +61,14 @@ public class AuthController {
         User user = optionalUser.get();
         String jwt = jwtUtil.generateToken(userDetails.getUsername());
 
-        LoginResponse body = new LoginResponse(user.getId(), user.getRole().name(), jwt);
+        LoginResponse body = new LoginResponse(user.getId(), user.getRole().name(), jwt, user.getName(), user.getEmail());
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwt)
                 .body(body);
     }
 
-    @PostMapping("/signup")
+    @PostMapping("/api/auth/signup")
     public ResponseEntity<?> signupUser(@Valid @RequestBody SignupRequest signupRequest) {
         if (authService.hasUserWithEmail(signupRequest.getEmail())) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("User already exists with this email");

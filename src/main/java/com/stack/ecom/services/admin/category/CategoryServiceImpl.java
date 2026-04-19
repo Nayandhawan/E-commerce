@@ -28,4 +28,16 @@ public class CategoryServiceImpl implements CategoryService{
     public List<Category> getAllCategories(){
         return categoryRepository.findAll();
     }
+
+    public void deleteCategory(Long id){
+        categoryRepository.deleteById(id);
+    }
+
+    public Category updateCategory(Long id, CategoryDto categoryDto){
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Category not found"));
+        category.setName(categoryDto.getName());
+        category.setDescription(categoryDto.getDescription());
+        return categoryRepository.save(category);
+    }
 }

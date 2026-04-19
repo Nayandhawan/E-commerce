@@ -10,6 +10,7 @@ import com.stack.ecom.repository.UserRepository;
 import com.stack.ecom.repository.WishlistRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -51,5 +52,10 @@ public class WishlistServiceImpl implements WishlistService{
 
     public List<WishlistDto> getWishlistByUserId(Long userId){
         return wishlistRepository.findAllByUserId(userId).stream().map(Wishlist::getWishlistDto).collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void removeFromWishlist(Long userId, Long productId){
+        wishlistRepository.deleteByProductIdAndUserId(productId, userId);
     }
 }

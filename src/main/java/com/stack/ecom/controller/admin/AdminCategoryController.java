@@ -19,7 +19,7 @@ public class AdminCategoryController {
         this.categoryService = categoryService;
     }
 
-    @PostMapping("/category")
+    @PostMapping("/categories")
     public ResponseEntity<Category> createCategory(@RequestBody CategoryDto categoryDto){
         Category category = categoryService.createCategory(categoryDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(category);
@@ -28,5 +28,16 @@ public class AdminCategoryController {
     @GetMapping("/categories")
     public ResponseEntity<List<Category>> getAllCategories(){
         return ResponseEntity.ok(categoryService.getAllCategories());
+    }
+
+    @PutMapping("/categories/{id}")
+    public ResponseEntity<Category> updateCategory(@PathVariable Long id, @RequestBody CategoryDto categoryDto){
+        return ResponseEntity.ok(categoryService.updateCategory(id, categoryDto));
+    }
+
+    @DeleteMapping("/categories/{id}")
+    public ResponseEntity<Void> deleteCategory(@PathVariable Long id){
+        categoryService.deleteCategory(id);
+        return ResponseEntity.noContent().build();
     }
 }

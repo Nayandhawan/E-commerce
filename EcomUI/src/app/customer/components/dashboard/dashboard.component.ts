@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MessageService } from 'primeng/api';
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
 import { CustomerService } from '../../services/customer.service';
@@ -8,31 +8,31 @@ import { loadWishlist, addToWishlist, removeFromWishlist } from '../../../store/
 import { selectWishlistIds } from '../../../store/wishlist/wishlist.selectors';
 
 const CAT_ICONS: Record<string, string> = {
-  fashion:     'checkroom',
-  clothing:    'checkroom',
+  fashion:     'shirt',
+  clothing:    'shirt',
   mobiles:     'smartphone',
   mobile:      'smartphone',
   phone:       'smartphone',
-  electronics: 'devices',
-  beauty:      'spa',
-  home:        'home',
-  appliances:  'kitchen',
-  toys:        'toys',
-  food:        'restaurant',
-  grocery:     'local_grocery_store',
-  sports:      'sports_soccer',
-  fitness:     'fitness_center',
-  books:       'menu_book',
-  furniture:   'chair',
-  auto:        'directions_car',
-  automotive:  'directions_car',
-  jewellery:   'diamond',
-  jewelry:     'diamond',
-  shoes:       'directions_walk',
-  footwear:    'directions_walk',
-  bags:        'shopping_bag',
+  electronics: 'cpu',
+  beauty:      'sparkles',
+  home:        'house',
+  appliances:  'zap',
+  toys:        'gamepad-2',
+  food:        'shopping-basket',
+  grocery:     'shopping-basket',
+  sports:      'dumbbell',
+  fitness:     'dumbbell',
+  books:       'book-open',
+  furniture:   'briefcase',
+  auto:        'car',
+  automotive:  'car',
+  jewellery:   'gem',
+  jewelry:     'gem',
+  shoes:       'footprints',
+  footwear:    'footprints',
+  bags:        'briefcase',
   watches:     'watch',
-  kids:        'child_care',
+  kids:        'baby',
 };
 
 @Component({
@@ -53,7 +53,7 @@ export class DashboardComponent implements OnInit {
   constructor(
     private customerService: CustomerService,
     private fb: FormBuilder,
-    private snackBar: MatSnackBar,
+    private messageService: MessageService,
     private store: Store
   ) {
     this.wishlistedIds$ = this.store.select(selectWishlistIds);
@@ -114,14 +114,19 @@ export class DashboardComponent implements OnInit {
     });
   }
 
+  clearSearch() {
+    this.searchProductForm.reset();
+    this.getAllProducts();
+  }
+
   addToCart(id: any) {
     this.customerService.addToCart(id).subscribe(() => {
-      this.snackBar.open('Product added to cart!', 'Close', { duration: 3000 });
+      this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Product added to cart!', life: 3000 });
     });
   }
 
   getCatIcon(cat: string): string {
     const key = cat.toLowerCase().split(' ')[0];
-    return CAT_ICONS[key] ?? 'category';
+    return CAT_ICONS[key] ?? 'square-stack';
   }
 }

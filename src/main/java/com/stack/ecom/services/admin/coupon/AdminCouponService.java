@@ -10,4 +10,10 @@ public interface AdminCouponService {
 
     List<Coupon> getAllCoupons();
 
+    Coupon updateCoupon(Long id, Coupon coupon);
+
+    List<Coupon> getCouponsByMonthAndYear(int month, int year);
+
+    void deleteCoupon(Long id);
+
 }

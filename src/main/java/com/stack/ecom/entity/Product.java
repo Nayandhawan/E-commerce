@@ -20,7 +20,7 @@ public class Product {
 
     private Long price;
 
-    @Lob
+    @Column(columnDefinition = "TEXT")
     private String description;
 
     @Lob

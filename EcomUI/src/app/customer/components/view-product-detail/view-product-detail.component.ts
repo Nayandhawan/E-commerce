@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MessageService } from 'primeng/api';
 import { CustomerService } from '../../services/customer.service';
 import { ActivatedRoute } from '@angular/router';
 import { UserStorageService } from '../../../services/storage/user-storage.service';
@@ -16,7 +16,7 @@ export class ViewProductDetailComponent {
   FAQS: any[] = [];
   reviews: any[] = [];
 
-  constructor(private snackBar: MatSnackBar,
+  constructor(private messageService: MessageService,
     private customerService: CustomerService,
     private activatedRouter:ActivatedRoute
   ){}
@@ -59,23 +59,15 @@ export class ViewProductDetailComponent {
     
     this.customerService.addProductToWishlist(wishListDto).subscribe(
       res => {
-        this.snackBar.open("Product added to wishlist successfully", 'Close', {
-          duration: 5000
-        });
+        this.messageService.add({ severity: 'success', summary: 'Success', detail: "Product added to wishlist successfully", life: 5000 });
       },
       error => {
-        if (error.status === 409) { // Conflict: Product already in wishlist
-          this.snackBar.open(error.error || "Product already in wishlist", 'ERROR', {
-            duration: 5000
-          });
-        } else if (error.status === 400) { // Bad request
-          this.snackBar.open("Invalid product or user", 'ERROR', {
-            duration: 5000
-          });
+        if (error.status === 409) {
+          this.messageService.add({ severity: 'warn', summary: 'Already in Wishlist', detail: error.error || 'Product already in wishlist', life: 5000 });
+        } else if (error.status === 400) {
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Invalid product or user', life: 5000 });
         } else {
-          this.snackBar.open("Something went wrong", 'ERROR', {
-            duration: 5000
-          });
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Something went wrong', life: 5000 });
         }
       }
     );

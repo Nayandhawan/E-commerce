@@ -1,17 +1,22 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { catchError, map, switchMap, tap } from 'rxjs/operators';
+import { MessageService } from 'primeng/api';
+import { catchError, map, switchMap } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { CustomerService } from '../../customer/services/customer.service';
 import {
   loadCart, loadCartSuccess, loadCartFailure,
   increaseQuantity, decreaseQuantity, quantityChangeSuccess, quantityChangeFailure,
-  applyCoupon, applyCouponSuccess, applyCouponFailure
+  applyCoupon, applyCouponSuccess, applyCouponFailure,
+  removeFromCart, removeFromCartSuccess, removeFromCartFailure
 } from './cart.actions';
 
 @Injectable()
 export class CartEffects {
+  private actions$ = inject(Actions);
+  private customerService = inject(CustomerService);
+  private messageService = inject(MessageService);
+
   loadCart$ = createEffect(() =>
     this.actions$.pipe(
       ofType(loadCart),
@@ -36,7 +41,7 @@ export class CartEffects {
       switchMap(({ productId }) =>
         this.customerService.increaseProductQuantity(productId).pipe(
           map(() => {
-            this.snackBar.open('Product Quantity Increased', 'Close', { duration: 5000 });
+            this.messageService.add({ severity: 'success', summary: 'Cart', detail: 'Quantity increased', life: 2000 });
             return quantityChangeSuccess();
           }),
           catchError(err => of(quantityChangeFailure({ error: err.message })))
@@ -51,7 +56,7 @@ export class CartEffects {
       switchMap(({ productId }) =>
         this.customerService.descreaseProductQuantity(productId).pipe(
           map(() => {
-            this.snackBar.open('Product Quantity Decreased', 'Close', { duration: 5000 });
+            this.messageService.add({ severity: 'info', summary: 'Cart', detail: 'Quantity decreased', life: 2000 });
             return quantityChangeSuccess();
           }),
           catchError(err => of(quantityChangeFailure({ error: err.message })))
@@ -73,11 +78,11 @@ export class CartEffects {
       switchMap(({ code }) =>
         this.customerService.applyCoupon(code).pipe(
           map(() => {
-            this.snackBar.open('Coupon Applied Successfully', 'Close', { duration: 5000 });
+            this.messageService.add({ severity: 'success', summary: 'Coupon Applied', detail: 'Discount applied to your order', life: 3000 });
             return applyCouponSuccess();
           }),
           catchError(err => {
-            this.snackBar.open(err.error ?? 'Failed to apply coupon', 'Close', { duration: 5000 });
+            this.messageService.add({ severity: 'error', summary: 'Invalid Coupon', detail: err.error ?? 'Failed to apply coupon', life: 4000 });
             return of(applyCouponFailure({ error: err.error }));
           })
         )
@@ -92,9 +97,25 @@ export class CartEffects {
     )
   );
 
-  constructor(
-    private actions$: Actions,
-    private customerService: CustomerService,
-    private snackBar: MatSnackBar
-  ) {}
+  removeFromCart$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(removeFromCart),
+      switchMap(({ productId }) =>
+        this.customerService.removeFromCart(productId).pipe(
+          map(() => {
+            this.messageService.add({ severity: 'success', summary: 'Cart', detail: 'Item removed', life: 2000 });
+            return removeFromCartSuccess();
+          }),
+          catchError(err => of(removeFromCartFailure({ error: err.message })))
+        )
+      )
+    )
+  );
+
+  reloadAfterRemove$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(removeFromCartSuccess),
+      map(() => loadCart())
+    )
+  );
 }

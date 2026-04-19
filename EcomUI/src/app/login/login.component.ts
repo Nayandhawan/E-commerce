@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MessageService } from 'primeng/api';
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
 import { login } from '../store/auth/auth.actions';
@@ -19,7 +19,7 @@ export class LoginComponent implements OnInit {
 
   constructor(
     private formBuilder: FormBuilder,
-    private snackBar: MatSnackBar,
+    private messageService: MessageService,
     private store: Store
   ) {
     this.loading$ = this.store.select(selectAuthLoading);
@@ -34,7 +34,7 @@ export class LoginComponent implements OnInit {
 
     this.error$.subscribe(error => {
       if (error) {
-        this.snackBar.open(error, 'ERROR', { duration: 5000 });
+        this.messageService.add({ severity: 'error', summary: 'Login Failed', detail: error, life: 5000 });
       }
     });
   }

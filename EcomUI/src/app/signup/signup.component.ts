@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MessageService } from 'primeng/api';
 import { Router } from '@angular/router';
 import { AuthService } from '../services/auth/auth.service';
 
@@ -15,7 +15,7 @@ export class SignupComponent implements OnInit{
   hidePassword = true;
 
   constructor(private fb: FormBuilder,
-    private snackBar: MatSnackBar,
+    private messageService: MessageService,
     private authService: AuthService,
     private router: Router){
     }
@@ -38,7 +38,7 @@ export class SignupComponent implements OnInit{
     const confirmPassword = this.signupForm.get('confirmPassword')?.value;
 
     if( password != confirmPassword){
-      this.snackBar.open('Password do not match.','Close', {duration: 5000, panelClass: 'error-snackbar' });
+      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Password do not match.', life: 5000 });
       return;
     }
   
@@ -47,7 +47,10 @@ export class SignupComponent implements OnInit{
       this.router.navigateByUrl('/login');
     },
     error: (error) => {
-      this.snackBar.open('Signup Failed. Please try again later', 'Close', { duration: 5000, panelClass: 'error-snackbar' });
+      const detail = error.status === 409
+        ? 'An account with this email already exists.'
+        : 'Signup failed. Please try again later.';
+      this.messageService.add({ severity: 'error', summary: 'Error', detail, life: 5000 });
     }
   });
   }

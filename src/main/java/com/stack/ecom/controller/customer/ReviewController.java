@@ -21,12 +21,12 @@ public class ReviewController {
         this.reviewService = reviewService;
     }
 
-    @GetMapping("/ordered-products/{orderId}")
+    @GetMapping("/cart/order/{orderId}")
     public ResponseEntity<OrderedProductResponseDto> getOrderedProductsDetailsByOrderId(@PathVariable Long orderId){
         return ResponseEntity.ok(reviewService.getProductDetailsByOrderId(orderId));
     }
 
-    @PostMapping("/review")
+    @PostMapping("/reviews")
     public ResponseEntity<?> giveReview(@ModelAttribute ReviewDto reviewDto) throws IOException {
         ReviewDto reviewDto1 = reviewService.giveReview(reviewDto);
         if (reviewDto1 == null){

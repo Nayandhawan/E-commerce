@@ -20,8 +20,11 @@ public class WishlistController {
         this.wishlistService = wishlistService;
     }
 
-    @PostMapping("/wishlist")
-    public ResponseEntity<?> addProductToWishlist(@RequestBody WishlistDto wishlistDto){
+    @PostMapping("/wishlist/{userId}/{productId}")
+    public ResponseEntity<?> addProductToWishlist(@PathVariable Long userId, @PathVariable Long productId){
+        WishlistDto wishlistDto = new WishlistDto();
+        wishlistDto.setUserId(userId);
+        wishlistDto.setProductId(productId);
         WishlistDto postedWishlistDto = wishlistService.addProductToWishlist(wishlistDto);
         if (postedWishlistDto != null && "Product is already in the wishlist".equals(postedWishlistDto.getMessage())) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(postedWishlistDto.getMessage());
@@ -29,7 +32,12 @@ public class WishlistController {
         else if (postedWishlistDto == null)
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Something went wrong");
         return ResponseEntity.status(HttpStatus.CREATED).body(postedWishlistDto);
+    }
 
+    @DeleteMapping("/wishlist/{userId}/{productId}")
+    public ResponseEntity<?> removeFromWishlist(@PathVariable Long userId, @PathVariable Long productId){
+        wishlistService.removeFromWishlist(userId, productId);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/wishlist/{userId}")

@@ -1,39 +1,152 @@
-<div *ngIf="data" style="padding: 30px;">
+<p-toast position="top-right"></p-toast>
+<div class="page-wrap">
+  <h2 class="section-title">Analytics</h2>
+
+  <div *ngIf="data; else loading">
+
+    <!-- Order status breakdown -->
     <app-order-by-status [data]="data"></app-order-by-status>
-</div>
 
-<div class="analytics-container" *ngIf="data">
-    <mat-card class="analytics-card">
-        <mat-card-header>
-            <div mat-card-avatar class="metric-avator">O</div>
-            <mat-card-title>Orders</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-            <div class="metric-value">{{ data.currentMonthOrder }}</div>
-            <div class="metric-subtext">Current Month</div>
-        </mat-card-content>
-        <mat-card-content class="previous-month">
-            <div class="metric-value">{{ data.previousMonthOrder }}</div>
-            <div class="metric-subtext">Previous Month</div>
-        </mat-card-content>
-    </mat-card>
+    <!-- Metric cards -->
+    <div class="metrics-row">
+      <p-card styleClass="metric-card">
+        <div class="metric-inner">
+          <div class="metric-icon metric-icon--orders">
+            <lucide-angular name="shopping-bag" [size]="22" strokeWidth="1.5"></lucide-angular>
+          </div>
+          <div class="metric-content">
+            <p class="metric-label">Orders</p>
+            <div class="metric-periods">
+              <div class="metric-period">
+                <span class="metric-value">{{ data.currentMonthOrder }}</span>
+                <span class="metric-period-label">This Month</span>
+              </div>
+              <div class="metric-divider"></div>
+              <div class="metric-period metric-period--prev">
+                <span class="metric-value">{{ data.previousMonthOrder }}</span>
+                <span class="metric-period-label">Last Month</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </p-card>
 
-    <mat-card class="analytics-card">
-        <mat-card-header>
-            <div mat-card-avatar class="metric-avator">E</div>
-            <mat-card-title>Earnings</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-            <div class="metric-value">{{ data.currentMonthEarnings | currency: 'INR':'symbol':'1.0-0' }}</div>
-            <div class="metric-subtext">Current Month</div>
-        </mat-card-content>
-        <mat-card-content class="previous-month">
-            <div class="metric-value">{{ data.previousMonthEarnings | currency: 'INR':'symbol':'1.0-0' }}</div>
-            <div class="metric-subtext">Previous Month</div>
-        </mat-card-content>
-    </mat-card>
-</div>
+      <p-card styleClass="metric-card">
+        <div class="metric-inner">
+          <div class="metric-icon metric-icon--earnings">
+            <lucide-angular name="indian-rupee" [size]="22" strokeWidth="1.5"></lucide-angular>
+          </div>
+          <div class="metric-content">
+            <p class="metric-label">Earnings</p>
+            <div class="metric-periods">
+              <div class="metric-period">
+                <span class="metric-value">{{ data.currentMonthEarnings | currency:'INR':'symbol':'1.0-0' }}</span>
+                <span class="metric-period-label">This Month</span>
+              </div>
+              <div class="metric-divider"></div>
+              <div class="metric-period metric-period--prev">
+                <span class="metric-value">{{ data.previousMonthEarnings | currency:'INR':'symbol':'1.0-0' }}</span>
+                <span class="metric-period-label">Last Month</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </p-card>
+    </div>
 
-<div *ngIf="!data" style="padding: 40px; text-align: center; color: #878787;">
-    Loading analytics...
+    <!-- ── Sales Trend Chart ───────────────────────────────────────────────── -->
+    <div class="chart-card">
+      <div class="chart-card-header">
+        <div>
+          <h3 class="chart-title">Sales Trend</h3>
+          <p class="chart-sub">
+            {{ fromYear === toYear
+               ? 'Monthly breakdown for ' + fromYear
+               : 'Yearly breakdown from ' + fromYear + ' to ' + toYear }}
+          </p>
+        </div>
+        <div class="chart-filters">
+          <div class="chart-filter-group">
+            <label class="filter-label">From Year</label>
+            <p-dropdown
+              [options]="yearOptions"
+              [(ngModel)]="fromYear"
+              (onChange)="onFromYearChange($event.value)"
+              placeholder="From"
+              styleClass="year-drop">
+            </p-dropdown>
+          </div>
+          <div class="chart-filter-group">
+            <label class="filter-label">To Year</label>
+            <p-dropdown
+              [options]="toYearOptions"
+              [(ngModel)]="toYear"
+              (onChange)="onToYearChange($event.value)"
+              placeholder="To"
+              styleClass="year-drop">
+            </p-dropdown>
+          </div>
+        </div>
+      </div>
+
+      <div class="chart-body">
+        <div *ngIf="chartLoading" class="chart-spinner">
+          <lucide-angular name="loader-circle" [size]="24" class="animate-spin" strokeWidth="2"></lucide-angular>
+          <span>Loading chart...</span>
+        </div>
+        <p-chart *ngIf="!chartLoading && chartData"
+                 type="line"
+                 [data]="chartData"
+                 [options]="chartOptions"
+                 height="280px">
+        </p-chart>
+      </div>
+    </div>
+
+    <!-- Sales Report Download -->
+    <p-card styleClass="report-card">
+      <div class="report-inner">
+        <div class="report-card-header">
+          <div>
+            <h3 class="report-title">Sales Report</h3>
+            <p class="report-sub">Download sales data as Excel</p>
+          </div>
+          <lucide-angular name="file-spreadsheet" [size]="24" class="report-header-icon" strokeWidth="1.5"></lucide-angular>
+        </div>
+        <form [formGroup]="reportForm" (ngSubmit)="downloadReport()" class="report-form">
+          <div class="form-group">
+            <label>Report Type</label>
+            <p-dropdown formControlName="type" [options]="reportTypes" optionLabel="label" optionValue="value"
+                        placeholder="Select type" (onChange)="onTypeChange($event.value)"></p-dropdown>
+            <small class="field-error" *ngIf="reportForm.get('type')?.hasError('required') && reportForm.get('type')?.touched">Select a report type</small>
+          </div>
+          <div class="form-group">
+            <label>
+              {{ reportForm.get('type')?.value === 'YEARLY' ? 'Year'
+               : reportForm.get('type')?.value === 'QUARTERLY' ? 'Quarter'
+               : reportForm.get('type')?.value === 'MONTHLY' ? 'Month'
+               : 'Period' }}
+            </label>
+            <p-dropdown formControlName="period" [options]="periodOptions" optionLabel="label"
+                        placeholder="Select period" [disabled]="!periodOptions.length"></p-dropdown>
+            <small class="field-error" *ngIf="reportForm.get('period')?.hasError('required') && reportForm.get('period')?.touched">Select a period</small>
+          </div>
+          <button type="submit" class="download-btn"
+                  [disabled]="downloading || reportForm.invalid">
+            <lucide-angular name="download" [size]="16" strokeWidth="2"></lucide-angular>
+            {{ downloading ? 'Downloading...' : 'Download Excel' }}
+          </button>
+        </form>
+      </div>
+    </p-card>
+
+  </div>
+
+  <ng-template #loading>
+    <div class="analytics-loading">
+      <lucide-angular name="loader-circle" [size]="24" class="animate-spin" strokeWidth="2"></lucide-angular>
+      <span>Loading analytics...</span>
+    </div>
+  </ng-template>
+
 </div>

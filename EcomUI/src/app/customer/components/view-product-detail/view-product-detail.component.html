@@ -12,12 +12,16 @@
 
       <div class="hero-price-block">
         <span class="hero-price">₹{{ product.price }}</span>
-        <span class="free-delivery"><mat-icon>local_shipping</mat-icon> Free Delivery</span>
+        <span class="free-delivery">
+          <lucide-angular name="truck" [size]="15" strokeWidth="2"></lucide-angular>
+          Free Delivery
+        </span>
       </div>
 
       <div class="hero-actions">
         <button class="btn-wishlist" (click)="addToWishlist()">
-          <mat-icon>favorite_border</mat-icon> Wishlist
+          <lucide-angular name="heart" [size]="16" strokeWidth="2"></lucide-angular>
+          Wishlist
         </button>
       </div>
     </div>
@@ -31,7 +35,10 @@
         <img *ngIf="review.processedImg" [src]="review.processedImg" [alt]="review.description" loading="lazy" class="review-img" />
         <div class="review-body">
           <div class="review-rating">
-            <span class="rating-badge">{{ review.rating }} <mat-icon>star</mat-icon></span>
+            <span class="rating-badge">
+              {{ review.rating }}
+              <lucide-angular name="star" [size]="11" strokeWidth="2" style="fill:currentColor; display:inline-block; vertical-align:middle;"></lucide-angular>
+            </span>
           </div>
           <p class="review-text">{{ review.description }}</p>
           <p class="review-user">— {{ review.username }}</p>
@@ -45,7 +52,10 @@
     <h2 class="section-title">Frequently Asked Questions</h2>
     <div class="faq-list">
       <div class="faq-item" *ngFor="let faq of FAQS">
-        <p class="faq-q"><mat-icon>help_outline</mat-icon> {{ faq.question }}</p>
+        <p class="faq-q">
+          <lucide-angular name="circle-question-mark" [size]="16" strokeWidth="1.5"></lucide-angular>
+          {{ faq.question }}
+        </p>
         <p class="faq-a">{{ faq.answer }}</p>
       </div>
     </div>

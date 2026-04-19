@@ -1,0 +1,43 @@
+services:
+
+  # ── Database ────────────────────────────────────────────────────────────────
+  mysql:
+    image: mysql:8.0
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: ecom
+    volumes:
+      - mysql_local_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1"]
+      interval: 5s
+      timeout: 3s
+      retries: 15
+      start_period: 30s
+    networks: [ecom-local]
+
+  # ── App (Angular + Spring Boot in one image) ─────────────────────────────────
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.local
+    restart: on-failure
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      DB_URL: jdbc:mysql://mysql:3306/ecom
+      DB_USERNAME: root
+      DB_PASSWORD: ${DB_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+    ports:
+      - "8080:8080"
+    networks: [ecom-local]
+
+volumes:
+  mysql_local_data:
+
+networks:
+  ecom-local:
+    driver: bridge

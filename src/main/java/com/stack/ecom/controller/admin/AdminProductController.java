@@ -25,7 +25,7 @@ public class AdminProductController {
         this.faqService = faqService;
     }
 
-    @PostMapping("/product")
+    @PostMapping("/products")
     public ResponseEntity<ProductDto> addProduct(@ModelAttribute ProductDto productDto) throws IOException {
         ProductDto productDto1 =  adminProductService.addProduct(productDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(productDto1);
@@ -37,13 +37,13 @@ public class AdminProductController {
         return ResponseEntity.ok(productDtos) ;
     }
 
-    @GetMapping("/search/{name}")
-    public ResponseEntity<List<ProductDto>> getAllProductsByName(@PathVariable String name){
+    @GetMapping("/products/search")
+    public ResponseEntity<List<ProductDto>> getAllProductsByName(@RequestParam String name){
         List<ProductDto> productDtos = adminProductService.getAllProductsByName(name);
         return ResponseEntity.ok(productDtos) ;
     }
 
-    @DeleteMapping("/product/{productId}")
+    @DeleteMapping("/products/{productId}")
     public ResponseEntity<Void> deleteProduct(@PathVariable Long productId){
         boolean deleted = adminProductService.deleteProductById(productId);
         if (deleted){
@@ -52,12 +52,12 @@ public class AdminProductController {
         return ResponseEntity.notFound().build();
     }
 
-    @PostMapping("/faq/{productId}")
-    public ResponseEntity<FAQDto> postFAQ(@PathVariable Long productId, @RequestBody FAQDto faqDto){
-        return ResponseEntity.status(HttpStatus.CREATED).body(faqService.postFAQ(productId,faqDto));
+    @PostMapping("/faq")
+    public ResponseEntity<FAQDto> postFAQ(@RequestBody FAQDto faqDto){
+        return ResponseEntity.status(HttpStatus.CREATED).body(faqService.postFAQ(faqDto.getProductId(), faqDto));
     }
 
-    @GetMapping("/product/{productId}")
+    @GetMapping("/products/{productId}")
     public ResponseEntity<ProductDto> getProductById(@PathVariable Long productId){
         ProductDto productDto = adminProductService.getProductById(productId);
         if (productDto !=null){
@@ -67,7 +67,7 @@ public class AdminProductController {
         }
     }
 
-    @PutMapping("/product/{productId}")
+    @PutMapping("/products/{productId}")
     public ResponseEntity<ProductDto> updateProduct(@PathVariable Long productId,@ModelAttribute ProductDto productDto) throws IOException {
         ProductDto updateProduct = adminProductService.updateProduct(productId,productDto);
         if (updateProduct !=null){

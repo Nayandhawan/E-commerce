@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { AdminService } from '../../service/admin.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Title } from '@angular/platform-browser';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MessageService } from 'primeng/api';
 import { Router } from '@angular/router';
 import { ReactiveFormsModule } from '@angular/forms';
 
@@ -18,7 +18,7 @@ export class DashboardComponent {
 
   constructor(private adminService: AdminService,
     private fb: FormBuilder,
-    private snackBar: MatSnackBar,
+    private messageService: MessageService,
   ){}
 
   ngOnInit(){
@@ -51,15 +51,10 @@ export class DashboardComponent {
   deleteProduct(productId){
     this.adminService.deleteProduct(productId).subscribe(res =>{
       if(res == null){
-        this.snackBar.open('Product Deleted SuccessFully','Close',{
-          duration: 5000
-        });
+        this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Product Deleted SuccessFully', life: 5000 });
         this.getAllProducts();
       }else{
-        this.snackBar.open(res.message, 'Close',{
-          duration: 5000,
-          panelClass: 'error-snackbar'
-        });
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: res.message, life: 5000 });
       }
     })
   }

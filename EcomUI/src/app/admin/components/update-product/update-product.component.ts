@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MessageService } from 'primeng/api';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AdminService } from '../../service/admin.service';
 
@@ -22,7 +22,7 @@ export class UpdateProductComponent {
   constructor(
     private fb: FormBuilder,
     private router: Router,
-    private snackBar: MatSnackBar,
+    private messageService: MessageService,
     private adminService: AdminService,
     private activatedRoute: ActivatedRoute,
   ){}
@@ -83,15 +83,11 @@ export class UpdateProductComponent {
         if(res!=null){
           console.log("Enter in IF",res);
           this.existingImage = res.byteImg ? 'data:image/jpeg;base64,' + res.byteImg : this.existingImage;
-          this.snackBar.open("Product Updated SuccessFully",'Close',{
-            duration: 5000
-          });
+          this.messageService.add({ severity: 'success', summary: 'Success', detail: "Product Updated SuccessFully", life: 5000 });
           this.router.navigateByUrl('/admin/dashboard');
+        } else {
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: res?.message || 'Failed to update product', life: 5000 });
         }
-        this.snackBar.open(res.message, 'Close',{
-          duration: 5000,
-          panelClass: 'error-snackbar'
-        });
       })
     }
     else{

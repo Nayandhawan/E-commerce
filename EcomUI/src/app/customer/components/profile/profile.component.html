@@ -1,0 +1,159 @@
+<div class="page-wrap">
+
+  <div class="pf-header">
+    <div class="pf-avatar">{{ profile?.name?.charAt(0)?.toUpperCase() || '?' }}</div>
+    <div>
+      <h2 class="pf-title">{{ profile?.name || 'My Profile' }}</h2>
+      <p class="pf-subtitle">{{ profile?.email }}</p>
+    </div>
+  </div>
+
+  <div class="pf-layout">
+
+    <!-- Sidebar -->
+    <aside class="pf-sidebar">
+      <button class="pf-nav-item" [class.pf-nav-item--active]="activeSection === 'personal'" (click)="selectSection('personal')">
+        <lucide-angular name="user" [size]="16" strokeWidth="2"></lucide-angular>
+        <span>Personal Details</span>
+      </button>
+      <button class="pf-nav-item" [class.pf-nav-item--active]="activeSection === 'address'" (click)="selectSection('address')">
+        <lucide-angular name="map-pin" [size]="16" strokeWidth="2"></lucide-angular>
+        <span>My Address</span>
+      </button>
+      <button class="pf-nav-item" [class.pf-nav-item--active]="activeSection === 'card'" (click)="selectSection('card')">
+        <lucide-angular name="credit-card" [size]="16" strokeWidth="2"></lucide-angular>
+        <span>Card Details</span>
+      </button>
+    </aside>
+
+    <!-- Form Panel -->
+    <div class="pf-panel">
+
+      <!-- Personal Details -->
+      <ng-container *ngIf="activeSection === 'personal'">
+        <div class="pf-panel__head">
+          <h3 class="pf-panel__title">Personal Details</h3>
+          <p class="pf-panel__desc">Update your name, email address and phone number.</p>
+        </div>
+        <form [formGroup]="personalForm" (ngSubmit)="updateProfile()" class="pf-form">
+          <div class="pf-row">
+            <div class="pf-field">
+              <label class="pf-label">First Name</label>
+              <input class="pf-input" formControlName="firstName" placeholder="First name" />
+              <span class="pf-error" *ngIf="personalForm.get('firstName')?.invalid && personalForm.get('firstName')?.touched">First name is required</span>
+            </div>
+            <div class="pf-field">
+              <label class="pf-label">Last Name</label>
+              <input class="pf-input" formControlName="lastName" placeholder="Last name" />
+            </div>
+          </div>
+          <div class="pf-field">
+            <label class="pf-label">Email Address</label>
+            <input class="pf-input" formControlName="email" type="email" placeholder="Enter your email" />
+            <span class="pf-error" *ngIf="personalForm.get('email')?.invalid && personalForm.get('email')?.touched">Valid email is required</span>
+          </div>
+          <div class="pf-field">
+            <label class="pf-label">Phone Number</label>
+            <input class="pf-input" formControlName="phone" placeholder="Enter your phone number" />
+          </div>
+          <div class="pf-actions">
+            <button *ngIf="!isEditingPersonal" class="pf-save-btn" type="button" (click)="togglePersonalEdit()">
+              <lucide-angular name="pencil" [size]="15" strokeWidth="2"></lucide-angular>
+              Update Details
+            </button>
+            <ng-container *ngIf="isEditingPersonal">
+              <button class="pf-save-btn" type="submit">
+                <lucide-angular name="save" [size]="15" strokeWidth="2"></lucide-angular>
+                Save Changes
+              </button>
+              <button class="pf-cancel-btn" type="button" (click)="togglePersonalEdit()">Cancel</button>
+            </ng-container>
+          </div>
+        </form>
+      </ng-container>
+
+      <!-- My Address -->
+      <ng-container *ngIf="activeSection === 'address'">
+        <div class="pf-panel__head">
+          <h3 class="pf-panel__title">My Address</h3>
+          <p class="pf-panel__desc">Manage your default delivery address.</p>
+        </div>
+        <form [formGroup]="addressForm" (ngSubmit)="updateProfile()" class="pf-form">
+          <div class="pf-field">
+            <label class="pf-label">Street / Flat / Area</label>
+            <input class="pf-input" formControlName="street" placeholder="House no., Street, Area" />
+          </div>
+          <div class="pf-row">
+            <div class="pf-field">
+              <label class="pf-label">City</label>
+              <input class="pf-input" formControlName="city" placeholder="City" />
+            </div>
+            <div class="pf-field">
+              <label class="pf-label">State</label>
+              <input class="pf-input" formControlName="state" placeholder="State" />
+            </div>
+          </div>
+          <div class="pf-row">
+            <div class="pf-field">
+              <label class="pf-label">Zip / Pin Code</label>
+              <input class="pf-input" formControlName="zipCode" placeholder="Zip Code" />
+            </div>
+            <div class="pf-field">
+              <label class="pf-label">Country</label>
+              <input class="pf-input" formControlName="country" placeholder="Country" />
+            </div>
+          </div>
+          <button class="pf-save-btn" type="submit">
+            <lucide-angular name="save" [size]="15" strokeWidth="2"></lucide-angular>
+            Update Address
+          </button>
+        </form>
+      </ng-container>
+
+      <!-- Card Details -->
+      <ng-container *ngIf="activeSection === 'card'">
+        <div class="pf-panel__head">
+          <h3 class="pf-panel__title">Card Details</h3>
+          <p class="pf-panel__desc">Save your credit or debit card for faster checkout.</p>
+        </div>
+        <form [formGroup]="cardForm" (ngSubmit)="updateProfile()" class="pf-form">
+          <div class="pf-field">
+            <label class="pf-label">Card Holder Name</label>
+            <input class="pf-input" formControlName="cardHolderName" placeholder="Name on card" />
+          </div>
+          <div class="pf-field">
+            <label class="pf-label">Card Number</label>
+            <input class="pf-input" formControlName="cardNumber" placeholder="1234 5678 9012 3456" maxlength="19" />
+            <span class="pf-hint" *ngIf="profile?.cardNumber">Saved: {{ maskedCard }}</span>
+          </div>
+          <div class="pf-row">
+            <div class="pf-field">
+              <label class="pf-label">Expiry (MM/YY)</label>
+              <input class="pf-input" formControlName="cardExpiry" placeholder="MM/YY" maxlength="5" />
+            </div>
+            <div class="pf-field">
+              <label class="pf-label">CVV</label>
+              <input class="pf-input" formControlName="cardCvv" placeholder="•••" maxlength="4" type="password" />
+            </div>
+          </div>
+          <div class="pf-field">
+            <label class="pf-label">Card Type</label>
+            <select class="pf-input pf-select" formControlName="cardType">
+              <option value="">Select type</option>
+              <option value="Visa">Visa</option>
+              <option value="MasterCard">MasterCard</option>
+              <option value="RuPay">RuPay</option>
+              <option value="Amex">Amex</option>
+            </select>
+          </div>
+          <button class="pf-save-btn" type="submit">
+            <lucide-angular name="save" [size]="15" strokeWidth="2"></lucide-angular>
+            Update Card
+          </button>
+        </form>
+      </ng-container>
+
+    </div>
+  </div>
+
+</div>

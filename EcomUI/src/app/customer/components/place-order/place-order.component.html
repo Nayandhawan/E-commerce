@@ -1,32 +1,51 @@
-<div class="container">
-    <mat-card>
-        <mat-card-title>Place Order</mat-card-title>
-        <mat-card-content>
-            <div *ngIf="data?.amount" class="order-amount">
-                Total: <strong>{{ data.amount | currency:'INR':'symbol':'1.0-0' }}</strong>
-            </div>
-            <form [formGroup]="orderForm">
-                <mat-form-field appearance="outline">
-                    <mat-label>Delivery Address</mat-label>
-                    <input matInput formControlName="address" placeholder="Enter full address" required>
-                    <mat-error *ngIf="orderForm.get('address').invalid && orderForm.get('address').touched">Address is required</mat-error>
-                </mat-form-field>
-
-                <mat-form-field appearance="outline">
-                    <mat-label>Order Note (optional)</mat-label>
-                    <input matInput formControlName="orderDescription" placeholder="Any special instructions">
-                </mat-form-field>
-
-                <div class="button-row">
-                    <button mat-raised-button class="pay-btn" type="button"
-                        [disabled]="orderForm.invalid || loading"
-                        (click)="placeOrder()">
-                        <span *ngIf="!loading">Pay with Razorpay</span>
-                        <span *ngIf="loading">Processing...</span>
-                    </button>
-                    <button mat-stroked-button color="warn" (click)="closeForm()" [disabled]="loading">Cancel</button>
-                </div>
-            </form>
-        </mat-card-content>
-    </mat-card>
+<div class="bg-amber-50 rounded-lg p-4 mb-5 border border-amber-200 flex items-center gap-3" *ngIf="amount">
+  <div class="bg-amber-500 rounded-lg p-2">
+    <lucide-angular name="indian-rupee" [size]="16" class="text-gray-900" strokeWidth="2"></lucide-angular>
+  </div>
+  <div>
+    <p class="text-xs text-gray-500 font-bold uppercase tracking-wider">Order Total</p>
+    <p class="text-xl font-bold text-gray-900 font-mono">{{ amount | currency:'INR':'symbol':'1.0-0' }}</p>
+  </div>
 </div>
+
+<form [formGroup]="orderForm" class="space-y-4">
+
+  <!-- Delivery Address -->
+  <div>
+    <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">
+      Delivery Address <span class="text-red-400">*</span>
+    </label>
+    <textarea pInputTextarea formControlName="address"
+              placeholder="House/Flat no., Street, Area, City, State, PIN" rows="3"></textarea>
+    <p class="text-red-500 text-xs mt-1.5 flex items-center gap-1"
+       *ngIf="orderForm.get('address')?.invalid && orderForm.get('address')?.touched">
+      <lucide-angular name="circle-alert" [size]="13" strokeWidth="2"></lucide-angular>
+      Address is required
+    </p>
+  </div>
+
+  <!-- Order Note -->
+  <div>
+    <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">
+      Order Note
+      <span class="text-gray-300 font-normal normal-case tracking-normal ml-1">(optional)</span>
+    </label>
+    <input pInputText formControlName="orderDescription" placeholder="Any special instructions…" />
+  </div>
+
+  <!-- Actions -->
+  <div class="flex justify-end gap-3 pt-3 border-t border-gray-100">
+    <button type="button"
+            class="flex items-center gap-2 px-4 py-2.5 border border-gray-200 text-gray-600 rounded-lg font-semibold text-sm hover:bg-gray-50 transition-colors disabled:opacity-50"
+            (click)="cancel()" [disabled]="loading">
+      Cancel
+    </button>
+    <button type="button"
+            class="flex items-center gap-2 px-4 py-2.5 bg-amber-500 text-gray-900 rounded-lg font-semibold text-sm hover:bg-amber-400 transition-colors disabled:opacity-50"
+            (click)="placeOrder()" [disabled]="orderForm.invalid || loading">
+      <lucide-angular *ngIf="!loading" name="credit-card" [size]="15" strokeWidth="2"></lucide-angular>
+      <lucide-angular *ngIf="loading" name="loader-circle" [size]="15" strokeWidth="2" class="animate-spin"></lucide-angular>
+      Pay with Razorpay
+    </button>
+  </div>
+</form>

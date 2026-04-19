@@ -1,5 +1,6 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
+import { Action } from '@ngrx/store';
 import { Router } from '@angular/router';
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import { Observable, of } from 'rxjs';
@@ -9,10 +10,14 @@ import { login, loginSuccess, loginFailure, logout } from './auth.actions';
 
 @Injectable()
 export class AuthEffects {
+  private actions$ = inject(Actions);
+  private authService = inject(AuthService);
+  private router = inject(Router);
+
   login$ = createEffect(() =>
     this.actions$.pipe(
       ofType(login),
-      switchMap(({ username, password }) =>
+      switchMap(({ username, password }): Observable<Action> =>
         (this.authService.login(username, password) as Observable<boolean>).pipe(
           map(() => {
             const user = UserStorageService.getUser();
@@ -51,10 +56,4 @@ export class AuthEffects {
       ),
     { dispatch: false }
   );
-
-  constructor(
-    private actions$: Actions,
-    private authService: AuthService,
-    private router: Router
-  ) {}
 }
