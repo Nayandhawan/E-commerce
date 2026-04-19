@@ -3,7 +3,6 @@ package com.stack.ecom.controller.admin;
 import com.stack.ecom.entity.Coupon;
 import com.stack.ecom.exceptions.ValidationException;
 import com.stack.ecom.services.admin.coupon.AdminCouponService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,16 +22,34 @@ public class AdminCouponController {
     @PostMapping
     public ResponseEntity<?> createCoupon(@RequestBody Coupon coupon){
         try {
-            Coupon createdCoupon  = adminCouponService.createCoupon(coupon);
-            return ResponseEntity.ok().body(createdCoupon);
-        }
-        catch (ValidationException ex){
+            return ResponseEntity.ok(adminCouponService.createCoupon(coupon));
+        } catch (ValidationException ex){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
         }
     }
 
     @GetMapping
-    public ResponseEntity<List<Coupon>> getAllCoupons(){
+    public ResponseEntity<List<Coupon>> getAllCoupons(
+            @RequestParam(required = false) Integer month,
+            @RequestParam(required = false) Integer year){
+        if (month != null && year != null) {
+            return ResponseEntity.ok(adminCouponService.getCouponsByMonthAndYear(month, year));
+        }
         return ResponseEntity.ok(adminCouponService.getAllCoupons());
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateCoupon(@PathVariable Long id, @RequestBody Coupon coupon){
+        try {
+            return ResponseEntity.ok(adminCouponService.updateCoupon(id, coupon));
+        } catch (ValidationException ex){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteCoupon(@PathVariable Long id){
+        adminCouponService.deleteCoupon(id);
+        return ResponseEntity.noContent().build();
     }
 }

@@ -1,11 +1,12 @@
-import { Component } from '@angular/core';
+import { Component, ViewEncapsulation } from '@angular/core';
 import { AdminService } from '../../service/admin.service';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-orders',
   templateUrl: './orders.component.html',
-  styleUrl: './orders.component.scss'
+  styleUrl: './orders.component.scss',
+  encapsulation: ViewEncapsulation.None
 })
 export class OrdersComponent {
 
@@ -14,7 +15,7 @@ export class OrdersComponent {
 
   constructor(
     private adminService: AdminService,
-    private snackBar: MatSnackBar
+    private messageService: MessageService
   ){}
 
   ngOnInit(){
@@ -30,15 +31,11 @@ export class OrdersComponent {
   changeOrderStatus(orderId: number, status: string){
     this.adminService.changeOrderStatus(orderId,status).subscribe(res =>{
       if(res.id !=null){
-        this.snackBar.open("Order status changed successfully",'close',{
-          duration:5000
-        });
+        this.messageService.add({ severity: 'success', summary: 'Success', detail: "Order status changed successfully", life: 5000 });
         this.getPlacedOrders();
       }
       else{
-        this.snackBar.open("Something went wrong",'close',{
-          duration:5000
-        });
+        this.messageService.add({ severity: 'success', summary: 'Success', detail: "Something went wrong", life: 5000 });
       }
     })
   }

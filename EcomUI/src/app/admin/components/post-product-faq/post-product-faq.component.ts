@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MessageService } from 'primeng/api';
 import { Router, ActivatedRoute } from '@angular/router';
 import { AdminService } from '../../service/admin.service';
 
@@ -16,7 +16,7 @@ export class PostProductFaqComponent {
 
   constructor(private fb: FormBuilder,
     private router: Router,
-    private snackBar: MatSnackBar,
+    private messageService: MessageService,
     private adminService: AdminService,
     private activatedRoute: ActivatedRoute
   ){}
@@ -35,14 +35,10 @@ export class PostProductFaqComponent {
     console.log("FAQ FORM :" + this.FAQForm.value);
     this.adminService.postFAQ(this.productId, this.FAQForm.value).subscribe(res =>{
       if(res.id !=null){
-        this.snackBar.open("FAQ Posted SuccessFully",'Close',{
-          duration: 5000
-        });
+        this.messageService.add({ severity: 'success', summary: 'Success', detail: "FAQ Posted SuccessFully", life: 5000 });
         this.router.navigateByUrl('/admin/dashboard');
       }else{
-        this.snackBar.open("Something went wrong",'Close',{
-          duration:5000
-        });
+        this.messageService.add({ severity: 'success', summary: 'Success', detail: "Something went wrong", life: 5000 });
       }
     })
   }

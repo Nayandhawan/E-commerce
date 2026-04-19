@@ -41,7 +41,8 @@ public class WebSecurityConfiguration {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authz -> authz
                         // Public endpoints
-                        .requestMatchers("/authenticate", "/signup").permitAll()
+                        .requestMatchers("/api/auth/login", "/api/auth/signup").permitAll()
+                        .requestMatchers("/api/customer/cart/track/**").permitAll()
                         .requestMatchers("/order/**").permitAll()
                         // Swagger / Actuator (health check)
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()

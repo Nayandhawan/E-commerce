@@ -262,4 +262,30 @@ public class CartServiceImpl implements CartService{
         return optionalOrder.map(Order::getOrderDto).orElse(null);
     }
 
+    public OrderDto removeFromCart(Long userId, Long productId) {
+        Order activeOrder = orderRepository.findByUserIdAndOrderStatus(userId, OrderStatus.PENDING);
+        Optional<CartItems> optionalCartItems = cartItemsRepository.findByProductIdAndOrderIdAndUserId(
+                productId, activeOrder.getId(), userId);
+
+        if (optionalCartItems.isPresent()) {
+            CartItems cartItem = optionalCartItems.get();
+            long itemTotal = cartItem.getPrice() * cartItem.getQuantity();
+
+            activeOrder.setTotalAmount(activeOrder.getTotalAmount() - itemTotal);
+            activeOrder.setAmount(activeOrder.getAmount() - itemTotal);
+
+            if (activeOrder.getCoupon() != null) {
+                double discountAmount = (activeOrder.getCoupon().getDiscount() / 100.0) * activeOrder.getTotalAmount();
+                activeOrder.setAmount((long) (activeOrder.getTotalAmount() - discountAmount));
+                activeOrder.setDiscount((long) discountAmount);
+            }
+
+            activeOrder.getCartItems().remove(cartItem);
+            cartItemsRepository.delete(cartItem);
+            orderRepository.save(activeOrder);
+        }
+
+        return activeOrder.getOrderDto();
+    }
+
 }

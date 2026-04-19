@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MessageService } from 'primeng/api';
 import { Router } from '@angular/router';
 import { AdminService } from '../../service/admin.service';
 
@@ -15,7 +15,7 @@ export class PostCouponComponent {
 
   constructor(private fb:FormBuilder,
     private router:Router,
-    private snackBar: MatSnackBar,
+    private messageService: MessageService,
     private adminService: AdminService
   ){}
 
@@ -23,24 +23,20 @@ export class PostCouponComponent {
     this.couponForm = this.fb.group({
       name : [null,[Validators.required]],
       code : [null,[Validators.required]],
-      discount : [null,[Validators.required]],
+      discount : [null,[Validators.required, Validators.min(1), Validators.max(100)]],
       expirationDate : [null,[Validators.required]]
     })
   }
 
   addCoupon(){
     if(this.couponForm.valid){
-      this.adminService.addCoupon(this.couponForm.value).subscribe(res =>{
+      const payload = { ...this.couponForm.value, discount: Number(this.couponForm.value.discount) };
+      this.adminService.addCoupon(payload).subscribe(res =>{
         if(res.id != null){
-          this.snackBar.open('Coupon Posted SuccessFully','Close',{
-            duration: 5000
-          });
+          this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Coupon Posted SuccessFully', life: 5000 });
           this.router.navigateByUrl('/admin/dashboard');
         }else{
-          this.snackBar.open(res.message,'Close',{
-            duration: 5000,
-            panelClass: 'error-snackbar'
-          });
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: res.message, life: 5000 });
         }
       })
     }else{

@@ -1,37 +1,17 @@
-<div class="order-status-container">
-    <mat-card class="order-status-card">
-        <mat-card-header>
-            <div mat-card-avatar class="status-avator">
-                P
-            </div>
-            <mat-card-title>Placed</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-            <div class="status-value">{{ data.placed }}</div>
-        </mat-card-content>
-    </mat-card>
-
-    <mat-card class="order-status-card">
-        <mat-card-header>
-            <div mat-card-avatar class="status-avator">
-                S
-            </div>
-            <mat-card-title>Shipped</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-            <div class="status-value">{{ data.shipped }}</div>
-        </mat-card-content>
-    </mat-card>
-
-    <mat-card class="order-status-card">
-        <mat-card-header>
-            <div mat-card-avatar class="status-avator">
-                D
-            </div>
-            <mat-card-title>Delivered</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-            <div class="status-value">{{ data.delivered }}</div>
-        </mat-card-content>
-    </mat-card>
+<div class="status-grid">
+  <div class="status-card status-placed">
+    <lucide-angular name="shopping-cart" [size]="22" class="status-icon" strokeWidth="1.5"></lucide-angular>
+    <div class="status-value">{{ data.placed }}</div>
+    <div class="status-label">Placed</div>
+  </div>
+  <div class="status-card status-shipped">
+    <lucide-angular name="truck" [size]="22" class="status-icon" strokeWidth="1.5"></lucide-angular>
+    <div class="status-value">{{ data.shipped }}</div>
+    <div class="status-label">Shipped</div>
+  </div>
+  <div class="status-card status-delivered">
+    <lucide-angular name="circle-check-big" [size]="22" class="status-icon" strokeWidth="1.5"></lucide-angular>
+    <div class="status-value">{{ data.delivered }}</div>
+    <div class="status-label">Delivered</div>
+  </div>
 </div>

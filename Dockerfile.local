@@ -1,0 +1,41 @@
+# ─── Stage 1: Build Angular ──────────────────────────────────────────────────
+FROM node:20-alpine AS ui-builder
+WORKDIR /ui
+
+COPY EcomUI/package.json EcomUI/package-lock.json ./
+RUN npm ci --silent
+
+COPY EcomUI/ ./
+# Force output to a known path inside the container; Angular 17+ puts files in browser/
+RUN npm run build -- --configuration production --output-path /ui/dist/out
+
+# ─── Stage 2: Build Spring Boot ──────────────────────────────────────────────
+FROM eclipse-temurin:17-jdk-jammy AS app-builder
+WORKDIR /app
+
+COPY mvnw pom.xml ./
+COPY .mvn .mvn
+RUN ./mvnw dependency:go-offline -q
+
+COPY src ./src
+
+# Clear any pre-existing static output (local builds put files in static/browser/)
+# then copy the Docker Angular build output flat into static/ so index.html is at /
+RUN rm -rf ./src/main/resources/static
+RUN mkdir -p ./src/main/resources/static
+COPY --from=ui-builder /ui/dist/out/browser ./src/main/resources/static
+
+RUN ./mvnw package -DskipTests -q
+
+# ─── Stage 3: Runtime ────────────────────────────────────────────────────────
+FROM eclipse-temurin:17-jre-jammy
+WORKDIR /app
+
+RUN groupadd -r appgroup && useradd -r -g appgroup appuser
+USER appuser
+
+COPY --from=app-builder /app/target/ecom-0.0.1-SNAPSHOT.jar app.jar
+
+EXPOSE 8080
+
+ENTRYPOINT ["java", "-jar", "app.jar"]

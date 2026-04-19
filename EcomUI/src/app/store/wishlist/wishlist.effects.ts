@@ -1,6 +1,6 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MessageService } from 'primeng/api';
 import { catchError, map, switchMap } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { CustomerService } from '../../customer/services/customer.service';
@@ -13,6 +13,10 @@ import {
 
 @Injectable()
 export class WishlistEffects {
+  private actions$ = inject(Actions);
+  private customerService = inject(CustomerService);
+  private messageService = inject(MessageService);
+
   loadWishlist$ = createEffect(() =>
     this.actions$.pipe(
       ofType(loadWishlist),
@@ -39,11 +43,11 @@ export class WishlistEffects {
         const dto = { userId: UserStorageService.getUserId(), productId };
         return this.customerService.addProductToWishlist(dto).pipe(
           map(() => {
-            this.snackBar.open('Added to wishlist!', 'Close', { duration: 2000 });
+            this.messageService.add({ severity: 'success', summary: 'Wishlist', detail: 'Added to wishlist!', life: 2000 });
             return addToWishlistSuccess({ productId });
           }),
           catchError(() => {
-            this.snackBar.open('Could not add to wishlist', 'Close', { duration: 2000 });
+            this.messageService.add({ severity: 'error', summary: 'Wishlist', detail: 'Could not add to wishlist', life: 2000 });
             return of(addToWishlistFailure({ error: 'Failed' }));
           })
         );
@@ -57,21 +61,15 @@ export class WishlistEffects {
       switchMap(({ productId }) =>
         this.customerService.removeFromWishlist(productId).pipe(
           map(() => {
-            this.snackBar.open('Removed from wishlist', 'Close', { duration: 2000 });
+            this.messageService.add({ severity: 'info', summary: 'Wishlist', detail: 'Removed from wishlist', life: 2000 });
             return removeFromWishlistSuccess({ productId });
           }),
           catchError(() => {
-            this.snackBar.open('Could not remove from wishlist', 'Close', { duration: 2000 });
+            this.messageService.add({ severity: 'error', summary: 'Wishlist', detail: 'Could not remove from wishlist', life: 2000 });
             return of(removeFromWishlistFailure({ error: 'Failed' }));
           })
         )
       )
     )
   );
-
-  constructor(
-    private actions$: Actions,
-    private customerService: CustomerService,
-    private snackBar: MatSnackBar
-  ) {}
 }

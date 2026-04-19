@@ -1,23 +1,18 @@
-<div class="ordered-product-continer">
-    <div class="ordered-product" *ngFor="let product of orderedProductDetailsList">
-        <div class="product-info">
-            <div class="product-image">
-                <img [src]="product.processedImg" alt="product-image">
-            </div>
-            <div class="product-details">
-                <div class="item-row">
-                <div class="item-name">{{product.name}}</div>
-                <div class="item-price">Price: {{product.price | currency}}</div>
-                <div class="item-quantity">Quantity: {{product.quantity}}</div>
-                </div>
-            </div>
-            <div class="action-buttons">
-                <button mat-raised-button color="primary" [routerLink]="['/customer/review',product.id ]">Give Review</button>
-            </div>
-        </div>
-        <div class="total-price">
-            Total: {{totalAmount | currency}}
-        </div>
-
+<div class="page-wrap">
+  <h2 class="section-title">Order Items</h2>
+  <div class="ordered-list">
+    <div class="ordered-item" *ngFor="let p of orderedProductDetailsList">
+      <img [src]="p.processedImg" [alt]="p.name" class="ordered-img" />
+      <div class="ordered-info">
+        <p class="ordered-name">{{ p.name }}</p>
+        <p class="ordered-meta">Qty: {{ p.quantity }} &nbsp;·&nbsp; ₹{{ p.price | number }} each</p>
+      </div>
+      <a [routerLink]="['/customer/review', p.id]"
+         class="flex items-center gap-2 px-4 py-2 border border-amber-300 text-amber-700 rounded-lg text-sm font-semibold hover:bg-amber-50 transition-colors">
+        <lucide-angular name="star" [size]="14" strokeWidth="2"></lucide-angular>
+        Review
+      </a>
     </div>
+  </div>
+  <div class="ordered-total" *ngIf="totalAmount">Total: <strong>₹{{ totalAmount | number }}</strong></div>
 </div>

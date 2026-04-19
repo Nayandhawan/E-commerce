@@ -32,8 +32,8 @@ public class CartController {
         return ResponseEntity.status(HttpStatus.OK).body(orderDto);
     }
 
-    @GetMapping("/coupon/{userId}/{code}")
-    public ResponseEntity<?> applyCoupon(@PathVariable Long userId, @PathVariable String code){
+    @PostMapping("/cart/{userId}/coupon")
+    public ResponseEntity<?> applyCoupon(@PathVariable Long userId, @RequestParam String code){
         try{
             OrderDto orderDto = cartService.applyCoupon(userId,code);
             return ResponseEntity.ok(orderDto);
@@ -42,23 +42,28 @@ public class CartController {
         }
     }
 
-    @PostMapping("/addition")
+    @PutMapping("/cart/increase")
     public ResponseEntity<?> increaseProductQuantity(@RequestBody AddProductInCartDto addProductInCartDto){
-        return ResponseEntity.status(HttpStatus.CREATED).body(cartService.increaseProductQuantity(addProductInCartDto));
+        return ResponseEntity.ok(cartService.increaseProductQuantity(addProductInCartDto));
     }
 
-    @PostMapping("/deduction")
+    @PutMapping("/cart/decrease")
     public ResponseEntity<?> decreaseProductQuantity(@RequestBody AddProductInCartDto addProductInCartDto){
-        return ResponseEntity.status(HttpStatus.CREATED).body(cartService.decreaseProductQuantity(addProductInCartDto));
+        return ResponseEntity.ok(cartService.decreaseProductQuantity(addProductInCartDto));
     }
 
-    @PostMapping("/placeOrder")
+    @PostMapping("/cart/place-order")
     public ResponseEntity<?> placeOrder(@RequestBody PlaceOrderDto placeOrderDto){
         return ResponseEntity.status(HttpStatus.CREATED).body(cartService.placeOrder(placeOrderDto));
     }
 
-    @GetMapping("/myOrders/{userId}")
+    @GetMapping("/cart/{userId}/orders")
     public ResponseEntity<List<OrderDto>> getMyPlacedOrder(@PathVariable Long userId){
         return ResponseEntity.ok(cartService.getPlacedOrder(userId));
+    }
+
+    @DeleteMapping("/cart/{userId}/{productId}")
+    public ResponseEntity<?> removeFromCart(@PathVariable Long userId, @PathVariable Long productId) {
+        return ResponseEntity.ok(cartService.removeFromCart(userId, productId));
     }
 }

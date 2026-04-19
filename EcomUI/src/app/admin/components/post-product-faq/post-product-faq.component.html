@@ -1,18 +1,58 @@
-<div class="container">
-    <h2>Post FAQ</h2>
-    <form [formGroup]="FAQForm" (ngSubmit)="postFAQ()">
-        <mat-form-field class="form-field" appearance="outline">
-            <mat-label>Question</mat-label>
-            <textarea matInput placeholder="Question" formControlName="question"></textarea>
-            <mat-error *ngIf="FAQForm.get('question')?.hasError('required')">This input is required</mat-error>
-        </mat-form-field>
+<p-toast position="top-right"></p-toast>
 
-        <mat-form-field class="form-field" appearance="outline">
-            <mat-label>Answer</mat-label>
-            <textarea matInput placeholder="Answer" formControlName="answer"></textarea>
-            <mat-error *ngIf="FAQForm.get('answer')?.hasError('required')">This input is required</mat-error>
-        </mat-form-field>
+<div class="min-h-screen flex items-start justify-center px-4 py-10" style="background:var(--bg-base)">
+  <div class="w-full max-w-lg">
 
-        <button mat-raised-button color="primary" type="submit">Post FAQ</button>
-    </form>
+    <!-- Card header -->
+    <div class="rounded-t-2xl px-7 py-6" style="background:#131921">
+      <div class="flex items-center gap-3">
+        <div class="rounded-xl p-2.5" style="background:rgba(255,255,255,0.12)">
+          <lucide-angular name="message-circle-question-mark" [size]="22" class="text-white" strokeWidth="1.5"></lucide-angular>
+        </div>
+        <div>
+          <h2 class="text-white text-xl font-bold tracking-tight">Add FAQ</h2>
+          <p class="text-sm" style="color:rgba(255,255,255,0.55)">Add a question &amp; answer for this product</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card body -->
+    <div class="rounded-b-2xl shadow-xl px-7 py-8" style="background:#fff;border:1.5px solid var(--border);border-top:none">
+      <form [formGroup]="FAQForm" (ngSubmit)="postFAQ()" class="space-y-5">
+
+        <!-- Question -->
+        <div class="form-group">
+          <label>Question <span style="color:var(--danger)">*</span></label>
+          <textarea pInputTextarea formControlName="question" placeholder="What would customers ask about this product?" rows="3"></textarea>
+          <p class="field-error flex items-center gap-1"
+             *ngIf="FAQForm.get('question')?.invalid && FAQForm.get('question')?.touched">
+            <lucide-angular name="circle-alert" [size]="13" strokeWidth="2"></lucide-angular> Required
+          </p>
+        </div>
+
+        <!-- Answer -->
+        <div class="form-group">
+          <label>Answer <span style="color:var(--danger)">*</span></label>
+          <textarea pInputTextarea formControlName="answer" placeholder="Provide a clear and helpful answer…" rows="4"></textarea>
+          <p class="field-error flex items-center gap-1"
+             *ngIf="FAQForm.get('answer')?.invalid && FAQForm.get('answer')?.touched">
+            <lucide-angular name="circle-alert" [size]="13" strokeWidth="2"></lucide-angular> Required
+          </p>
+        </div>
+
+        <div style="border-top:1px solid var(--border);padding-top:.5rem"></div>
+
+        <button type="submit"
+                class="w-full h-11 flex items-center justify-center gap-2 rounded-lg font-bold text-base transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                style="background:var(--primary);color:#0F1111"
+                onmouseenter="if(!this.disabled)this.style.background='var(--primary-h)'"
+                onmouseleave="this.style.background='var(--primary)'"
+                [disabled]="FAQForm.invalid">
+          <lucide-angular name="circle-check-big" [size]="18" strokeWidth="2"></lucide-angular>
+          Post FAQ
+        </button>
+      </form>
+    </div>
+
+  </div>
 </div>

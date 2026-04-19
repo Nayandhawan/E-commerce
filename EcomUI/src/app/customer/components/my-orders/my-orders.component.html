@@ -19,8 +19,14 @@
 
       <div class="order-body">
         <div class="order-info">
-          <p class="info-row"><mat-icon>receipt</mat-icon> {{ order.orderDescription }}</p>
-          <p class="info-row"><mat-icon>location_on</mat-icon> {{ order.address }}</p>
+          <p class="info-row">
+            <lucide-angular name="receipt" [size]="15" strokeWidth="1.5"></lucide-angular>
+            {{ order.orderDescription }}
+          </p>
+          <p class="info-row">
+            <lucide-angular name="map-pin" [size]="15" strokeWidth="1.5"></lucide-angular>
+            {{ order.address }}
+          </p>
         </div>
         <div class="order-amount">
           <span class="amount-label">Total</span>
@@ -30,7 +36,8 @@
 
       <div class="order-footer" *ngIf="order.orderStatus === 'DELIVERED'">
         <a class="btn-review" [routerLink]="['/customer/ordered_products', order.id]">
-          <mat-icon>rate_review</mat-icon> Write a Review
+          <lucide-angular name="pen-line" [size]="15" strokeWidth="2"></lucide-angular>
+          Write a Review
         </a>
       </div>
     </div>
@@ -38,7 +45,7 @@
 
   <ng-template #noOrders>
     <div class="empty-state">
-      <mat-icon>receipt_long</mat-icon>
+      <lucide-angular name="scroll-text" [size]="56" class="empty-icon" strokeWidth="1"></lucide-angular>
       <h3>No orders yet</h3>
       <p>You haven't placed any orders.</p>
       <a class="btn-shop" routerLink="/customer/dashboard">Start Shopping</a>

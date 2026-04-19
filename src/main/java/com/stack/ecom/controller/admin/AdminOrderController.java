@@ -2,13 +2,13 @@ package com.stack.ecom.controller.admin;
 
 import com.stack.ecom.dto.AnalyticsResponse;
 import com.stack.ecom.dto.OrderDto;
+import com.stack.ecom.dto.SalesChartResponse;
 import com.stack.ecom.services.admin.adminOrder.AdminOrderService;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -22,12 +22,12 @@ public class AdminOrderController {
         this.adminOrderService = adminOrderService;
     }
 
-    @GetMapping("/placedOrders")
+    @GetMapping("/orders")
     public ResponseEntity<List<OrderDto>> getAllPlacedOrders(){
         return ResponseEntity.ok(adminOrderService.getAllPlacedOrders());
     }
 
-    @GetMapping("/order/{orderId}/{status}")
+    @GetMapping("/orders/{orderId}/{status}")
     public ResponseEntity<?> changeOrderStatus(@PathVariable Long orderId, @PathVariable String status){
         OrderDto orderDto = adminOrderService.changeOrderStatus(orderId,status);
         if (orderDto == null){
@@ -36,8 +36,30 @@ public class AdminOrderController {
         return ResponseEntity.status(HttpStatus.OK).body(orderDto);
     }
 
-    @GetMapping("/order/analytics")
+    @GetMapping("/orders/analytics")
     public ResponseEntity<AnalyticsResponse> getAnalytics(){
         return ResponseEntity.ok(adminOrderService.calculateAnalytics());
+    }
+
+    @GetMapping("/sales-chart")
+    public ResponseEntity<SalesChartResponse> getSalesChart(
+            @RequestParam int fromYear,
+            @RequestParam int toYear) {
+        return ResponseEntity.ok(adminOrderService.getSalesChart(fromYear, toYear));
+    }
+
+    @GetMapping("/sales-report")
+    public ResponseEntity<byte[]> getSalesReport(
+            @RequestParam String type,
+            @RequestParam int year,
+            @RequestParam(required = false) Integer month,
+            @RequestParam(required = false) Integer quarter
+    ) {
+        byte[] excel = adminOrderService.generateSalesReport(type, year, month, quarter);
+        String filename = "sales-report-" + type.toLowerCase() + "-" + year + ".xlsx";
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
+                .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                .body(excel);
     }
 }

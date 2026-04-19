@@ -30,7 +30,6 @@ export class AppComponent {
   isAdminLoggedIn: boolean = UserStorageService.isAdminLoggedIn();
   isCustomerLoggedIn: boolean = UserStorageService.isCustomerLoggedIn();
   dropdownOpen = false;
-  profileOpen = false;
   userDetails: any = null;
   userName = '';
   userInitial = '';
@@ -57,7 +56,7 @@ export class AppComponent {
 
   openProfile() {
     this.dropdownOpen = false;
-    this.profileOpen = true;
+    this.router.navigateByUrl('customer/profile');
   }
 
   logout() {

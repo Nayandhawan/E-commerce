@@ -9,4 +9,6 @@ public interface WishlistService {
     WishlistDto addProductToWishlist(WishlistDto wishlistDto);
 
     List<WishlistDto> getWishlistByUserId(Long userId);
+
+    void removeFromWishlist(Long userId, Long productId);
 }

@@ -2,7 +2,8 @@ import { createReducer, on } from '@ngrx/store';
 import {
   loadCart, loadCartSuccess, loadCartFailure,
   increaseQuantity, decreaseQuantity,
-  applyCoupon, applyCouponSuccess, applyCouponFailure
+  applyCoupon, applyCouponSuccess, applyCouponFailure,
+  removeFromCart
 } from './cart.actions';
 
 export interface CartState {
@@ -24,7 +25,7 @@ export const cartReducer = createReducer(
   on(loadCart, state => ({ ...state, loading: true, error: null })),
   on(loadCartSuccess, (state, { order, cartItems }) => ({ ...state, order, cartItems, loading: false })),
   on(loadCartFailure, (state, { error }) => ({ ...state, loading: false, error })),
-  on(increaseQuantity, decreaseQuantity, state => ({ ...state, loading: true })),
+  on(increaseQuantity, decreaseQuantity, removeFromCart, state => ({ ...state, loading: true })),
   on(applyCoupon, state => ({ ...state, loading: true, error: null })),
   on(applyCouponSuccess, state => ({ ...state, loading: false })),
   on(applyCouponFailure, (state, { error }) => ({ ...state, loading: false, error }))

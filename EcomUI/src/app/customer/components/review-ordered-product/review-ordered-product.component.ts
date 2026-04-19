@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MessageService } from 'primeng/api';
 import { CustomerService } from '../../services/customer.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { UserStorageService } from '../../../services/storage/user-storage.service';
@@ -18,7 +18,7 @@ export class ReviewOrderedProductComponent {
   imagePreview: string | ArrayBuffer | null;
 
   constructor(private fb: FormBuilder,
-    private snackBar: MatSnackBar,
+    private messageService: MessageService,
     private customerService:CustomerService,
     private router: Router,
     private activatedRoute: ActivatedRoute
@@ -56,14 +56,10 @@ export class ReviewOrderedProductComponent {
 
     this.customerService.giveReview(formdata).subscribe(res =>{
       if(res != null){
-        this.snackBar.open('Review Posted Successfully','Close',{
-          duration: 5000
-        });
+        this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Review Posted Successfully', life: 5000 });
         this.router.navigateByUrl('/customer/my_orders');
       }else{
-        this.snackBar.open('Something went wrong','Close',{
-          duration: 5000
-        });
+        this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Something went wrong', life: 5000 });
       }
     })
   }

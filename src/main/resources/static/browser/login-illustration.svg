@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 320" fill="none">
+  <!-- Background circle -->
+  <circle cx="200" cy="160" r="130" fill="#EEF2FF"/>
+
+  <!-- Shopping bag -->
+  <rect x="130" y="140" width="140" height="110" rx="12" fill="#4F46E5"/>
+  <rect x="150" y="140" width="100" height="10" rx="5" fill="#4338CA"/>
+
+  <!-- Bag handle -->
+  <path d="M160 140 Q160 110 200 110 Q240 110 240 140" stroke="#4F46E5" stroke-width="10" stroke-linecap="round" fill="none"/>
+
+  <!-- Checkmark on bag -->
+  <path d="M178 190 L192 205 L222 178" stroke="white" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Stars -->
+  <circle cx="100" cy="100" r="6" fill="#818CF8"/>
+  <circle cx="310" cy="90" r="4" fill="#A5B4FC"/>
+  <circle cx="320" cy="200" r="5" fill="#818CF8"/>
+  <circle cx="85" cy="220" r="4" fill="#A5B4FC"/>
+
+  <!-- Sparkles -->
+  <path d="M330 130 L333 120 L336 130 L346 133 L336 136 L333 146 L330 136 L320 133 Z" fill="#C7D2FE"/>
+  <path d="M70 150 L72 143 L74 150 L81 152 L74 154 L72 161 L70 154 L63 152 Z" fill="#C7D2FE"/>
+</svg>

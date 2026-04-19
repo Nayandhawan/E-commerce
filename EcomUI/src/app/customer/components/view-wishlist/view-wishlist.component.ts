@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
 import { CustomerService } from '../../services/customer.service';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MessageService } from 'primeng/api';
 import { loadWishlist, removeFromWishlist } from '../../../store/wishlist/wishlist.actions';
 import { selectWishlistProducts } from '../../../store/wishlist/wishlist.selectors';
 
@@ -18,7 +18,7 @@ export class ViewWishlistComponent implements OnInit {
   constructor(
     private store: Store,
     private customerService: CustomerService,
-    private snackBar: MatSnackBar
+    private messageService: MessageService
   ) {
     this.products$ = this.store.select(selectWishlistProducts);
   }
@@ -33,8 +33,8 @@ export class ViewWishlistComponent implements OnInit {
 
   moveToCart(productId: number) {
     this.customerService.addToCart(productId).subscribe({
-      next: () => this.snackBar.open('Added to cart!', 'Close', { duration: 2000 }),
-      error: () => this.snackBar.open('Could not add to cart', 'Close', { duration: 2000 })
+      next: () => this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Added to cart!', life: 2000 }),
+      error: () => this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Could not add to cart', life: 2000 })
     });
   }
 }

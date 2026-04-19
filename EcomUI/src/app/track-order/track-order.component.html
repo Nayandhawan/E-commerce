@@ -1,46 +1,51 @@
-<form  [formGroup]="searchOrderForm" class="search-form" (submit)="submitForm()">
-    <mat-form-field class="search-input" appearance="outline">
-        <mat-label>Enter Tracking Id to Search</mat-label>
-        <input matInput formControlName="trackingId">
-        <button mat-button matSuffix color="primary" [disabled]="searchOrderForm.invalid">
-            <mat-icon>search</mat-icon>
+<div class="page-wrap" style="max-width:600px">
+  <h2 class="section-title">Track Your Order</h2>
+  <form [formGroup]="searchOrderForm" (ngSubmit)="submitForm()" class="track-form">
+    <div class="form-group">
+      <label>Tracking ID</label>
+      <div class="flex gap-3">
+        <input pInputText formControlName="trackingId" placeholder="Enter your tracking ID" class="flex-1" />
+        <button type="submit"
+                class="flex items-center gap-2 px-4 py-2 bg-amber-500 text-gray-900 rounded-lg font-semibold text-sm hover:bg-amber-400 transition-colors disabled:opacity-50"
+                [disabled]="searchOrderForm.invalid">
+          <lucide-angular name="search" [size]="16" strokeWidth="2"></lucide-angular>
+          Track
         </button>
-    </mat-form-field>
-</form>
-
-<div class="order-details-container" *ngIf="order">
-    <mat-card>
-        <mat-card-header>
-            <mat-card-title>Order Details</mat-card-title>
-        </mat-card-header>
-        <div class="order-detail">
-            Tracking Id:
-            <strong> {{order.trackingId}} </strong>
+      </div>
+    </div>
+  </form>
+  <div class="mt-8" *ngIf="order">
+    <p-card>
+      <ng-template pTemplate="header">
+        <div class="flex justify-between items-center px-5 pt-5 pb-0">
+          <span style="font-family:var(--font-display);font-size:1.1rem;font-weight:600">Order Details</span>
+          <p-tag [value]="order.orderStatus"
+                 [severity]="order.orderStatus==='DELIVERED' ? 'success' : order.orderStatus==='SHIPPED' ? 'warning' : 'info'">
+          </p-tag>
         </div>
-
-        <div class="order-detail">
-            Username:
-            <strong> {{order.userName}} </strong>
+      </ng-template>
+      <div class="flex flex-col gap-0 py-1">
+        <div class="flex items-center gap-3 py-3 border-b border-gray-100 text-gray-600">
+          <lucide-angular name="hash" [size]="16" strokeWidth="1.5" class="text-amber-500 flex-shrink-0"></lucide-angular>
+          <span class="font-mono text-sm">{{ order.trackingId }}</span>
         </div>
-
-        <div class="order-detail">
-            Address:
-            <strong> {{order.address}} </strong>
+        <div class="flex items-center gap-3 py-3 border-b border-gray-100 text-gray-600">
+          <lucide-angular name="user" [size]="16" strokeWidth="1.5" class="text-amber-500 flex-shrink-0"></lucide-angular>
+          <span class="text-sm">{{ order.userName }}</span>
         </div>
-
-        <div class="order-detail">
-            Amount:
-            <strong> {{order.amount | currency}} </strong>
+        <div class="flex items-center gap-3 py-3 border-b border-gray-100 text-gray-600">
+          <lucide-angular name="map-pin" [size]="16" strokeWidth="1.5" class="text-amber-500 flex-shrink-0"></lucide-angular>
+          <span class="text-sm">{{ order.address }}</span>
         </div>
-
-        <div class="order-detail">
-            Status:
-            <strong> {{order.orderStatus}} </strong>
+        <div class="flex items-center gap-3 py-3 border-b border-gray-100 text-gray-600">
+          <lucide-angular name="wallet" [size]="16" strokeWidth="1.5" class="text-amber-500 flex-shrink-0"></lucide-angular>
+          <span class="text-sm font-semibold text-violet-700">{{ order.amount | currency:'INR':'symbol':'1.0-0' }}</span>
         </div>
-
-        <div class="order-detail">
-            Date:
-            <strong> {{order.date | date}} </strong>
+        <div class="flex items-center gap-3 py-3 text-gray-600">
+          <lucide-angular name="calendar" [size]="16" strokeWidth="1.5" class="text-amber-500 flex-shrink-0"></lucide-angular>
+          <span class="text-sm">{{ order.date | date }}</span>
         </div>
-    </mat-card>
+      </div>
+    </p-card>
+  </div>
 </div>

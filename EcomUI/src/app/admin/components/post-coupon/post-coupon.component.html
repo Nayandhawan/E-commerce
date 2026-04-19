@@ -1,33 +1,78 @@
-<div class="container">
-    <h2>Add Coupon</h2>
-    <form [formGroup]="couponForm" (ngSubmit)="addCoupon()">
-        <mat-form-field class="form-field" appearance="outline">
-            <mat-label>Name</mat-label>
-            <input matInput type="text" placeholder="Name" formControlName="name">
-            <mat-error *ngIf="couponForm.get('name')?.hasError('required')">This input is required</mat-error>
-        </mat-form-field>
+<p-toast position="top-right"></p-toast>
 
-        <mat-form-field class="form-field" appearance="outline">
-            <mat-label>Code</mat-label>
-            <input matInput type="text" placeholder="Code" formControlName="code">
-            <mat-error *ngIf="couponForm.get('code')?.hasError('required')">This input is required</mat-error>
-        </mat-form-field>
+<div class="min-h-screen flex items-start justify-center px-4 py-10" style="background:var(--bg-base)">
+  <div class="w-full max-w-md">
 
-        <mat-form-field class="form-field" appearance="outline">
-            <mat-label>Discount</mat-label>
-            <input matInput type="text" placeholder="Discount" formControlName="discount">
-            <mat-error *ngIf="couponForm.get('discount')?.hasError('required')">This input is required</mat-error>
-        </mat-form-field>
+    <!-- Card header -->
+    <div class="rounded-t-2xl px-7 py-6" style="background:#131921">
+      <div class="flex items-center gap-3">
+        <div class="rounded-xl p-2.5" style="background:rgba(255,255,255,0.12)">
+          <lucide-angular name="tag" [size]="22" class="text-white" strokeWidth="1.5"></lucide-angular>
+        </div>
+        <div>
+          <h2 class="text-white text-xl font-bold tracking-tight">Add Coupon</h2>
+          <p class="text-sm" style="color:rgba(255,255,255,0.55)">Create a new discount coupon</p>
+        </div>
+      </div>
+    </div>
 
-        <mat-form-field class="form-field" appearance="outline">
-            <mat-label>Expiration Date</mat-label>
-            <input matInput [matDatepicker]="picker" formControlName="expirationDate">
-            <mat-hint>MM/DD/YYYY</mat-hint>
-            <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-            <mat-datepicker #picker></mat-datepicker>
-            <mat-error *ngIf="couponForm.get('expirationDate')?.hasError('required')">This input is required</mat-error>
-        </mat-form-field>
+    <!-- Card body -->
+    <div class="rounded-b-2xl shadow-xl px-7 py-8" style="background:#fff;border:1.5px solid var(--border);border-top:none">
+      <form [formGroup]="couponForm" (ngSubmit)="addCoupon()" class="space-y-5">
 
-        <button mat-raised-button color="primary" type="submit">Add Coupon</button>
-    </form>
+        <!-- Name -->
+        <div class="form-group">
+          <label>Coupon Name <span style="color:var(--danger)">*</span></label>
+          <input pInputText formControlName="name" placeholder="e.g. Summer Sale" />
+          <p class="field-error flex items-center gap-1"
+             *ngIf="couponForm.get('name')?.invalid && couponForm.get('name')?.touched">
+            <lucide-angular name="circle-alert" [size]="13" strokeWidth="2"></lucide-angular> Required
+          </p>
+        </div>
+
+        <!-- Code + Discount row -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="form-group">
+            <label>Code <span style="color:var(--danger)">*</span></label>
+            <input pInputText formControlName="code" placeholder="e.g. SUM20OFF" />
+            <p class="field-error flex items-center gap-1"
+               *ngIf="couponForm.get('code')?.invalid && couponForm.get('code')?.touched">
+              <lucide-angular name="circle-alert" [size]="13" strokeWidth="2"></lucide-angular> Required
+            </p>
+          </div>
+          <div class="form-group">
+            <label>Discount % <span style="color:var(--danger)">*</span></label>
+            <input pInputText type="number" formControlName="discount" placeholder="1–100" />
+            <p class="field-error flex items-center gap-1"
+               *ngIf="couponForm.get('discount')?.invalid && couponForm.get('discount')?.touched">
+              <lucide-angular name="circle-alert" [size]="13" strokeWidth="2"></lucide-angular> Enter 1–100
+            </p>
+          </div>
+        </div>
+
+        <!-- Expiration Date -->
+        <div class="form-group">
+          <label>Expiration Date <span style="color:var(--danger)">*</span></label>
+          <p-calendar formControlName="expirationDate" dateFormat="dd/mm/yy" [showIcon]="true" placeholder="Select date" appendTo="body"></p-calendar>
+          <p class="field-error flex items-center gap-1"
+             *ngIf="couponForm.get('expirationDate')?.invalid && couponForm.get('expirationDate')?.touched">
+            <lucide-angular name="circle-alert" [size]="13" strokeWidth="2"></lucide-angular> Required
+          </p>
+        </div>
+
+        <div style="border-top:1px solid var(--border);padding-top:.5rem"></div>
+
+        <button type="submit"
+                class="w-full h-11 flex items-center justify-center gap-2 rounded-lg font-bold text-base transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                style="background:var(--primary);color:#0F1111"
+                onmouseenter="if(!this.disabled)this.style.background='var(--primary-h)'"
+                onmouseleave="this.style.background='var(--primary)'"
+                [disabled]="couponForm.invalid">
+          <lucide-angular name="tag" [size]="18" strokeWidth="2"></lucide-angular>
+          Add Coupon
+        </button>
+      </form>
+    </div>
+
+  </div>
 </div>

@@ -1,81 +1,90 @@
+<p-toast position="top-right"></p-toast>
 <div class="page-wrap">
-
   <ng-container *ngIf="{ items: cartItems$ | async, order: order$ | async } as vm">
 
     <div class="cart-layout" *ngIf="vm.items && vm.items.length > 0; else emptyCart">
 
-      <!-- Left: Items -->
+      <!-- Items -->
       <div class="cart-items-panel">
-        <h2 class="panel-title">My Cart <span class="count">({{ vm.items.length }} items)</span></h2>
-
+        <h2 class="section-title">My Cart <span class="count-badge">{{ vm.items.length }}</span></h2>
         <div class="cart-item" *ngFor="let item of vm.items">
-          <img [src]="item.processedImg" [alt]="item.productName" loading="lazy" class="item-img" />
+          <img [src]="item.processedImg" [alt]="item.productName" class="item-img" />
           <div class="item-info">
             <p class="item-name">{{ item.productName }}</p>
-            <p class="item-price">₹{{ item.price | number }}</p>
             <div class="qty-row">
-              <button class="qty-btn" mat-icon-button [disabled]="item.quantity == 1" (click)="decreaseProductQuantity(item.productId)">
-                <mat-icon>remove</mat-icon>
+              <button type="button" class="qty-btn" [disabled]="item.quantity == 1"
+                      (click)="decreaseProductQuantity(item.productId)">
+                <lucide-angular name="minus" [size]="12" strokeWidth="2.5"></lucide-angular>
               </button>
               <span class="qty-val">{{ item.quantity }}</span>
-              <button class="qty-btn" mat-icon-button (click)="increaseProductQuantity(item.productId)">
-                <mat-icon>add</mat-icon>
+              <button type="button" class="qty-btn"
+                      (click)="increaseProductQuantity(item.productId)">
+                <lucide-angular name="plus" [size]="12" strokeWidth="2.5"></lucide-angular>
               </button>
             </div>
           </div>
-          <p class="item-total">₹{{ item.price * item.quantity | number }}</p>
+          <div class="item-right">
+            <p class="item-total">₹{{ item.price * item.quantity | number }}</p>
+            <button type="button" class="item-delete-btn" (click)="removeProduct(item.productId)" title="Remove item">
+              <lucide-angular name="trash-2" [size]="15" strokeWidth="2"></lucide-angular>
+            </button>
+          </div>
         </div>
       </div>
 
-      <!-- Right: Price Summary -->
+      <!-- Summary -->
       <div class="cart-summary-panel" *ngIf="vm.order">
-        <h3 class="panel-title">PRICE DETAILS</h3>
-        <div class="summary-row">
-          <span>Price ({{ vm.items.length }} items)</span>
-          <span>₹{{ vm.order.totalAmount | number }}</span>
-        </div>
-        <div class="summary-row discount" *ngIf="vm.order.couponName">
+        <h3 class="panel-title">Price Details</h3>
+        <div class="summary-row"><span>Price ({{ vm.items.length }} items)</span><span>₹{{ vm.order.totalAmount | number }}</span></div>
+        <div class="summary-row text-green" *ngIf="vm.order.couponName">
           <span>Coupon ({{ vm.order.couponName }})</span>
-          <span class="green">− ₹{{ vm.order.totalAmount - vm.order.amount | number }}</span>
+          <span>−₹{{ vm.order.totalAmount - vm.order.amount | number }}</span>
         </div>
-        <div class="summary-row">
-          <span>Delivery Charges</span>
-          <span class="green">FREE</span>
-        </div>
+        <div class="summary-row text-green"><span>Delivery</span><span>FREE</span></div>
         <div class="summary-divider"></div>
-        <div class="summary-row total-row">
-          <span>Total Amount</span>
-          <span>₹{{ vm.order.amount | number }}</span>
-        </div>
+        <div class="summary-row total-row"><span>Total</span><span>₹{{ vm.order.amount | number }}</span></div>
         <div class="summary-divider"></div>
 
-        <!-- Coupon input -->
-        <div class="coupon-block" *ngIf="vm.order.couponName == null">
+        <div class="coupon-block" *ngIf="!vm.order.couponName">
           <form [formGroup]="couponForm" (ngSubmit)="applyCoupon()" class="coupon-form">
-            <input class="coupon-input" type="text" placeholder="Enter coupon code" formControlName="code" />
-            <button class="btn-coupon" type="submit" [disabled]="couponForm.invalid">Apply</button>
+            <input pInputText placeholder="Coupon code" formControlName="code" class="coupon-input" />
+            <button pButton type="submit" label="Apply" class="p-button-outlined p-button-sm" [disabled]="couponForm.invalid"></button>
           </form>
         </div>
         <div class="coupon-applied" *ngIf="vm.order.couponName">
-          <mat-icon>check_circle</mat-icon> Coupon <strong>{{ vm.order.couponName }}</strong> applied
+          <lucide-angular name="circle-check" [size]="16" strokeWidth="2"></lucide-angular>
+          <strong>{{ vm.order.couponName }}</strong> applied
         </div>
 
-        <button class="btn-place-order" (click)="placeOrder(vm.order)">
-          PLACE ORDER
+        <button type="button"
+                class="w-full mt-4 h-11 flex items-center justify-center gap-2 bg-amber-500 text-gray-900 rounded-lg font-semibold text-sm hover:bg-amber-400 transition-colors place-order-btn"
+                (click)="placeOrder(vm.order)">
+          <lucide-angular name="credit-card" [size]="16" strokeWidth="2"></lucide-angular>
+          Place Order
         </button>
       </div>
-
     </div>
 
     <ng-template #emptyCart>
       <div class="empty-state">
-        <mat-icon>remove_shopping_cart</mat-icon>
-        <h3>Your cart is empty!</h3>
-        <p>Add items to it now.</p>
-        <a class="btn-shop" routerLink="/customer/dashboard">Shop Now</a>
+        <lucide-angular name="shopping-cart" [size]="56" class="empty-icon" strokeWidth="1"></lucide-angular>
+        <h3>Your cart is empty</h3>
+        <p>Add items to get started</p>
+        <a class="flex items-center gap-2 px-5 py-2.5 bg-amber-500 text-gray-900 rounded-lg font-semibold text-sm hover:bg-amber-400 transition-colors mt-3"
+           routerLink="/customer/dashboard">
+          Shop Now
+          <lucide-angular name="arrow-right" [size]="16" strokeWidth="2"></lucide-angular>
+        </a>
       </div>
     </ng-template>
 
   </ng-container>
-
 </div>
+
+<!-- Place Order Dialog -->
+<p-dialog header="Place Order" [(visible)]="showOrderDialog" [modal]="true" [style]="{width:'440px'}" [closable]="true">
+  <app-place-order [amount]="dialogAmount"
+                   (orderPlaced)="showOrderDialog=false"
+                   (cancelled)="showOrderDialog=false">
+  </app-place-order>
+</p-dialog>

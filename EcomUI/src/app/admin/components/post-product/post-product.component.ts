@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MessageService } from 'primeng/api';
 import { Router } from '@angular/router';
 import { AdminService } from '../../service/admin.service';
 
@@ -19,7 +19,7 @@ export class PostProductComponent {
   constructor(
     private fb: FormBuilder,
     private router: Router,
-    private snackBar: MatSnackBar,
+    private messageService: MessageService,
     private adminService: AdminService
   ){}
 
@@ -64,15 +64,11 @@ export class PostProductComponent {
 
       this.adminService.addProduct(formData).subscribe((res)=>{
         if(res!=null){
-          this.snackBar.open('Product Posted SuccessFully','Close',{
-            duration: 5000
-          });
+          this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Product Posted SuccessFully', life: 5000 });
           this.router.navigateByUrl('/admin/dashboard');
+        } else {
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: res?.message || 'Failed to post product', life: 5000 });
         }
-        this.snackBar.open(res.message, 'Close',{
-          duration: 5000,
-          panelClass: 'error-snackbar'
-        });
       })
     }
     else{

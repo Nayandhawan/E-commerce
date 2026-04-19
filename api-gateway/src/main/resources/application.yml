@@ -45,7 +45,7 @@ spring:
         - id: order-service
           uri: lb://order-service
           predicates:
-            - Path=/api/customer/cart/**, /api/customer/orders/**, /api/customer/wishlist/**, /api/admin/orders/**, /api/admin/coupons/**, /order/**
+            - Path=/api/customer/cart/**, /api/customer/orders/**, /api/customer/wishlist/**, /api/admin/orders/**, /api/admin/coupons/**, /api/admin/sales-report, /order/**
 
         # ── Payment Service ───────────────────────────────────────────────
         - id: payment-service
