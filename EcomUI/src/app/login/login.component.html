@@ -1,3 +1,4 @@
+<p-toast position="top-right"></p-toast>
 <div class="auth-page">
   <div class="auth-layout">
 
@@ -48,7 +49,10 @@
           </div>
 
           <div class="form-group">
-            <label for="password">Password</label>
+            <div class="password-label-row">
+              <label for="password">Password</label>
+              <button type="button" class="fp-link" (click)="openForgotPassword()">Forgot password?</button>
+            </div>
             <span class="p-input-icon-left p-input-icon-right w-full">
               <lucide-angular name="lock" [size]="16" strokeWidth="1.5"></lucide-angular>
               <input pInputText id="password" formControlName="password" placeholder="••••••••"
@@ -79,3 +83,108 @@
 
   </div>
 </div>
+
+<!-- Forgot Password Dialog -->
+<p-dialog [(visible)]="showFpDialog" [modal]="true" [style]="{width:'400px'}" [closable]="true" [draggable]="false">
+  <ng-template pTemplate="header">
+    <div class="fp-header">
+      <lucide-angular name="key-round" [size]="18" strokeWidth="2" style="color:var(--primary)"></lucide-angular>
+      <span>Reset Password</span>
+    </div>
+  </ng-template>
+
+  <!-- Step 1: Email -->
+  <div class="fp-step" *ngIf="fpStep === 'email'">
+    <div class="fp-steps-indicator">
+      <span class="fp-dot active"></span>
+      <span class="fp-dot"></span>
+      <span class="fp-dot"></span>
+    </div>
+    <p class="fp-desc">Enter your registered email and we'll send you a 6-digit OTP.</p>
+    <div class="fp-field">
+      <label class="fp-label">Email address</label>
+      <span class="p-input-icon-left w-full">
+        <lucide-angular name="mail" [size]="15" strokeWidth="1.5"></lucide-angular>
+        <input pInputText [(ngModel)]="fpEmail" placeholder="you@example.com" type="email" />
+      </span>
+    </div>
+    <div class="fp-actions">
+      <button class="fp-btn fp-btn--cancel" (click)="showFpDialog=false">Cancel</button>
+      <button class="fp-btn fp-btn--primary" [disabled]="!fpEmail.trim() || fpLoading" (click)="sendOtp()">
+        <lucide-angular *ngIf="!fpLoading" name="send" [size]="14" strokeWidth="2"></lucide-angular>
+        <lucide-angular *ngIf="fpLoading" name="loader-circle" [size]="14" strokeWidth="2" class="animate-spin"></lucide-angular>
+        {{ fpLoading ? 'Sending…' : 'Send OTP' }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Step 2: OTP verify -->
+  <div class="fp-step" *ngIf="fpStep === 'otp'">
+    <div class="fp-steps-indicator">
+      <span class="fp-dot done"></span>
+      <span class="fp-dot active"></span>
+      <span class="fp-dot"></span>
+    </div>
+    <p class="fp-desc">Enter the 6-digit OTP sent to <strong>{{ fpEmail }}</strong>. It expires in 10 minutes.</p>
+    <div class="fp-field">
+      <label class="fp-label">OTP</label>
+      <input pInputText [(ngModel)]="fpOtp" placeholder="000000" maxlength="6"
+             style="letter-spacing:8px;font-size:20px;font-weight:700;text-align:center;width:100%" />
+    </div>
+    <div class="fp-actions">
+      <button class="fp-btn fp-btn--cancel" (click)="fpStep='email'">Back</button>
+      <button class="fp-btn fp-btn--primary" [disabled]="fpOtp.length !== 6 || fpLoading" (click)="verifyOtp()">
+        <lucide-angular *ngIf="!fpLoading" name="shield-check" [size]="14" strokeWidth="2"></lucide-angular>
+        <lucide-angular *ngIf="fpLoading" name="loader-circle" [size]="14" strokeWidth="2" class="animate-spin"></lucide-angular>
+        {{ fpLoading ? 'Verifying…' : 'Verify OTP' }}
+      </button>
+    </div>
+    <div class="fp-resend">
+      <span>Didn't get it?</span>
+      <button type="button" class="fp-link" (click)="fpStep='email'">Resend OTP</button>
+    </div>
+  </div>
+
+  <!-- Step 3: New password -->
+  <div class="fp-step" *ngIf="fpStep === 'password'">
+    <div class="fp-steps-indicator">
+      <span class="fp-dot done"></span>
+      <span class="fp-dot done"></span>
+      <span class="fp-dot active"></span>
+    </div>
+    <p class="fp-desc">OTP verified. Set your new password.</p>
+    <div class="fp-field">
+      <label class="fp-label">New password</label>
+      <span class="p-input-icon-left p-input-icon-right w-full">
+        <lucide-angular name="lock" [size]="15" strokeWidth="1.5"></lucide-angular>
+        <input pInputText [(ngModel)]="fpNewPassword" placeholder="Min 6 characters"
+               [type]="fpHideNew ? 'password' : 'text'" />
+        <lucide-angular [name]="fpHideNew ? 'eye' : 'eye-off'" [size]="15" strokeWidth="1.5"
+                        class="toggle-eye" (click)="fpHideNew=!fpHideNew"></lucide-angular>
+      </span>
+    </div>
+    <div class="fp-field">
+      <label class="fp-label">Confirm password</label>
+      <span class="p-input-icon-left p-input-icon-right w-full">
+        <lucide-angular name="lock" [size]="15" strokeWidth="1.5"></lucide-angular>
+        <input pInputText [(ngModel)]="fpConfirmPassword" placeholder="Repeat password"
+               [type]="fpHideConfirm ? 'password' : 'text'" />
+        <lucide-angular [name]="fpHideConfirm ? 'eye' : 'eye-off'" [size]="15" strokeWidth="1.5"
+                        class="toggle-eye" (click)="fpHideConfirm=!fpHideConfirm"></lucide-angular>
+      </span>
+      <small class="fp-mismatch" *ngIf="fpConfirmPassword && fpNewPassword !== fpConfirmPassword">
+        Passwords do not match
+      </small>
+    </div>
+    <div class="fp-actions">
+      <button class="fp-btn fp-btn--cancel" (click)="showFpDialog=false">Cancel</button>
+      <button class="fp-btn fp-btn--primary"
+              [disabled]="!fpNewPassword || fpNewPassword !== fpConfirmPassword || fpLoading"
+              (click)="resetPassword()">
+        <lucide-angular *ngIf="!fpLoading" name="check-circle" [size]="14" strokeWidth="2"></lucide-angular>
+        <lucide-angular *ngIf="fpLoading" name="loader-circle" [size]="14" strokeWidth="2" class="animate-spin"></lucide-angular>
+        {{ fpLoading ? 'Resetting…' : 'Reset Password' }}
+      </button>
+    </div>
+  </div>
+</p-dialog>

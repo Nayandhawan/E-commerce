@@ -36,6 +36,25 @@ export class PlaceOrderComponent implements OnInit {
       orderDescription: [null],
     });
     this.deliveryEstimate = this.getDeliveryEstimate();
+    this.prefillFromProfile();
+  }
+
+  private prefillFromProfile() {
+    const userId = Number(UserStorageService.getUserId());
+    if (!userId) return;
+    this.customerService.getUserProfile(userId).subscribe({
+      next: (profile: any) => {
+        if (profile?.street || profile?.city) {
+          this.orderForm.patchValue({
+            street:  profile.street  || null,
+            city:    profile.city    || null,
+            state:   profile.state   || null,
+            zipCode: profile.zipCode || null,
+            country: profile.country || 'India',
+          });
+        }
+      }
+    });
   }
 
   private getDeliveryEstimate(): string {
@@ -73,6 +92,10 @@ export class PlaceOrderComponent implements OnInit {
       next: () => {
         this.loading = false;
         this.messageService.add({ severity: 'success', summary: 'Order Placed!', detail: 'Your order has been confirmed.', life: 5000 });
+        const userId = Number(UserStorageService.getUserId());
+        this.customerService.updateUserProfile(userId, {
+          street: v.street, city: v.city, state: v.state, zipCode: v.zipCode, country: v.country
+        }).subscribe();
         this.orderPlaced.emit();
         this.router.navigateByUrl('/customer/my_orders');
       },

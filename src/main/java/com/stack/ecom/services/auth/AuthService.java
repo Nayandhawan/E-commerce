@@ -8,4 +8,10 @@ public interface AuthService    {
     UserDto createUser(SignupRequest signupRequest);
 
     Boolean hasUserWithEmail(String email);
+
+    void sendPasswordResetOtp(String email);
+
+    boolean verifyOtp(String email, String otp);
+
+    boolean resetPassword(String email, String otp, String newPassword);
 }

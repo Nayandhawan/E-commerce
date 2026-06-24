@@ -36,4 +36,16 @@ export class AuthService {
   getOrderByTrackingId(trackingId: any): Observable<any> {
     return this.http.get(environment.apiUrl + `api/customer/cart/track/${trackingId}`);
   }
+
+  forgotPassword(email: string): Observable<any> {
+    return this.http.post(environment.apiUrl + `api/auth/forgot-password?email=${encodeURIComponent(email)}`, {}, { responseType: 'text' });
+  }
+
+  verifyOtp(email: string, otp: string): Observable<any> {
+    return this.http.post(environment.apiUrl + `api/auth/verify-otp?email=${encodeURIComponent(email)}&otp=${otp}`, {}, { responseType: 'text' });
+  }
+
+  resetPassword(email: string, otp: string, newPassword: string): Observable<any> {
+    return this.http.post(environment.apiUrl + `api/auth/reset-password?email=${encodeURIComponent(email)}&otp=${otp}&newPassword=${encodeURIComponent(newPassword)}`, {}, { responseType: 'text' });
+  }
 }
