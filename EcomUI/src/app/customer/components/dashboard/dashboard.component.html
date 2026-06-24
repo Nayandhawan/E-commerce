@@ -65,7 +65,8 @@
   </div>
 
   <!-- ══ PRODUCT SECTION ════════════════════════════════════════════════ -->
-  <div class="deals-section" *ngIf="products.length > 0; else noProducts">
+  <div class="deals-section" appScrollReveal *ngIf="products.length > 0 || allProducts.length > 0; else noProducts">
+
     <div class="deals-header">
       <h2 class="deals-title">
         {{ selectedCategory === 'All' ? 'Deals For You' : selectedCategory }}
@@ -73,13 +74,55 @@
       <span class="deals-count">{{ products.length }} products</span>
     </div>
 
-    <div class="pk-grid">
-      <div class="pk-tile" *ngFor="let product of products">
+    <!-- ── FILTER BAR ─────────────────────────────────────────────────── -->
+    <div class="filter-bar">
+
+      <!-- Sort -->
+      <div class="filter-bar__group">
+        <label class="filter-bar__label">Sort by</label>
+        <div class="sort-pills">
+          <button class="sort-pill" [class.sort-pill--active]="sortBy === 'default'" (click)="setSortBy('default')">Relevance</button>
+          <button class="sort-pill" [class.sort-pill--active]="sortBy === 'price_asc'" (click)="setSortBy('price_asc')">
+            <lucide-angular name="arrow-up" [size]="11" strokeWidth="2.5"></lucide-angular> Price
+          </button>
+          <button class="sort-pill" [class.sort-pill--active]="sortBy === 'price_desc'" (click)="setSortBy('price_desc')">
+            <lucide-angular name="arrow-down" [size]="11" strokeWidth="2.5"></lucide-angular> Price
+          </button>
+          <button class="sort-pill" [class.sort-pill--active]="sortBy === 'rating'" (click)="setSortBy('rating')">
+            <lucide-angular name="star" [size]="11" strokeWidth="2.5"></lucide-angular> Top Rated
+          </button>
+        </div>
+      </div>
+
+      <!-- Price Range -->
+      <div class="filter-bar__group filter-bar__group--price" *ngIf="maxPriceLimit > 0">
+        <label class="filter-bar__label">
+          Max price: <strong>₹{{ maxPrice | number }}</strong>
+        </label>
+        <input class="price-slider" type="range"
+               [min]="0" [max]="maxPriceLimit" [(ngModel)]="maxPrice"
+               (ngModelChange)="applyFilter()" />
+      </div>
+
+      <!-- Reset -->
+      <button class="filter-bar__reset" (click)="resetFilters()"
+              *ngIf="sortBy !== 'default' || maxPrice < maxPriceLimit || selectedCategory !== 'All'">
+        <lucide-angular name="x" [size]="13" strokeWidth="2.5"></lucide-angular> Reset
+      </button>
+
+    </div>
+
+    <!-- ── GRID ──────────────────────────────────────────────────────── -->
+    <div class="pk-grid" *ngIf="products.length > 0; else noMatch">
+      <div class="pk-tile" *ngFor="let product of products"
+           [class.pk-tile--oos]="product.stockQuantity === 0">
 
         <!-- Image + hover CTA -->
         <div class="pk-tile__img-box" [routerLink]="['/customer/product', product.id]">
           <img [src]="product.processedImg" [alt]="product.name"
                loading="lazy" class="pk-tile__img" />
+
+          <!-- Wishlist heart -->
           <button class="pk-tile__wish"
                   [class.pk-tile__wish--active]="isWishlisted(product.id)"
                   (click)="toggleWishlist(product.id, $event)"
@@ -87,8 +130,15 @@
             <lucide-angular name="heart" [size]="16" strokeWidth="2"
               [style.fill]="isWishlisted(product.id) ? 'currentColor' : 'none'"></lucide-angular>
           </button>
-          <div class="pk-tile__cta"
-               (click)="addToCart(product.id); $event.stopPropagation()">
+
+          <!-- Out of Stock overlay -->
+          <div class="pk-tile__oos-overlay" *ngIf="product.stockQuantity === 0">
+            <span>Out of Stock</span>
+          </div>
+
+          <!-- Add to Cart CTA (hidden when OOS) -->
+          <div class="pk-tile__cta" *ngIf="product.stockQuantity !== 0"
+               (click)="addToCart(product.id, product.stockQuantity !== 0, $event)">
             <lucide-angular name="shopping-cart" [size]="15" strokeWidth="2"></lucide-angular>
             <span>Add to Cart</span>
           </div>
@@ -98,14 +148,36 @@
         <div class="pk-tile__info" [routerLink]="['/customer/product', product.id]">
           <p class="pk-tile__name">{{ product.name }}</p>
           <p class="pk-tile__cat">{{ product.categoryName }}</p>
+
+          <!-- Star rating -->
+          <div class="pk-tile__stars" *ngIf="product.averageRating">
+            <lucide-angular *ngFor="let s of starRange" name="star" [size]="12" strokeWidth="1.5"
+              [style.fill]="getStarFill(s, product.averageRating)"
+              [style.color]="s <= product.averageRating ? '#f59e0b' : '#d1d5db'">
+            </lucide-angular>
+            <span class="pk-tile__rating-val">{{ product.averageRating | number:'1.1-1' }}</span>
+          </div>
+
           <div class="pk-tile__price-row">
-            <span class="pk-tile__price">₹{{ product.price }}</span>
-            <span class="pk-tile__badge">In Stock</span>
+            <span class="pk-tile__price">₹{{ product.price | number }}</span>
+            <span class="pk-tile__badge"
+                  [class.pk-tile__badge--oos]="product.stockQuantity === 0">
+              {{ product.stockQuantity === 0 ? 'Out of Stock' : 'In Stock' }}
+            </span>
           </div>
         </div>
 
       </div>
     </div>
+
+    <ng-template #noMatch>
+      <div class="pk-empty pk-empty--inline">
+        <lucide-angular name="filter-x" [size]="40" strokeWidth="1"></lucide-angular>
+        <p>No products match your filters</p>
+        <button class="pk-empty__reset" (click)="resetFilters()">Reset filters</button>
+      </div>
+    </ng-template>
+
   </div>
 
   <!-- ══ EMPTY ═══════════════════════════════════════════════════════════ -->

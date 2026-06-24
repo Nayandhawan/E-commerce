@@ -30,19 +30,14 @@ public class CustomerProfileServiceImpl implements CustomerProfileService {
 
         User user = optionalUser.get();
 
-        if (dto.getName() != null)          user.setName(dto.getName());
-        if (dto.getEmail() != null)         user.setEmail(dto.getEmail());
-        if (dto.getPhone() != null)         user.setPhone(dto.getPhone());
-        if (dto.getStreet() != null)        user.setStreet(dto.getStreet());
-        if (dto.getCity() != null)          user.setCity(dto.getCity());
-        if (dto.getState() != null)         user.setState(dto.getState());
-        if (dto.getZipCode() != null)       user.setZipCode(dto.getZipCode());
-        if (dto.getCountry() != null)       user.setCountry(dto.getCountry());
-        if (dto.getCardHolderName() != null) user.setCardHolderName(dto.getCardHolderName());
-        if (dto.getCardNumber() != null)    user.setCardNumber(dto.getCardNumber());
-        if (dto.getCardExpiry() != null)    user.setCardExpiry(dto.getCardExpiry());
-        if (dto.getCardType() != null)      user.setCardType(dto.getCardType());
-        if (dto.getCardCvv() != null)       user.setCardCvv(dto.getCardCvv());
+        if (dto.getName() != null)    user.setName(dto.getName());
+        if (dto.getEmail() != null)   user.setEmail(dto.getEmail());
+        if (dto.getPhone() != null)   user.setPhone(dto.getPhone());
+        if (dto.getStreet() != null)  user.setStreet(dto.getStreet());
+        if (dto.getCity() != null)    user.setCity(dto.getCity());
+        if (dto.getState() != null)   user.setState(dto.getState());
+        if (dto.getZipCode() != null) user.setZipCode(dto.getZipCode());
+        if (dto.getCountry() != null) user.setCountry(dto.getCountry());
 
         return toDto(userRepository.save(user));
     }
@@ -58,11 +53,6 @@ public class CustomerProfileServiceImpl implements CustomerProfileService {
         dto.setState(user.getState());
         dto.setZipCode(user.getZipCode());
         dto.setCountry(user.getCountry());
-        dto.setCardHolderName(user.getCardHolderName());
-        dto.setCardNumber(user.getCardNumber());
-        dto.setCardExpiry(user.getCardExpiry());
-        dto.setCardType(user.getCardType());
-        dto.setCardCvv(user.getCardCvv());
         return dto;
     }
 }

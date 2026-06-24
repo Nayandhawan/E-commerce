@@ -20,10 +20,6 @@
         <lucide-angular name="map-pin" [size]="16" strokeWidth="2"></lucide-angular>
         <span>My Address</span>
       </button>
-      <button class="pf-nav-item" [class.pf-nav-item--active]="activeSection === 'card'" (click)="selectSection('card')">
-        <lucide-angular name="credit-card" [size]="16" strokeWidth="2"></lucide-angular>
-        <span>Card Details</span>
-      </button>
     </aside>
 
     <!-- Form Panel -->
@@ -106,49 +102,6 @@
           <button class="pf-save-btn" type="submit">
             <lucide-angular name="save" [size]="15" strokeWidth="2"></lucide-angular>
             Update Address
-          </button>
-        </form>
-      </ng-container>
-
-      <!-- Card Details -->
-      <ng-container *ngIf="activeSection === 'card'">
-        <div class="pf-panel__head">
-          <h3 class="pf-panel__title">Card Details</h3>
-          <p class="pf-panel__desc">Save your credit or debit card for faster checkout.</p>
-        </div>
-        <form [formGroup]="cardForm" (ngSubmit)="updateProfile()" class="pf-form">
-          <div class="pf-field">
-            <label class="pf-label">Card Holder Name</label>
-            <input class="pf-input" formControlName="cardHolderName" placeholder="Name on card" />
-          </div>
-          <div class="pf-field">
-            <label class="pf-label">Card Number</label>
-            <input class="pf-input" formControlName="cardNumber" placeholder="1234 5678 9012 3456" maxlength="19" />
-            <span class="pf-hint" *ngIf="profile?.cardNumber">Saved: {{ maskedCard }}</span>
-          </div>
-          <div class="pf-row">
-            <div class="pf-field">
-              <label class="pf-label">Expiry (MM/YY)</label>
-              <input class="pf-input" formControlName="cardExpiry" placeholder="MM/YY" maxlength="5" />
-            </div>
-            <div class="pf-field">
-              <label class="pf-label">CVV</label>
-              <input class="pf-input" formControlName="cardCvv" placeholder="•••" maxlength="4" type="password" />
-            </div>
-          </div>
-          <div class="pf-field">
-            <label class="pf-label">Card Type</label>
-            <select class="pf-input pf-select" formControlName="cardType">
-              <option value="">Select type</option>
-              <option value="Visa">Visa</option>
-              <option value="MasterCard">MasterCard</option>
-              <option value="RuPay">RuPay</option>
-              <option value="Amex">Amex</option>
-            </select>
-          </div>
-          <button class="pf-save-btn" type="submit">
-            <lucide-angular name="save" [size]="15" strokeWidth="2"></lucide-angular>
-            Update Card
           </button>
         </form>
       </ng-container>

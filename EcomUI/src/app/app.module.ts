@@ -17,13 +17,15 @@ import { AuthInterceptor } from './services/interceptors/auth.interceptor';
 import { authReducer } from './store/auth/auth.reducer';
 import { AuthEffects } from './store/auth/auth.effects';
 import { PrimeNGModule } from './PrimeNGModule';
+import { NotFoundComponent } from './not-found/not-found.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     LoginComponent,
     SignupComponent,
-    TrackOrderComponent
+    TrackOrderComponent,
+    NotFoundComponent
   ],
   imports: [
     BrowserModule,

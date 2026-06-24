@@ -33,6 +33,9 @@ public class Product {
     @JsonIgnore
     private Category category;
 
+    @Column(nullable = false, columnDefinition = "BIGINT DEFAULT 100")
+    private Long stockQuantity = 100L;
+
     public ProductDto getDto(){
         ProductDto productDto = new ProductDto();
         productDto.setId(id);
@@ -42,6 +45,7 @@ public class Product {
         productDto.setPrice(price);
         productDto.setCategoryId(category.getId());
         productDto.setCategoryName(category.getName());
+        productDto.setStockQuantity(stockQuantity != null ? stockQuantity : 100L);
         return productDto;
     }
 
@@ -91,5 +95,13 @@ public class Product {
 
     public void setCategory(Category category) {
         this.category = category;
+    }
+
+    public Long getStockQuantity() {
+        return stockQuantity;
+    }
+
+    public void setStockQuantity(Long stockQuantity) {
+        this.stockQuantity = stockQuantity;
     }
 }

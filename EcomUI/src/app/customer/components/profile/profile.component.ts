@@ -4,7 +4,7 @@ import { MessageService } from 'primeng/api';
 import { CustomerService } from '../../services/customer.service';
 import { UserStorageService } from '../../../services/storage/user-storage.service';
 
-type Section = 'personal' | 'address' | 'card';
+type Section = 'personal' | 'address';
 
 @Component({
   selector: 'app-profile',
@@ -20,7 +20,6 @@ export class ProfileComponent implements OnInit {
 
   personalForm!: FormGroup;
   addressForm!: FormGroup;
-  cardForm!: FormGroup;
 
   constructor(
     private fb: FormBuilder,
@@ -50,14 +49,6 @@ export class ProfileComponent implements OnInit {
       zipCode: [''],
       country: [''],
     });
-
-    this.cardForm = this.fb.group({
-      cardHolderName: [''],
-      cardNumber:     [''],
-      cardExpiry:     [''],
-      cardType:       [''],
-      cardCvv:        [''],
-    });
   }
 
   private loadProfile(): void {
@@ -69,7 +60,6 @@ export class ProfileComponent implements OnInit {
         const lastName = nameParts.slice(1).join(' ');
         this.personalForm.patchValue({ firstName, lastName, email: data.email, phone: data.phone });
         this.addressForm.patchValue({ street: data.street, city: data.city, state: data.state, zipCode: data.zipCode, country: data.country });
-        this.cardForm.patchValue({ cardHolderName: data.cardHolderName, cardNumber: data.cardNumber, cardExpiry: data.cardExpiry, cardType: data.cardType, cardCvv: data.cardCvv });
       },
       error: () => this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load profile' })
     });
@@ -81,7 +71,6 @@ export class ProfileComponent implements OnInit {
 
   togglePersonalEdit(): void {
     if (this.isEditingPersonal) {
-      // Cancel — revert values and disable
       const nameParts = (this.profile?.name || '').trim().split(' ');
       this.personalForm.patchValue({
         firstName: nameParts[0] || '',
@@ -97,12 +86,6 @@ export class ProfileComponent implements OnInit {
     }
   }
 
-  get maskedCard(): string {
-    const num = this.profile?.cardNumber;
-    if (!num || num.length < 4) return num || '';
-    return '**** **** **** ' + num.slice(-4);
-  }
-
   updateProfile(): void {
     let payload: any = {};
 
@@ -113,10 +96,8 @@ export class ProfileComponent implements OnInit {
       }
       const { firstName, lastName, email, phone } = this.personalForm.getRawValue();
       payload = { name: [firstName, lastName].filter(Boolean).join(' '), email, phone };
-    } else if (this.activeSection === 'address') {
-      payload = this.addressForm.value;
     } else {
-      payload = this.cardForm.value;
+      payload = this.addressForm.value;
     }
 
     this.customerService.updateUserProfile(this.userId, payload).subscribe({

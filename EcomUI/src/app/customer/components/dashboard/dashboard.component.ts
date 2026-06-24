@@ -50,6 +50,11 @@ export class DashboardComponent implements OnInit {
   wishlistedIds$: Observable<number[]>;
   private _wishlistedIds: number[] = [];
 
+  sortBy = 'default';
+  maxPrice: number = 0;
+  maxPriceLimit: number = 0;
+  readonly starRange = [1, 2, 3, 4, 5];
+
   constructor(
     private customerService: CustomerService,
     private fb: FormBuilder,
@@ -86,6 +91,8 @@ export class DashboardComponent implements OnInit {
         processedImg: p.byteImg ? 'data:image/jpeg;base64,' + p.byteImg : null
       }));
       this.categories = [...new Set<string>(this.allProducts.map(p => p.categoryName))];
+      this.maxPriceLimit = Math.max(...this.allProducts.map(p => p.price ?? 0), 0);
+      this.maxPrice = this.maxPriceLimit;
       this.applyFilter();
     });
   }
@@ -95,10 +102,38 @@ export class DashboardComponent implements OnInit {
     this.applyFilter();
   }
 
-  private applyFilter() {
-    this.products = this.selectedCategory === 'All'
-      ? this.allProducts
+  setSortBy(sort: string) {
+    this.sortBy = sort;
+    this.applyFilter();
+  }
+
+  resetFilters() {
+    this.sortBy = 'default';
+    this.maxPrice = this.maxPriceLimit;
+    this.selectedCategory = 'All';
+    this.applyFilter();
+  }
+
+  applyFilter() {
+    let filtered = this.selectedCategory === 'All'
+      ? [...this.allProducts]
       : this.allProducts.filter(p => p.categoryName === this.selectedCategory);
+
+    filtered = filtered.filter(p => (p.price ?? 0) <= this.maxPrice);
+
+    switch (this.sortBy) {
+      case 'price_asc':
+        filtered.sort((a, b) => (a.price ?? 0) - (b.price ?? 0));
+        break;
+      case 'price_desc':
+        filtered.sort((a, b) => (b.price ?? 0) - (a.price ?? 0));
+        break;
+      case 'rating':
+        filtered.sort((a, b) => (b.averageRating ?? 0) - (a.averageRating ?? 0));
+        break;
+    }
+
+    this.products = filtered;
   }
 
   submitForm() {
@@ -109,7 +144,10 @@ export class DashboardComponent implements OnInit {
         processedImg: p.byteImg ? 'data:image/jpeg;base64,' + p.byteImg : null
       }));
       this.selectedCategory = 'All';
+      this.sortBy = 'default';
       this.categories = [...new Set<string>(this.allProducts.map(p => p.categoryName))];
+      this.maxPriceLimit = Math.max(...this.allProducts.map(p => p.price ?? 0), 0);
+      this.maxPrice = this.maxPriceLimit;
       this.applyFilter();
     });
   }
@@ -119,7 +157,9 @@ export class DashboardComponent implements OnInit {
     this.getAllProducts();
   }
 
-  addToCart(id: any) {
+  addToCart(id: any, inStock: boolean, event: Event) {
+    event.stopPropagation();
+    if (!inStock) return;
     this.customerService.addToCart(id).subscribe(() => {
       this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Product added to cart!', life: 3000 });
     });
@@ -128,5 +168,10 @@ export class DashboardComponent implements OnInit {
   getCatIcon(cat: string): string {
     const key = cat.toLowerCase().split(' ')[0];
     return CAT_ICONS[key] ?? 'square-stack';
+  }
+
+  getStarFill(star: number, rating: number | null): string {
+    if (!rating) return 'none';
+    return star <= Math.round(rating) ? 'currentColor' : 'none';
   }
 }
