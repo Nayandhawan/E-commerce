@@ -30,6 +30,7 @@ public class OrderDto {
 
     private UUID trackingId;
 
+    private String returnReason;
 
     private String userName;
 
@@ -115,6 +116,14 @@ public class OrderDto {
 
     public void setTrackingId(UUID trackingId) {
         this.trackingId = trackingId;
+    }
+
+    public String getReturnReason() {
+        return returnReason;
+    }
+
+    public void setReturnReason(String returnReason) {
+        this.returnReason = returnReason;
     }
 
     public String getUserName() {

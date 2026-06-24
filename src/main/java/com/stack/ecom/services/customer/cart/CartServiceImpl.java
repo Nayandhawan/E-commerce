@@ -254,7 +254,10 @@ public class CartServiceImpl implements CartService{
     }
 
     public List<OrderDto> getPlacedOrder(Long userId){
-        return orderRepository.findByUserIdAndOrderStatusIn(userId,List.of(OrderStatus.PLACED,OrderStatus.SHIPPED, OrderStatus.DELIVERED)).stream().map(Order::getOrderDto).collect(Collectors.toList());
+        return orderRepository.findByUserIdAndOrderStatusIn(userId, List.of(
+                OrderStatus.PLACED, OrderStatus.SHIPPED, OrderStatus.DELIVERED,
+                OrderStatus.CANCELLED, OrderStatus.RETURN_REQUESTED, OrderStatus.RETURNED))
+            .stream().map(Order::getOrderDto).collect(Collectors.toList());
     }
 
     public OrderDto searchOrderByTrackingId(UUID trackingId){
@@ -275,6 +278,21 @@ public class CartServiceImpl implements CartService{
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Order is already cancelled");
         }
         order.setOrderStatus(OrderStatus.CANCELLED);
+        orderRepository.save(order);
+        return ResponseEntity.ok(order.getOrderDto());
+    }
+
+    public ResponseEntity<?> requestReturn(Long userId, Long orderId, String reason) {
+        Optional<Order> optionalOrder = orderRepository.findByIdAndUserId(orderId, userId);
+        if (optionalOrder.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Order not found");
+        }
+        Order order = optionalOrder.get();
+        if (order.getOrderStatus() != OrderStatus.DELIVERED) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Only delivered orders can be returned");
+        }
+        order.setOrderStatus(OrderStatus.RETURN_REQUESTED);
+        order.setReturnReason(reason);
         orderRepository.save(order);
         return ResponseEntity.ok(order.getOrderDto());
     }

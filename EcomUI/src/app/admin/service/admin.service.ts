@@ -113,6 +113,12 @@ export class AdminService {
     });
   }
 
+  processReturn(orderId: number, action: string): Observable<any> {
+    return this.http.patch(environment.apiUrl + `api/admin/orders/${orderId}/return?action=${action}`, {}, {
+      headers: this.createAuthorizationHeader(),
+    });
+  }
+
   postFAQ(productId: number, FaqDto: any): Observable<any> {
     const faqWithProduct = { ...FaqDto, productId };
     return this.http.post(environment.apiUrl + `api/admin/faq`, faqWithProduct, {

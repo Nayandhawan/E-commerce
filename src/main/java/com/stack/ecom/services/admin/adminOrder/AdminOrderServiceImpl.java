@@ -30,7 +30,9 @@ public class AdminOrderServiceImpl implements AdminOrderService{
     }
 
     public List<OrderDto> getAllPlacedOrders(){
-        List<Order> orderList = orderRepository.findAllByOrderStatusIn(List.of(OrderStatus.PLACED,OrderStatus.SHIPPED,OrderStatus.DELIVERED));
+        List<Order> orderList = orderRepository.findAllByOrderStatusIn(List.of(
+                OrderStatus.PLACED, OrderStatus.SHIPPED, OrderStatus.DELIVERED,
+                OrderStatus.RETURN_REQUESTED, OrderStatus.RETURNED));
         return orderList.stream().map(Order::getOrderDto).collect(Collectors.toList());
     }
 
@@ -46,6 +48,20 @@ public class AdminOrderServiceImpl implements AdminOrderService{
             return orderRepository.save(order).getOrderDto();
         }
         return null;
+    }
+
+    public OrderDto processReturn(Long orderId, String action) {
+        Optional<Order> optionalOrder = orderRepository.findById(orderId);
+        if (optionalOrder.isEmpty()) return null;
+        Order order = optionalOrder.get();
+        if (order.getOrderStatus() != OrderStatus.RETURN_REQUESTED) return null;
+        if ("approve".equalsIgnoreCase(action)) {
+            order.setOrderStatus(OrderStatus.RETURNED);
+        } else if ("reject".equalsIgnoreCase(action)) {
+            order.setOrderStatus(OrderStatus.DELIVERED);
+            order.setReturnReason(null);
+        }
+        return orderRepository.save(order).getOrderDto();
     }
 
     public AnalyticsResponse calculateAnalytics(){

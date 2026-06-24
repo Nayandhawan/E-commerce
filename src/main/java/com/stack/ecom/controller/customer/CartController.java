@@ -71,4 +71,9 @@ public class CartController {
     public ResponseEntity<?> cancelOrder(@PathVariable Long orderId, @RequestParam Long userId) {
         return cartService.cancelOrder(userId, orderId);
     }
+
+    @PatchMapping("/cart/order/{orderId}/return")
+    public ResponseEntity<?> requestReturn(@PathVariable Long orderId, @RequestParam Long userId, @RequestParam String reason) {
+        return cartService.requestReturn(userId, orderId, reason);
+    }
 }
