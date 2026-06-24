@@ -262,6 +262,23 @@ public class CartServiceImpl implements CartService{
         return optionalOrder.map(Order::getOrderDto).orElse(null);
     }
 
+    public ResponseEntity<?> cancelOrder(Long userId, Long orderId) {
+        Optional<Order> optionalOrder = orderRepository.findByIdAndUserId(orderId, userId);
+        if (optionalOrder.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Order not found");
+        }
+        Order order = optionalOrder.get();
+        if (order.getOrderStatus() == OrderStatus.SHIPPED || order.getOrderStatus() == OrderStatus.DELIVERED) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Order cannot be cancelled after it has been shipped");
+        }
+        if (order.getOrderStatus() == OrderStatus.CANCELLED) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Order is already cancelled");
+        }
+        order.setOrderStatus(OrderStatus.CANCELLED);
+        orderRepository.save(order);
+        return ResponseEntity.ok(order.getOrderDto());
+    }
+
     public OrderDto removeFromCart(Long userId, Long productId) {
         Order activeOrder = orderRepository.findByUserIdAndOrderStatus(userId, OrderStatus.PENDING);
         Optional<CartItems> optionalCartItems = cartItemsRepository.findByProductIdAndOrderIdAndUserId(

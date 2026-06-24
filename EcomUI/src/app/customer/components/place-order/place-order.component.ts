@@ -17,6 +17,7 @@ export class PlaceOrderComponent implements OnInit {
 
   orderForm: FormGroup;
   loading = false;
+  deliveryEstimate = '';
 
   constructor(
     private fb: FormBuilder,
@@ -27,19 +28,45 @@ export class PlaceOrderComponent implements OnInit {
 
   ngOnInit() {
     this.orderForm = this.fb.group({
-      address: [null, [Validators.required]],
+      street:           [null, [Validators.required]],
+      city:             [null, [Validators.required]],
+      state:            [null, [Validators.required]],
+      zipCode:          [null, [Validators.required]],
+      country:          ['India'],
       orderDescription: [null],
     });
+    this.deliveryEstimate = this.getDeliveryEstimate();
+  }
+
+  private getDeliveryEstimate(): string {
+    const addBusinessDays = (date: Date, days: number): Date => {
+      const d = new Date(date);
+      let count = 0;
+      while (count < days) {
+        d.setDate(d.getDate() + 1);
+        const day = d.getDay();
+        if (day !== 0 && day !== 6) count++;
+      }
+      return d;
+    };
+    const fmt = (d: Date) => d.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' });
+    return `${fmt(addBusinessDays(new Date(), 3))} – ${fmt(addBusinessDays(new Date(), 5))}`;
   }
 
   placeOrder() {
-    if (this.orderForm.invalid) return;
+    if (this.orderForm.invalid) {
+      this.orderForm.markAllAsTouched();
+      return;
+    }
     this.loading = true;
+
+    const v = this.orderForm.value;
+    const address = `${v.street}, ${v.city}, ${v.state} - ${v.zipCode}, ${v.country}`.trim();
 
     const orderDto = {
       userId: UserStorageService.getUserId(),
-      address: this.orderForm.value.address,
-      orderDescription: this.orderForm.value.orderDescription,
+      address,
+      orderDescription: v.orderDescription,
     };
 
     this.customerService.placeOrder(orderDto).subscribe({

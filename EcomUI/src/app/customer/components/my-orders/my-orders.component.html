@@ -1,3 +1,4 @@
+<p-toast position="top-right"></p-toast>
 <div class="page-wrap">
   <h2 class="section-title">My Orders</h2>
 
@@ -19,7 +20,7 @@
 
       <div class="order-body">
         <div class="order-info">
-          <p class="info-row">
+          <p class="info-row" *ngIf="order.orderDescription">
             <lucide-angular name="receipt" [size]="15" strokeWidth="1.5"></lucide-angular>
             {{ order.orderDescription }}
           </p>
@@ -34,11 +35,19 @@
         </div>
       </div>
 
-      <div class="order-footer" *ngIf="order.orderStatus === 'DELIVERED'">
-        <a class="btn-review" [routerLink]="['/customer/ordered_products', order.id]">
+      <div class="order-footer">
+        <a class="btn-review" [routerLink]="['/customer/ordered_products', order.id]"
+           *ngIf="order.orderStatus === 'DELIVERED'">
           <lucide-angular name="pen-line" [size]="15" strokeWidth="2"></lucide-angular>
           Write a Review
         </a>
+        <button class="btn-cancel" *ngIf="canCancel(order)"
+                [disabled]="cancellingId === order.id"
+                (click)="cancelOrder(order.id)">
+          <lucide-angular *ngIf="cancellingId !== order.id" name="x-circle" [size]="15" strokeWidth="2"></lucide-angular>
+          <lucide-angular *ngIf="cancellingId === order.id" name="loader-circle" [size]="15" strokeWidth="2" class="animate-spin"></lucide-angular>
+          {{ cancellingId === order.id ? 'Cancelling…' : 'Cancel Order' }}
+        </button>
       </div>
     </div>
   </div>

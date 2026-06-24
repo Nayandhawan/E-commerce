@@ -27,4 +27,6 @@ public interface CartService {
     OrderDto searchOrderByTrackingId(UUID trackingId);
 
     OrderDto removeFromCart(Long userId, Long productId);
+
+    ResponseEntity<?> cancelOrder(Long userId, Long orderId);
 }

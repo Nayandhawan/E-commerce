@@ -66,4 +66,9 @@ public class CartController {
     public ResponseEntity<?> removeFromCart(@PathVariable Long userId, @PathVariable Long productId) {
         return ResponseEntity.ok(cartService.removeFromCart(userId, productId));
     }
+
+    @PatchMapping("/cart/order/{orderId}/cancel")
+    public ResponseEntity<?> cancelOrder(@PathVariable Long orderId, @RequestParam Long userId) {
+        return cartService.cancelOrder(userId, orderId);
+    }
 }
