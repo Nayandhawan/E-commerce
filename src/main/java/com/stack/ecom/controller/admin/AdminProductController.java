@@ -2,27 +2,36 @@ package com.stack.ecom.controller.admin;
 
 import com.stack.ecom.dto.FAQDto;
 import com.stack.ecom.dto.ProductDto;
+import com.stack.ecom.dto.ProductVariantDto;
+import com.stack.ecom.entity.Product;
+import com.stack.ecom.entity.ProductVariant;
+import com.stack.ecom.repository.ProductRepository;
+import com.stack.ecom.repository.ProductVariantRepository;
 import com.stack.ecom.services.admin.FAQ.FAQService;
 import com.stack.ecom.services.admin.adminproduct.AdminProductService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/admin")
 public class AdminProductController {
 
     private final AdminProductService adminProductService;
-
     private final FAQService faqService;
+    private final ProductVariantRepository variantRepository;
+    private final ProductRepository productRepository;
 
-    public AdminProductController(AdminProductService adminProductService,FAQService faqService){
+    public AdminProductController(AdminProductService adminProductService, FAQService faqService,
+                                  ProductVariantRepository variantRepository, ProductRepository productRepository) {
         this.adminProductService = adminProductService;
         this.faqService = faqService;
+        this.variantRepository = variantRepository;
+        this.productRepository = productRepository;
     }
 
     @PostMapping("/products")
@@ -77,5 +86,30 @@ public class AdminProductController {
         }
     }
 
+    @GetMapping("/products/{productId}/variants")
+    public ResponseEntity<List<ProductVariantDto>> getVariants(@PathVariable Long productId) {
+        return ResponseEntity.ok(variantRepository.findAllByProductId(productId)
+                .stream().map(ProductVariant::toDto).toList());
+    }
+
+    @PostMapping("/products/{productId}/variants")
+    public ResponseEntity<ProductVariantDto> addVariant(@PathVariable Long productId,
+                                                         @RequestBody ProductVariantDto dto) {
+        Optional<Product> optProduct = productRepository.findById(productId);
+        if (optProduct.isEmpty()) return ResponseEntity.notFound().build();
+        ProductVariant v = new ProductVariant();
+        v.setProduct(optProduct.get());
+        v.setSize(dto.getSize());
+        v.setColour(dto.getColour());
+        v.setStockQuantity(dto.getStockQuantity() != null ? dto.getStockQuantity() : 0L);
+        return ResponseEntity.status(HttpStatus.CREATED).body(variantRepository.save(v).toDto());
+    }
+
+    @DeleteMapping("/variants/{variantId}")
+    public ResponseEntity<Void> deleteVariant(@PathVariable Long variantId) {
+        if (!variantRepository.existsById(variantId)) return ResponseEntity.notFound().build();
+        variantRepository.deleteById(variantId);
+        return ResponseEntity.noContent().build();
+    }
 
 }

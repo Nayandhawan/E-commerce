@@ -15,6 +15,8 @@ export class ViewProductDetailComponent implements OnInit {
   product: any;
   FAQS: any[] = [];
   reviews: any[] = [];
+  variants: any[] = [];
+  selectedVariant: any = null;
   showZoom = false;
   copied = false;
 
@@ -36,6 +38,10 @@ export class ViewProductDetailComponent implements OnInit {
           this.product.processedImg = 'data:image/png;base64,' + this.product.byteImg;
         }
         this.FAQS = res.faqDtoList || [];
+        this.variants = (res.variantList || []).map((v: any) => ({
+          ...v,
+          label: v.size && v.colour ? `${v.size} / ${v.colour}` : (v.size || v.colour || '')
+        }));
         (res.reviewDtoList || []).forEach((element: any) => {
           if (element.returnedImg) {
             element.processedImg = 'data:image/png;base64,' + element.returnedImg;
@@ -59,6 +65,10 @@ export class ViewProductDetailComponent implements OnInit {
   }
 
   addToCart() {
+    if (this.variants.length > 0 && !this.selectedVariant) {
+      this.messageService.add({ severity: 'warn', summary: 'Select a variant', detail: 'Please choose a size or colour first.', life: 3000 });
+      return;
+    }
     this.customerService.addToCart(this.productId).subscribe({
       next: () => this.messageService.add({ severity: 'success', summary: 'Added', detail: 'Product added to cart!', life: 3000 }),
       error: () => this.messageService.add({ severity: 'warn', summary: 'Already in Cart', detail: 'This product is already in your cart.', life: 3000 })

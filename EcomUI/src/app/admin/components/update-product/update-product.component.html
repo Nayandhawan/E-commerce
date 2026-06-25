@@ -64,6 +64,37 @@
 
         <div style="border-top:1px solid var(--border);padding-top:.5rem"></div>
 
+        <!-- ── Variants ── -->
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-widest mb-3" style="color:var(--text-muted)">
+            Product Variants
+          </label>
+
+          <!-- Existing variants -->
+          <div class="variant-list" *ngIf="variants.length > 0">
+            <div class="variant-chip" *ngFor="let v of variants">
+              <span class="variant-chip__label">{{ variantLabel(v) }}</span>
+              <span class="variant-chip__stock">{{ v.stockQuantity }} in stock</span>
+              <button type="button" class="variant-chip__del" (click)="deleteVariant(v.id)" title="Remove">
+                <lucide-angular name="x" [size]="12" strokeWidth="2.5"></lucide-angular>
+              </button>
+            </div>
+          </div>
+          <p class="text-xs mb-3" style="color:var(--text-dim)" *ngIf="variants.length === 0">No variants yet.</p>
+
+          <!-- Add new variant row -->
+          <div class="variant-add-row">
+            <input pInputText [(ngModel)]="variantSize" [ngModelOptions]="{standalone:true}" placeholder="Size (e.g. M, XL)" class="variant-input" />
+            <input pInputText [(ngModel)]="variantColour" [ngModelOptions]="{standalone:true}" placeholder="Colour (e.g. Red)" class="variant-input" />
+            <input pInputText type="number" [(ngModel)]="variantStock" [ngModelOptions]="{standalone:true}" placeholder="Stock" class="variant-input variant-input--sm" min="0" />
+            <button type="button" class="variant-add-btn" (click)="addVariant()" [disabled]="addingVariant">
+              <lucide-angular name="plus" [size]="15" strokeWidth="2.5"></lucide-angular>
+            </button>
+          </div>
+        </div>
+
+        <div style="border-top:1px solid var(--border);padding-top:.5rem"></div>
+
         <button type="submit"
                 class="w-full h-11 flex items-center justify-center gap-2 rounded-lg font-bold text-base transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 style="background:var(--primary);color:#0F1111"

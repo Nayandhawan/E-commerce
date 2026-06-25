@@ -7,6 +7,7 @@ import com.stack.ecom.entity.Product;
 import com.stack.ecom.entity.Review;
 import com.stack.ecom.repository.FAQRepository;
 import com.stack.ecom.repository.ProductRepository;
+import com.stack.ecom.repository.ProductVariantRepository;
 import com.stack.ecom.repository.ReviewRepository;
 import org.springframework.stereotype.Service;
 
@@ -22,11 +23,13 @@ public class CustomerProductServiceImpl implements CustomerProductService{
     private final ProductRepository productRepository;
     private final FAQRepository faqRepository;
     private final ReviewRepository reviewRepository;
+    private final ProductVariantRepository variantRepository;
 
-    public CustomerProductServiceImpl(ProductRepository productRepository, FAQRepository faqRepository, ReviewRepository reviewRepository){
+    public CustomerProductServiceImpl(ProductRepository productRepository, FAQRepository faqRepository, ReviewRepository reviewRepository, ProductVariantRepository variantRepository) {
         this.productRepository = productRepository;
         this.faqRepository = faqRepository;
         this.reviewRepository = reviewRepository;
+        this.variantRepository = variantRepository;
     }
 
     public List<ProductDto> getAllProducts(){
@@ -55,6 +58,8 @@ public class CustomerProductServiceImpl implements CustomerProductService{
             productDetailDto.setProductDto(enrichDto(optionalProduct.get().getDto(), ratingMap));
             productDetailDto.setFaqDtoList(faqList.stream().map(FAQ::getFAQDto).collect(Collectors.toList()));
             productDetailDto.setReviewDtoList(reviewList.stream().map(Review::getDto).collect(Collectors.toList()));
+            productDetailDto.setVariantList(variantRepository.findAllByProductId(productId)
+                    .stream().map(v -> v.toDto()).collect(Collectors.toList()));
 
             return productDetailDto;
         }

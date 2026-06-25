@@ -4,6 +4,7 @@ import lombok.Data;
 
 import java.util.List;
 
+
 @Data
 public class ProductDetailDto {
 
@@ -12,4 +13,6 @@ public class ProductDetailDto {
     private List<ReviewDto> reviewDtoList;
 
     private List<FAQDto> faqDtoList;
+
+    private List<ProductVariantDto> variantList;
 }

@@ -1,1 +1,65 @@
 // Global styles.scss handles: page-wrap, section-title, form-group, file-upload-box, img-preview, p-card, field-error
+
+.variant-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.variant-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg-elevated, #f3f4f6);
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 999px;
+  padding: 4px 10px 4px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text, #111);
+}
+
+.variant-chip__label { color: var(--text); }
+.variant-chip__stock { color: var(--text-muted, #6b7280); font-weight: 400; font-size: 11px; }
+
+.variant-chip__del {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--danger, #e53e3e);
+  padding: 0;
+  display: flex;
+  align-items: center;
+  opacity: .7;
+  &:hover { opacity: 1; }
+}
+
+.variant-add-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.variant-input {
+  flex: 1;
+  min-width: 100px;
+  font-size: 13px !important;
+  &.variant-input--sm { max-width: 80px; flex: unset; }
+}
+
+.variant-add-btn {
+  background: var(--primary, #febd69);
+  border: none;
+  border-radius: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+  color: #0F1111;
+  display: flex;
+  align-items: center;
+  font-weight: 700;
+  transition: background .15s;
+  &:hover:not(:disabled) { background: var(--primary-h, #f0a500); }
+  &:disabled { opacity: .5; cursor: default; }
+}

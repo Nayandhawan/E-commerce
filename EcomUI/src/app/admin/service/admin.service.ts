@@ -150,6 +150,24 @@ export class AdminService {
     });
   }
 
+  getVariants(productId: number): Observable<any[]> {
+    return this.http.get<any[]>(environment.apiUrl + `api/admin/products/${productId}/variants`, {
+      headers: this.createAuthorizationHeader()
+    });
+  }
+
+  addVariant(productId: number, variant: { size?: string; colour?: string; stockQuantity: number }): Observable<any> {
+    return this.http.post(environment.apiUrl + `api/admin/products/${productId}/variants`, variant, {
+      headers: this.createAuthorizationHeader()
+    });
+  }
+
+  deleteVariant(variantId: number): Observable<any> {
+    return this.http.delete(environment.apiUrl + `api/admin/variants/${variantId}`, {
+      headers: this.createAuthorizationHeader()
+    });
+  }
+
   private createAuthorizationHeader(): HttpHeaders {
     return new HttpHeaders().set('Authorization', 'Bearer ' + UserStorageService.getToken());
   }
