@@ -129,6 +129,11 @@ public class CartServiceImpl implements CartService{
 
     public OrderDto getCartByUserId(Long userId){
         Order activeOrder = orderRepository.findByUserIdAndOrderStatus(userId, OrderStatus.PENDING);
+        if (activeOrder == null) {
+            OrderDto empty = new OrderDto();
+            empty.setCartItems(Collections.emptyList());
+            return empty;
+        }
         List<CartItemsDto> cartItemsDtoList = activeOrder.getCartItems() != null
                 ? activeOrder.getCartItems().stream().map(CartItems::cartItemsDto).toList()
                 : Collections.emptyList();
