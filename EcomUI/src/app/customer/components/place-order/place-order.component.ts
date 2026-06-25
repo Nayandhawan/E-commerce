@@ -85,6 +85,7 @@ export class PlaceOrderComponent implements OnInit {
     const orderDto = {
       userId: UserStorageService.getUserId(),
       address,
+      street: v.street, city: v.city, state: v.state, zipCode: v.zipCode, country: v.country,
       orderDescription: v.orderDescription,
     };
 

@@ -1,0 +1,37 @@
+<div class="compare-page">
+  <div class="compare-header">
+    <h2 class="compare-title">Product Comparison</h2>
+    <button class="btn-back" routerLink="/customer/dashboard">
+      <lucide-angular name="arrow-left" [size]="16" strokeWidth="2"></lucide-angular>
+      Back to Shop
+    </button>
+  </div>
+
+  <div class="compare-scroll">
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th class="attr-head">Feature</th>
+          <th *ngFor="let p of products" class="prod-head">
+            <div class="prod-head-inner">
+              <img *ngIf="p.processedImg" [src]="p.processedImg" [alt]="p.name" class="cmp-img" />
+              <p class="cmp-name">{{ p.name }}</p>
+              <button class="btn-remove" (click)="remove(p.id)" title="Remove">
+                <lucide-angular name="x" [size]="14" strokeWidth="2.5"></lucide-angular>
+              </button>
+              <a class="btn-view" [routerLink]="['/customer/product', p.id]">View Details</a>
+            </div>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let attr of attrs">
+          <td class="attr-label">{{ attr.label }}</td>
+          <td *ngFor="let p of products" class="attr-val">
+            {{ attr.prefix }}{{ getValue(p, attr.key) }}{{ attr.suffix || '' }}
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

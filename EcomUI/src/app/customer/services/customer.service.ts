@@ -54,6 +54,12 @@ export class CustomerService {
     });
   }
 
+  getAvailableCoupons(): Observable<any[]> {
+    return this.http.get<any[]>(environment.apiUrl + `api/customer/coupons`, {
+      headers: this.createAuthorizationHeader(),
+    });
+  }
+
   createPaymentOrder(amount: number): Observable<any> {
     const userId = UserStorageService.getUserId();
     return this.http.post(environment.apiUrl + `api/payment/create-order`, { amount, userId }, {

@@ -1,9 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { MessageService } from 'primeng/api';
+import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
 import { CustomerService } from '../../services/customer.service';
+import { CompareService } from '../../../services/compare/compare.service';
 import { loadWishlist, addToWishlist, removeFromWishlist } from '../../../store/wishlist/wishlist.actions';
 import { selectWishlistIds } from '../../../store/wishlist/wishlist.selectors';
 
@@ -65,13 +67,20 @@ export class DashboardComponent implements OnInit {
   get paginatedProducts(): any[] { return this.products.slice((this.currentPage - 1) * this.pageSize, this.currentPage * this.pageSize); }
   get pageNumbers(): number[] { return Array.from({ length: this.totalPages }, (_, i) => i + 1); }
 
+  showAddedDialog = false;
+  addedProductName = '';
+  compareItems$: Observable<any[]>;
+
   constructor(
     private customerService: CustomerService,
     private fb: FormBuilder,
     private messageService: MessageService,
-    private store: Store
+    private store: Store,
+    private router: Router,
+    public compareService: CompareService
   ) {
     this.wishlistedIds$ = this.store.select(selectWishlistIds);
+    this.compareItems$ = this.compareService.compare$;
   }
 
   ngOnInit() {
@@ -206,13 +215,17 @@ export class DashboardComponent implements OnInit {
     this.getAllProducts();
   }
 
-  addToCart(id: any, inStock: boolean, event: Event) {
+  addToCart(id: any, name: string, inStock: boolean, event: Event) {
     event.stopPropagation();
     if (!inStock) return;
     this.customerService.addToCart(id).subscribe(() => {
-      this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Product added to cart!', life: 3000 });
+      this.addedProductName = name;
+      this.showAddedDialog = true;
     });
   }
+
+  goToCart() { this.showAddedDialog = false; this.router.navigateByUrl('/customer/cart'); }
+  continueShopping() { this.showAddedDialog = false; }
 
   getCatIcon(cat: string): string {
     const key = cat.toLowerCase().split(' ')[0];

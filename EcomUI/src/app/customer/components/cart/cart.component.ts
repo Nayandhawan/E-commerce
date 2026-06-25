@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
+import { CustomerService } from '../../services/customer.service';
 import { loadCart, increaseQuantity, decreaseQuantity, applyCoupon, removeFromCart } from '../../../store/cart/cart.actions';
 import { selectCartItems, selectCartOrder, selectCartLoading } from '../../../store/cart/cart.selectors';
 
@@ -16,11 +17,12 @@ export class CartComponent implements OnInit {
   order$: Observable<any>;
   loading$: Observable<boolean>;
   couponForm!: FormGroup;
+  availableCoupons: any[] = [];
   showOrderDialog = false;
   dialogAmount = 0;
   deliveryEstimate = '';
 
-  constructor(private store: Store, private fb: FormBuilder) {
+  constructor(private store: Store, private fb: FormBuilder, private customerService: CustomerService) {
     this.cartItems$ = this.store.select(selectCartItems);
     this.order$ = this.store.select(selectCartOrder);
     this.loading$ = this.store.select(selectCartLoading);
@@ -32,6 +34,7 @@ export class CartComponent implements OnInit {
     });
     this.store.dispatch(loadCart());
     this.deliveryEstimate = this.getDeliveryEstimate();
+    this.customerService.getAvailableCoupons().subscribe(c => this.availableCoupons = c);
   }
 
   private getDeliveryEstimate(): string {

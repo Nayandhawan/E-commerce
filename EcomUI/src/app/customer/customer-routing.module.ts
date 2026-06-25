@@ -9,6 +9,7 @@ import { ReviewOrderedProductComponent } from './components/review-ordered-produ
 import { ViewProductDetailComponent } from './components/view-product-detail/view-product-detail.component';
 import { ViewWishlistComponent } from './components/view-wishlist/view-wishlist.component';
 import { ProfileComponent } from './components/profile/profile.component';
+import { CompareComponent } from './components/compare/compare.component';
 
 const routes: Routes = [
   { path: '', component: CustomerComponent },
@@ -20,6 +21,7 @@ const routes: Routes = [
   { path: 'product/:productId', component: ViewProductDetailComponent },
   { path: 'wishlist', component: ViewWishlistComponent },
   { path: 'profile', component: ProfileComponent },
+  { path: 'compare', component: CompareComponent },
 ];
 
 @NgModule({

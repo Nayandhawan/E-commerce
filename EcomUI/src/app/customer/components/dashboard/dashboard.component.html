@@ -144,9 +144,18 @@
             <span>Out of Stock</span>
           </div>
 
+          <!-- Compare toggle -->
+          <button class="pk-tile__cmp-btn"
+                  [class.pk-tile__cmp-btn--active]="compareService.has(product.id)"
+                  (click)="compareService.toggle(product); $event.stopPropagation()"
+                  [disabled]="!compareService.has(product.id) && compareService.count >= 3"
+                  title="Compare">
+            <lucide-angular name="git-compare" [size]="13" strokeWidth="2"></lucide-angular>
+          </button>
+
           <!-- Add to Cart CTA (hidden when OOS) -->
           <div class="pk-tile__cta" *ngIf="product.stockQuantity !== 0"
-               (click)="addToCart(product.id, product.stockQuantity !== 0, $event)">
+               (click)="addToCart(product.id, product.name, product.stockQuantity !== 0, $event)">
             <lucide-angular name="shopping-cart" [size]="15" strokeWidth="2"></lucide-angular>
             <span>Add to Cart</span>
           </div>
@@ -224,3 +233,31 @@
   </ng-template>
 
 </div>
+
+<!-- ══ COMPARE FLOATING BAR ════════════════════════════════════════════ -->
+<div class="compare-bar" *ngIf="(compareItems$ | async)?.length > 0">
+  <div class="compare-bar__items">
+    <div class="compare-bar__chip" *ngFor="let p of (compareItems$ | async)">
+      <img *ngIf="p.processedImg" [src]="p.processedImg" class="compare-bar__thumb" />
+      <span>{{ p.name }}</span>
+      <button (click)="compareService.toggle(p)"><lucide-angular name="x" [size]="11" strokeWidth="2.5"></lucide-angular></button>
+    </div>
+  </div>
+  <div class="compare-bar__actions">
+    <button class="compare-bar__clear" (click)="compareService.clear()">Clear</button>
+    <button class="compare-bar__go" [disabled]="(compareItems$ | async)?.length < 2" routerLink="/customer/compare">Compare Now</button>
+  </div>
+</div>
+
+<!-- ══ ADDED TO CART DIALOG (G29) ═══════════════════════════════════════ -->
+<p-dialog [(visible)]="showAddedDialog" [modal]="true" [closable]="false" [style]="{'width':'320px'}" [showHeader]="false">
+  <div class="added-dialog">
+    <lucide-angular name="circle-check" [size]="40" strokeWidth="1.5" class="added-icon"></lucide-angular>
+    <p class="added-title">Added to Cart!</p>
+    <p class="added-sub">{{ addedProductName }}</p>
+    <div class="added-actions">
+      <button class="added-btn added-btn--secondary" (click)="continueShopping()">Continue Shopping</button>
+      <button class="added-btn added-btn--primary" (click)="goToCart()">View Cart</button>
+    </div>
+  </div>
+</p-dialog>

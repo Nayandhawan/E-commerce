@@ -18,6 +18,7 @@ import { ReviewOrderedProductComponent } from './components/review-ordered-produ
 import { ViewProductDetailComponent } from './components/view-product-detail/view-product-detail.component';
 import { ViewWishlistComponent } from './components/view-wishlist/view-wishlist.component';
 import { ProfileComponent } from './components/profile/profile.component';
+import { CompareComponent } from './components/compare/compare.component';
 import { cartReducer } from '../store/cart/cart.reducer';
 import { wishlistReducer } from '../store/wishlist/wishlist.reducer';
 import { CartEffects } from '../store/cart/cart.effects';
@@ -35,7 +36,8 @@ import { WishlistEffects } from '../store/wishlist/wishlist.effects';
     ReviewOrderedProductComponent,
     ViewProductDetailComponent,
     ViewWishlistComponent,
-    ProfileComponent
+    ProfileComponent,
+    CompareComponent
   ],
   imports: [
     CommonModule,

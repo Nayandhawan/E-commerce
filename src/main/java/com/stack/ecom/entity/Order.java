@@ -26,6 +26,12 @@ public class Order {
 
     private String address;
 
+    private String deliveryStreet;
+    private String deliveryCity;
+    private String deliveryState;
+    private String deliveryZipCode;
+    private String deliveryCountry;
+
     private String payment;
 
     @Enumerated(EnumType.ORDINAL)
@@ -89,6 +95,17 @@ public class Order {
     public void setAddress(String address) {
         this.address = address;
     }
+
+    public String getDeliveryStreet() { return deliveryStreet; }
+    public void setDeliveryStreet(String s) { this.deliveryStreet = s; }
+    public String getDeliveryCity() { return deliveryCity; }
+    public void setDeliveryCity(String s) { this.deliveryCity = s; }
+    public String getDeliveryState() { return deliveryState; }
+    public void setDeliveryState(String s) { this.deliveryState = s; }
+    public String getDeliveryZipCode() { return deliveryZipCode; }
+    public void setDeliveryZipCode(String s) { this.deliveryZipCode = s; }
+    public String getDeliveryCountry() { return deliveryCountry; }
+    public void setDeliveryCountry(String s) { this.deliveryCountry = s; }
 
     public String getPayment() {
         return payment;
@@ -172,6 +189,11 @@ public class Order {
         orderDto.setDate(date);
         orderDto.setOrderStatus(orderStatus);
         orderDto.setReturnReason(returnReason);
+        orderDto.setDeliveryStreet(deliveryStreet);
+        orderDto.setDeliveryCity(deliveryCity);
+        orderDto.setDeliveryState(deliveryState);
+        orderDto.setDeliveryZipCode(deliveryZipCode);
+        orderDto.setDeliveryCountry(deliveryCountry);
         orderDto.setUserName(user.getName());
         if (coupon !=null){
             orderDto.setCouponName(coupon.getName());

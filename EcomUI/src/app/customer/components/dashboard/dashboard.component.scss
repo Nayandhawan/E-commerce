@@ -652,3 +652,44 @@
   margin-left: 8px;
   white-space: nowrap;
 }
+
+/* ── Compare button on card ── */
+.pk-tile__cmp-btn {
+  position: absolute; top: 8px; left: 8px;
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 999px; padding: 4px 8px; cursor: pointer;
+  color: var(--text-muted); display: flex; align-items: center;
+  transition: border-color .15s, color .15s;
+  &:hover:not(:disabled) { border-color: var(--primary); color: var(--primary-dark, #c07700); }
+  &--active { border-color: var(--primary); color: var(--primary-dark, #c07700); background: var(--primary-glow); }
+  &:disabled { opacity: .4; cursor: not-allowed; }
+}
+
+/* ── Compare floating bar ── */
+.compare-bar {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 1000;
+  background: #131921; border-top: 2px solid var(--primary);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 24px; gap: 16px;
+}
+.compare-bar__items { display: flex; gap: 12px; flex-wrap: wrap; }
+.compare-bar__chip {
+  display: flex; align-items: center; gap: 6px;
+  background: rgba(255,255,255,.1); border-radius: 999px; padding: 4px 10px;
+  color: #fff; font-size: 12px; font-weight: 600;
+  button { background: none; border: none; cursor: pointer; color: rgba(255,255,255,.6); display:flex; align-items:center; &:hover{color:#fff} }
+}
+.compare-bar__thumb { width: 24px; height: 24px; object-fit: contain; border-radius: 4px; }
+.compare-bar__actions { display: flex; gap: 8px; }
+.compare-bar__clear { background: transparent; border: 1px solid rgba(255,255,255,.3); color: #fff; border-radius: 8px; padding: 8px 16px; font-size: 13px; font-weight: 600; cursor: pointer; &:hover{border-color:#fff} }
+.compare-bar__go { background: var(--primary); border: none; color: #131921; border-radius: 8px; padding: 8px 20px; font-size: 13px; font-weight: 700; cursor: pointer; &:hover:not(:disabled){background:var(--primary-h)} &:disabled{opacity:.5;cursor:not-allowed} }
+
+/* ── Added to cart dialog ── */
+.added-dialog { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 16px 8px; text-align: center; }
+.added-icon { color: var(--success, #10b981); }
+.added-title { font-size: 18px; font-weight: 700; color: var(--text); margin: 0; }
+.added-sub { font-size: 13px; color: var(--text-muted); margin: 0; }
+.added-actions { display: flex; gap: 10px; margin-top: 8px; width: 100%; }
+.added-btn { flex: 1; padding: 10px; border-radius: var(--radius); font-size: 13px; font-weight: 600; cursor: pointer; font-family: var(--font-ui); }
+.added-btn--secondary { background: transparent; border: 1.5px solid var(--border); color: var(--text-muted); &:hover{border-color:var(--primary)} }
+.added-btn--primary { background: var(--primary); border: none; color: #131921; &:hover{background:var(--primary-h)} }
