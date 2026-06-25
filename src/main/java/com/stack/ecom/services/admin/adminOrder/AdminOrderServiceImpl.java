@@ -8,6 +8,7 @@ import com.stack.ecom.entity.CartItems;
 import com.stack.ecom.entity.Order;
 import com.stack.ecom.enums.OrderStatus;
 import com.stack.ecom.repository.OrderRepository;
+import com.stack.ecom.services.notification.NotificationService;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -24,9 +25,11 @@ import java.util.stream.Collectors;
 public class AdminOrderServiceImpl implements AdminOrderService{
 
     private final OrderRepository orderRepository;
+    private final NotificationService notificationService;
 
-    public AdminOrderServiceImpl(OrderRepository orderRepository){
+    public AdminOrderServiceImpl(OrderRepository orderRepository, NotificationService notificationService) {
         this.orderRepository = orderRepository;
+        this.notificationService = notificationService;
     }
 
     public List<OrderDto> getAllPlacedOrders(){
@@ -37,13 +40,17 @@ public class AdminOrderServiceImpl implements AdminOrderService{
     }
 
     public OrderDto changeOrderStatus(Long orderId, String status){
-        Optional<Order> optionalOrder =orderRepository.findById(orderId);
+        Optional<Order> optionalOrder = orderRepository.findById(orderId);
         if (optionalOrder.isPresent()){
             Order order = optionalOrder.get();
             if (Objects.equals(status, "Shipped")){
                 order.setOrderStatus(OrderStatus.SHIPPED);
+                notificationService.create(order.getUser().getId(),
+                    "Your order #" + orderId + " has been shipped!");
             } else if (Objects.equals(status, "Delivered")) {
                 order.setOrderStatus(OrderStatus.DELIVERED);
+                notificationService.create(order.getUser().getId(),
+                    "Your order #" + orderId + " has been delivered. Enjoy!");
             }
             return orderRepository.save(order).getOrderDto();
         }
@@ -55,11 +62,14 @@ public class AdminOrderServiceImpl implements AdminOrderService{
         if (optionalOrder.isEmpty()) return null;
         Order order = optionalOrder.get();
         if (order.getOrderStatus() != OrderStatus.RETURN_REQUESTED) return null;
+        Long userId = order.getUser().getId();
         if ("approve".equalsIgnoreCase(action)) {
             order.setOrderStatus(OrderStatus.RETURNED);
+            notificationService.create(userId, "Your return request for order #" + orderId + " has been approved.");
         } else if ("reject".equalsIgnoreCase(action)) {
             order.setOrderStatus(OrderStatus.DELIVERED);
             order.setReturnReason(null);
+            notificationService.create(userId, "Your return request for order #" + orderId + " was rejected.");
         }
         return orderRepository.save(order).getOrderDto();
     }

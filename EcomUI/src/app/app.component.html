@@ -50,6 +50,30 @@
         <lucide-angular name="receipt" [size]="18" strokeWidth="1.5"></lucide-angular>
         <span>Orders</span>
       </a>
+      <!-- Notification Bell -->
+      <div class="sk-notif-wrap">
+        <button class="sk-notif-btn" (click)="toggleNotif()" title="Notifications">
+          <lucide-angular name="bell" [size]="19" strokeWidth="1.5"></lucide-angular>
+          <span class="sk-notif-badge" *ngIf="unreadCount > 0">{{ unreadCount > 99 ? '99+' : unreadCount }}</span>
+        </button>
+        <div class="sk-notif-dropdown" [class.open]="notifOpen">
+          <div class="sk-notif-header">
+            <span>Notifications</span>
+          </div>
+          <div class="sk-notif-empty" *ngIf="notifications.length === 0">
+            <lucide-angular name="bell-off" [size]="28" strokeWidth="1"></lucide-angular>
+            <p>No notifications yet</p>
+          </div>
+          <div class="sk-notif-item" *ngFor="let n of notifications" [class.sk-notif-item--unread]="!n.read">
+            <lucide-angular name="package" [size]="14" strokeWidth="1.5" class="sk-notif-icon"></lucide-angular>
+            <div class="sk-notif-body">
+              <p class="sk-notif-msg">{{ n.message }}</p>
+              <p class="sk-notif-time">{{ n.createdAt | date:'d MMM, h:mm a' }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- User menu -->
       <div class="sk-user" (mouseenter)="dropdownOpen=true" (mouseleave)="dropdownOpen=false">
         <button class="sk-user__trigger">

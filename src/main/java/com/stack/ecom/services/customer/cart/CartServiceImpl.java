@@ -8,6 +8,7 @@ import com.stack.ecom.entity.*;
 import com.stack.ecom.enums.OrderStatus;
 import com.stack.ecom.exceptions.ValidationException;
 import com.stack.ecom.repository.*;
+import com.stack.ecom.services.notification.NotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,6 +35,9 @@ public class CartServiceImpl implements CartService{
 
     @Autowired
     private CouponRepository couponRepository;
+
+    @Autowired
+    private NotificationService notificationService;
 
     /*public ResponseEntity<?> addProductToCart(AddProductInCartDto addProductInCartDto){
         Order activeOrder = orderRepository.findByUserIdAndOrderStatus(addProductInCartDto.getUserId(), OrderStatus.PENDING);
@@ -238,6 +242,7 @@ public class CartServiceImpl implements CartService{
             activeOrder.setOrderStatus(OrderStatus.PLACED);
             activeOrder.setTrackingId(UUID.randomUUID());
             orderRepository.save(activeOrder);
+            notificationService.create(placeOrderDto.getUserId(), "Your order has been placed successfully!");
 
             Order order =new Order();
             order.setAmount(0L);
@@ -279,6 +284,7 @@ public class CartServiceImpl implements CartService{
         }
         order.setOrderStatus(OrderStatus.CANCELLED);
         orderRepository.save(order);
+        notificationService.create(userId, "Your order #" + orderId + " has been cancelled.");
         return ResponseEntity.ok(order.getOrderDto());
     }
 
@@ -294,6 +300,7 @@ public class CartServiceImpl implements CartService{
         order.setOrderStatus(OrderStatus.RETURN_REQUESTED);
         order.setReturnReason(reason);
         orderRepository.save(order);
+        notificationService.create(userId, "Your return request for order #" + orderId + " has been submitted.");
         return ResponseEntity.ok(order.getOrderDto());
     }
 
