@@ -426,21 +426,21 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  opacity: 0;
-  transform: scale(.8);
+  opacity: 0.55;
+  transform: scale(1);
   transition: opacity .2s, transform .2s, background .15s;
   backdrop-filter: blur(6px);
   lucide-angular { color: var(--text-dim); transition: color .15s, transform .2s; }
 
   &--active {
     opacity: 1;
-    transform: scale(1);
     background: #fef2f2;
     border-color: rgba(220,38,38,.3);
     lucide-angular { color: #dc2626; }
   }
 
   &:hover {
+    opacity: 1;
     background: #fef2f2;
     border-color: rgba(220,38,38,.3);
     lucide-angular { color: #dc2626; transform: scale(1.2); }
@@ -449,7 +449,6 @@
 
 .pk-tile:hover .pk-tile__wish {
   opacity: 1;
-  transform: scale(1);
 }
 
 /* Out of Stock overlay */
@@ -656,13 +655,15 @@
 /* ── Compare button on card ── */
 .pk-tile__cmp-btn {
   position: absolute; top: 8px; left: 8px;
-  background: var(--bg-card); border: 1px solid var(--border);
+  background: rgba(255,255,255,.88); border: 1px solid var(--border);
   border-radius: 999px; padding: 4px 8px; cursor: pointer;
   color: var(--text-muted); display: flex; align-items: center;
-  transition: border-color .15s, color .15s;
-  &:hover:not(:disabled) { border-color: var(--primary); color: var(--primary-dark, #c07700); }
-  &--active { border-color: var(--primary); color: var(--primary-dark, #c07700); background: var(--primary-glow); }
-  &:disabled { opacity: .4; cursor: not-allowed; }
+  backdrop-filter: blur(6px);
+  transition: border-color .15s, color .15s, background .15s;
+  opacity: 0.7;
+  &:hover:not(:disabled) { opacity: 1; border-color: var(--primary); color: var(--primary-dark, #c07700); }
+  &--active { opacity: 1; border-color: var(--primary); color: var(--primary-dark, #c07700); background: var(--primary-glow); }
+  &:disabled { opacity: .3; cursor: not-allowed; }
 }
 
 /* ── Compare floating bar ── */

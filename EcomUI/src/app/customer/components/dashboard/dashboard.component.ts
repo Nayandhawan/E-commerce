@@ -138,8 +138,11 @@ export class DashboardComponent implements OnInit {
         ...p,
         processedImg: p.imgUrl || (p.byteImg ? 'data:image/jpeg;base64,' + p.byteImg : null)
       }));
-      this.categories = [...new Set<string>(this.allProducts.map(p => p.categoryName))];
-      this.maxPriceLimit = Math.max(...this.allProducts.map(p => p.price ?? 0), 0);
+      this.categories = [...new Set<string>(
+        this.allProducts.map(p => p.categoryName).filter(Boolean)
+      )];
+      const prices = this.allProducts.map(p => p.price ?? 0).filter(v => v > 0);
+      this.maxPriceLimit = prices.length > 0 ? Math.max(...prices) : 100000;
       this.maxPrice = this.maxPriceLimit;
       this.applyFilter();
     });
@@ -176,7 +179,7 @@ export class DashboardComponent implements OnInit {
       ? [...this.allProducts]
       : this.allProducts.filter(p => p.categoryName === this.selectedCategory);
 
-    filtered = filtered.filter(p => (p.price ?? 0) <= this.maxPrice);
+    filtered = filtered.filter(p => p.price == null || p.price <= this.maxPrice);
 
     switch (this.sortBy) {
       case 'price_asc':
@@ -203,8 +206,11 @@ export class DashboardComponent implements OnInit {
       this.selectedCategory = 'All';
       this.sortBy = 'default';
       this.currentPage = 1;
-      this.categories = [...new Set<string>(this.allProducts.map(p => p.categoryName))];
-      this.maxPriceLimit = Math.max(...this.allProducts.map(p => p.price ?? 0), 0);
+      this.categories = [...new Set<string>(
+        this.allProducts.map(p => p.categoryName).filter(Boolean)
+      )];
+      const prices = this.allProducts.map(p => p.price ?? 0).filter(v => v > 0);
+      this.maxPriceLimit = prices.length > 0 ? Math.max(...prices) : 100000;
       this.maxPrice = this.maxPriceLimit;
       this.applyFilter();
     });
@@ -218,9 +224,15 @@ export class DashboardComponent implements OnInit {
   addToCart(id: any, name: string, inStock: boolean, event: Event) {
     event.stopPropagation();
     if (!inStock) return;
-    this.customerService.addToCart(id).subscribe(() => {
-      this.addedProductName = name;
-      this.showAddedDialog = true;
+    this.customerService.addToCart(id).subscribe({
+      next: () => {
+        this.addedProductName = name;
+        this.showAddedDialog = true;
+      },
+      error: (err: any) => {
+        const detail = err.status === 409 ? `${name} is already in your cart.` : 'Could not add to cart. Please try again.';
+        this.messageService.add({ severity: err.status === 409 ? 'warn' : 'error', summary: err.status === 409 ? 'Already in Cart' : 'Error', detail, life: 3000 });
+      }
     });
   }
 
