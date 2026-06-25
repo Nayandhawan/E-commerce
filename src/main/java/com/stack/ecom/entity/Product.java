@@ -27,6 +27,8 @@ public class Product {
     @Column(columnDefinition = "longblob")
     private byte[] img;
 
+    private String imgPath;
+
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "category_id",nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
@@ -36,11 +38,18 @@ public class Product {
     @Column(nullable = false, columnDefinition = "BIGINT DEFAULT 100")
     private Long stockQuantity = 100L;
 
+    public String getImgPath() { return imgPath; }
+    public void setImgPath(String imgPath) { this.imgPath = imgPath; }
+
     public ProductDto getDto(){
         ProductDto productDto = new ProductDto();
         productDto.setId(id);
         productDto.setName(name);
-        productDto.setByteImg(img);
+        if (imgPath != null) {
+            productDto.setImgUrl(imgPath);
+        } else {
+            productDto.setByteImg(img);
+        }
         productDto.setDescription(description);
         productDto.setPrice(price);
         productDto.setCategoryId(category.getId());

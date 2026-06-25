@@ -23,6 +23,8 @@ public class Review {
     @Column(columnDefinition = "longblob")
     private byte[] img;
 
+    private String imgPath;
+
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id",nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
@@ -81,11 +83,18 @@ public class Review {
         this.product = product;
     }
 
+    public String getImgPath() { return imgPath; }
+    public void setImgPath(String imgPath) { this.imgPath = imgPath; }
+
     public ReviewDto getDto(){
         ReviewDto reviewDto = new ReviewDto();
         reviewDto.setId(id);
         reviewDto.setDescription(description);
-        reviewDto.setReturnedImg(img);
+        if (imgPath != null) {
+            reviewDto.setImgUrl(imgPath);
+        } else {
+            reviewDto.setReturnedImg(img);
+        }
         reviewDto.setRating(rating);
         reviewDto.setProductId(product.getId());
         reviewDto.setUserId(user.getId());

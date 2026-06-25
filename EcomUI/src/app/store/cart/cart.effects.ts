@@ -25,7 +25,7 @@ export class CartEffects {
           map(res => {
             const cartItems = (res.cartItems ?? []).map((item: any) => ({
               ...item,
-              processedImg: item.returnedImg ? 'data:image/jpeg;base64,' + item.returnedImg : null
+              processedImg: item.imgUrl || (item.returnedImg ? 'data:image/jpeg;base64,' + item.returnedImg : null)
             }));
             return loadCartSuccess({ order: res, cartItems });
           }),

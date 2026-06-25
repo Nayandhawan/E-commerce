@@ -16,6 +16,8 @@ public class ProductDto {
 
     private byte[] byteImg;
 
+    private String imgUrl;
+
     private Long categoryId;
 
     private String categoryName;
@@ -75,6 +77,9 @@ public class ProductDto {
     public void setByteImg(byte[] byteImg) {
         this.byteImg = byteImg;
     }
+
+    public String getImgUrl() { return imgUrl; }
+    public void setImgUrl(String imgUrl) { this.imgUrl = imgUrl; }
 
     public Long getCategoryId() {
         return categoryId;

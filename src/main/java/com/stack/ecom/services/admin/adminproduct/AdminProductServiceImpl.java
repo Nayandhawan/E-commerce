@@ -5,6 +5,7 @@ import com.stack.ecom.entity.Category;
 import com.stack.ecom.entity.Product;
 import com.stack.ecom.repository.CategoryRepository;
 import com.stack.ecom.repository.ProductRepository;
+import com.stack.ecom.services.storage.ImageStorageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -17,12 +18,14 @@ import java.util.stream.Collectors;
 public class AdminProductServiceImpl implements AdminProductService{
 
     private final ProductRepository productRepository;
-
     private final CategoryRepository categoryRepository;
+    private final ImageStorageService imageStorageService;
 
-    public AdminProductServiceImpl(ProductRepository productRepository,CategoryRepository categoryRepository){
+    public AdminProductServiceImpl(ProductRepository productRepository, CategoryRepository categoryRepository,
+                                   ImageStorageService imageStorageService) {
         this.productRepository = productRepository;
         this.categoryRepository = categoryRepository;
+        this.imageStorageService = imageStorageService;
     }
 
     public ProductDto addProduct(ProductDto productDto) throws IOException {
@@ -30,7 +33,8 @@ public class AdminProductServiceImpl implements AdminProductService{
         product.setName(productDto.getName());
         product.setDescription(productDto.getDescription());
         product.setPrice(productDto.getPrice());
-        product.setImg(productDto.getImg().getBytes());
+        String imgUrl = imageStorageService.save(productDto.getImg(), "products");
+        product.setImgPath(imgUrl);
         product.setStockQuantity(productDto.getStockQuantity() != null ? productDto.getStockQuantity() : 100L);
 
         Category category = categoryRepository.findById(productDto.getCategoryId()).orElseThrow();
@@ -74,8 +78,10 @@ public class AdminProductServiceImpl implements AdminProductService{
             if (productDto.getStockQuantity() != null) {
                 product.setStockQuantity(productDto.getStockQuantity());
             }
-            if (productDto.getImg() != null){
-                product.setImg(productDto.getImg().getBytes());
+            if (productDto.getImg() != null) {
+                String imgUrl = imageStorageService.save(productDto.getImg(), "products");
+                product.setImgPath(imgUrl);
+                product.setImg(null);
             }
             return productRepository.save(product).getDto();
         }else {

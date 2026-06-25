@@ -88,7 +88,11 @@ public class CartItems {
         cartItemsDto.setQuantity(getQuantity());
         cartItemsDto.setUserId(getUser().getId());
         cartItemsDto.setProductName(getProduct().getName());
-        cartItemsDto.setReturnedImg(getProduct().getImg());
+        if (getProduct().getImgPath() != null) {
+            cartItemsDto.setImgUrl(getProduct().getImgPath());
+        } else {
+            cartItemsDto.setReturnedImg(getProduct().getImg());
+        }
 
         return cartItemsDto;
     }

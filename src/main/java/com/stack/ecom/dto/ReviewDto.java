@@ -16,6 +16,8 @@ public class ReviewDto {
 
     private byte[] returnedImg;
 
+    private String imgUrl;
+
     private Long userId;
 
     private Long productId;
@@ -69,6 +71,9 @@ public class ReviewDto {
     public void setReturnedImg(byte[] returnedImg) {
         this.returnedImg = returnedImg;
     }
+
+    public String getImgUrl() { return imgUrl; }
+    public void setImgUrl(String imgUrl) { this.imgUrl = imgUrl; }
 
     public Long getUserId() {
         return userId;

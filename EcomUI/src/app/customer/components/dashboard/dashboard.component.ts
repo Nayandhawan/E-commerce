@@ -127,7 +127,7 @@ export class DashboardComponent implements OnInit {
     this.customerService.getAllProducts().subscribe(res => {
       this.allProducts = res.map((p: any) => ({
         ...p,
-        processedImg: p.byteImg ? 'data:image/jpeg;base64,' + p.byteImg : null
+        processedImg: p.imgUrl || (p.byteImg ? 'data:image/jpeg;base64,' + p.byteImg : null)
       }));
       this.categories = [...new Set<string>(this.allProducts.map(p => p.categoryName))];
       this.maxPriceLimit = Math.max(...this.allProducts.map(p => p.price ?? 0), 0);
@@ -189,7 +189,7 @@ export class DashboardComponent implements OnInit {
     this.customerService.getAllProductsByName(title).subscribe(res => {
       this.allProducts = res.map((p: any) => ({
         ...p,
-        processedImg: p.byteImg ? 'data:image/jpeg;base64,' + p.byteImg : null
+        processedImg: p.imgUrl || (p.byteImg ? 'data:image/jpeg;base64,' + p.byteImg : null)
       }));
       this.selectedCategory = 'All';
       this.sortBy = 'default';
