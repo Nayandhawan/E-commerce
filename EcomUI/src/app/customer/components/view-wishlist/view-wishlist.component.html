@@ -1,32 +1,43 @@
-<div class="page-wrap">
-  <h2 class="section-title">My Wishlist</h2>
+<p-toast position="top-right"></p-toast>
+<div class="wl-page">
+  <h2 class="wl-section-title">My Wishlist</h2>
   <ng-container *ngIf="products$ | async as products">
     <div class="wl-grid" *ngIf="products.length > 0; else empty">
       <div class="wl-card" *ngFor="let p of products">
-        <button class="wl-remove" (click)="removeFromWishlist(p.productId)" pTooltip="Remove">
+
+        <button class="wl-remove" (click)="removeFromWishlist(p.productId)" title="Remove from wishlist">
           <lucide-angular name="x" [size]="14" strokeWidth="2.5"></lucide-angular>
         </button>
-        <div class="wl-img-box" [routerLink]="['/customer/product', p.productId]">
-          <img [src]="p.processedImg" [alt]="p.productName" class="wl-img" />
+
+        <div class="wl-img-box" [routerLink]="['/customer/product', p.productId]" title="View product">
+          <img [src]="p.processedImg" [alt]="p.productName"
+               class="wl-img" loading="lazy"
+               (error)="$any($event.target).src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22200%22 viewBox=%220 0 200 200%22%3E%3Crect fill=%22%23f3f4f6%22 width=%22200%22 height=%22200%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 font-size=%2214%22 fill=%22%239ca3af%22%3ENo Image%3C/text%3E%3C/svg%3E'" />
         </div>
+
         <div class="wl-info">
           <p class="wl-name">{{ p.productName }}</p>
-          <p class="wl-price">₹{{ p.price }}</p>
+          <p class="wl-price">₹{{ p.price | number }}</p>
         </div>
-        <button type="button"
-                class="w-full flex items-center justify-center gap-2 px-3 py-2 border border-amber-300 text-amber-700 rounded-lg text-sm font-semibold hover:bg-amber-50 transition-colors mt-2 wl-cart-btn"
-                (click)="moveToCart(p.productId)">
-          <lucide-angular name="shopping-cart" [size]="14" strokeWidth="2"></lucide-angular>
-          Add to Cart
-        </button>
+
+        <div class="wl-actions">
+          <button class="wl-cart-btn" type="button" (click)="moveToCart(p.productId)">
+            <lucide-angular name="shopping-cart" [size]="14" strokeWidth="2"></lucide-angular>
+            Add to Cart
+          </button>
+          <a class="wl-view-btn" [routerLink]="['/customer/product', p.productId]">
+            View
+          </a>
+        </div>
+
       </div>
     </div>
     <ng-template #empty>
-      <div class="empty-state">
-        <lucide-angular name="heart" [size]="56" class="empty-icon" strokeWidth="1"></lucide-angular>
+      <div class="wl-empty">
+        <lucide-angular name="heart" [size]="56" class="wl-empty__icon" strokeWidth="1"></lucide-angular>
         <h3>Your wishlist is empty</h3>
-        <p>Save items you love</p>
-        <a pButton routerLink="/customer/dashboard" label="Start Shopping"></a>
+        <p>Save items you love and find them here</p>
+        <a class="wl-shop-btn" routerLink="/customer/dashboard">Start Shopping</a>
       </div>
     </ng-template>
   </ng-container>

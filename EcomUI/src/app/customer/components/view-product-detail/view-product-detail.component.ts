@@ -69,7 +69,13 @@ export class ViewProductDetailComponent implements OnInit {
     }
     this.customerService.addToCart(this.productId).subscribe({
       next: () => this.messageService.add({ severity: 'success', summary: 'Added', detail: 'Product added to cart!', life: 3000 }),
-      error: () => this.messageService.add({ severity: 'warn', summary: 'Already in Cart', detail: 'This product is already in your cart.', life: 3000 })
+      error: (err: any) => {
+        if (err.status === 409) {
+          this.messageService.add({ severity: 'warn', summary: 'Already in Cart', detail: 'This product is already in your cart.', life: 3000 });
+        } else {
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Could not add to cart. Please try again.', life: 3000 });
+        }
+      }
     });
   }
 
@@ -85,10 +91,31 @@ export class ViewProductDetailComponent implements OnInit {
   }
 
   shareLink() {
-    navigator.clipboard.writeText(window.location.href).then(() => {
+    const url = window.location.href;
+    const doCopy = () => {
       this.copied = true;
       this.messageService.add({ severity: 'success', summary: 'Copied!', detail: 'Product link copied to clipboard.', life: 3000 });
       setTimeout(() => { this.copied = false; }, 2500);
-    });
+    };
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(url).then(doCopy).catch(() => {
+        this.fallbackCopy(url);
+        doCopy();
+      });
+    } else {
+      this.fallbackCopy(url);
+      doCopy();
+    }
+  }
+
+  private fallbackCopy(text: string) {
+    const el = document.createElement('textarea');
+    el.value = text;
+    el.style.position = 'fixed';
+    el.style.opacity = '0';
+    document.body.appendChild(el);
+    el.select();
+    document.execCommand('copy');
+    document.body.removeChild(el);
   }
 }

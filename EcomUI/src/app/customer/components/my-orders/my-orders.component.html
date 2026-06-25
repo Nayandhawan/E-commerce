@@ -85,18 +85,26 @@
 </div>
 
 <!-- Return Request Dialog -->
-<p-dialog header="Request Return / Refund" [(visible)]="showReturnDialog" [modal]="true" [style]="{width:'420px'}" [closable]="true">
+<p-dialog header="Request Return / Refund" [(visible)]="showReturnDialog" [modal]="true" [style]="{width:'460px'}" [closable]="true">
   <div class="return-dialog">
-    <p class="return-info">
-      <lucide-angular name="info" [size]="15" strokeWidth="2"></lucide-angular>
-      Please describe your reason for returning this order.
-    </p>
-    <textarea class="return-textarea" rows="4" placeholder="e.g. Item is defective, wrong product received…"
-              [(ngModel)]="returnReason" maxlength="500"></textarea>
-    <div class="return-char">{{ returnReason.length }}/500</div>
+
+    <p class="return-step-label">Why are you returning this order?</p>
+    <div class="return-reasons">
+      <label class="return-reason-option" *ngFor="let r of returnReasonOptions">
+        <input type="radio" name="returnReason" [value]="r" [(ngModel)]="returnReason" class="return-radio" />
+        <span class="return-reason-text">{{ r }}</span>
+      </label>
+    </div>
+
+    <p class="return-step-label return-step-label--opt">Additional comments <span class="opt-tag">Optional</span></p>
+    <textarea class="return-textarea" rows="3"
+              placeholder="Any other details you'd like to share…"
+              [(ngModel)]="returnComment" maxlength="400"></textarea>
+    <div class="return-char" *ngIf="returnComment.length > 0">{{ returnComment.length }}/400</div>
+
     <div class="return-actions">
       <button class="rd-btn rd-cancel" (click)="showReturnDialog = false">Cancel</button>
-      <button class="rd-btn rd-submit" [disabled]="!returnReason.trim()" (click)="submitReturn()">
+      <button class="rd-btn rd-submit" [disabled]="!returnReason" (click)="submitReturn()">
         <lucide-angular name="send" [size]="14" strokeWidth="2"></lucide-angular>
         Submit Request
       </button>

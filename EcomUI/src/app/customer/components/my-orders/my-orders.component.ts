@@ -14,7 +14,19 @@ export class MyOrdersComponent implements OnInit {
   showReturnDialog = false;
   returnOrderId: number | null = null;
   returnReason = '';
+  returnComment = '';
   returningId: number | null = null;
+
+  readonly returnReasonOptions = [
+    'Product is defective or not working',
+    'Wrong product delivered',
+    'Product not as described or shown',
+    'Size or colour mismatch',
+    'Quality not as expected',
+    'Changed my mind',
+    'Duplicate order placed by mistake',
+    'Other',
+  ];
 
   constructor(
     private customerService: CustomerService,
@@ -57,14 +69,18 @@ export class MyOrdersComponent implements OnInit {
   openReturnDialog(orderId: number) {
     this.returnOrderId = orderId;
     this.returnReason = '';
+    this.returnComment = '';
     this.showReturnDialog = true;
   }
 
   submitReturn() {
-    if (!this.returnOrderId || !this.returnReason.trim()) return;
+    if (!this.returnOrderId || !this.returnReason) return;
+    const fullReason = this.returnComment.trim()
+      ? `${this.returnReason} — ${this.returnComment.trim()}`
+      : this.returnReason;
     this.returningId = this.returnOrderId;
     this.showReturnDialog = false;
-    this.customerService.requestReturn(this.returnOrderId, this.returnReason.trim()).subscribe({
+    this.customerService.requestReturn(this.returnOrderId, fullReason).subscribe({
       next: () => {
         this.returningId = null;
         this.returnOrderId = null;
