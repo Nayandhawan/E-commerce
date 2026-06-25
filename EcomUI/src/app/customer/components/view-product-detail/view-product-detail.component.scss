@@ -27,6 +27,7 @@
   background: var(--bg-elevated);
   position: relative;
   transition: box-shadow .25s ease;
+  cursor: zoom-in;
 
   &::before {
     content: '';
@@ -39,6 +40,38 @@
 
   &:hover { box-shadow: var(--shadow-lg); }
   &:hover .hero-img { transform: scale(1.06); }
+  &:hover .zoom-hint { opacity: 1; }
+}
+
+.zoom-hint {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  background: rgba(0,0,0,.6);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  opacity: 0;
+  transition: opacity .2s;
+  pointer-events: none;
+}
+
+.zoom-dialog-body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 0;
+}
+
+.zoom-img {
+  max-width: 100%;
+  max-height: 70vh;
+  object-fit: contain;
 }
 
 .hero-img {
@@ -117,6 +150,23 @@
   margin-top: 8px;
 }
 
+.btn-cart {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--primary);
+  color: #0f1111;
+  border: none;
+  border-radius: var(--radius);
+  padding: 11px 24px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background .15s, box-shadow .15s;
+  font-family: var(--font-ui);
+  &:hover { background: var(--primary-h); box-shadow: var(--glow); }
+}
+
 .btn-wishlist {
   display: flex;
   align-items: center;
@@ -132,6 +182,24 @@
   transition: background .15s, box-shadow .15s;
   font-family: var(--font-ui);
   &:hover { background: var(--primary-glow); box-shadow: var(--glow); }
+}
+
+.btn-share {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  color: var(--text-muted);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 11px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: color .15s, border-color .15s, background .15s;
+  font-family: var(--font-ui);
+  &:hover { color: var(--text); border-color: var(--primary); background: var(--primary-glow); }
+  &.btn-share--copied { color: var(--success); border-color: var(--success); }
 }
 
 /* ── Sections ── */

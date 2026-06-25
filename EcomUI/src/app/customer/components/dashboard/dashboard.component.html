@@ -2,16 +2,24 @@
 
   <!-- ══ SEARCH ══════════════════════════════════════════════════════════ -->
   <form [formGroup]="searchProductForm" class="fk-search" (submit)="submitForm()">
-    <div class="search-inner">
+    <div class="search-inner" style="position:relative">
       <lucide-angular name="search" [size]="18" class="fk-search__icon" strokeWidth="1.5"></lucide-angular>
       <input class="fk-search__input" formControlName="title"
-             placeholder="Search for Products, Brands and More" autocomplete="off" />
+             placeholder="Search for Products, Brands and More" autocomplete="off"
+             (blur)="hideSuggestions()" />
       <button *ngIf="searchProductForm.get('title')?.value" class="fk-search__clear" type="button" (click)="clearSearch()" title="Clear search">
         <lucide-angular name="x" [size]="16" strokeWidth="2"></lucide-angular>
       </button>
       <button class="fk-search__btn" type="submit" [disabled]="searchProductForm.invalid">
         <lucide-angular name="search" [size]="16" strokeWidth="2"></lucide-angular>&nbsp;Search
       </button>
+      <!-- Autocomplete dropdown -->
+      <div class="search-suggestions" *ngIf="showSuggestions">
+        <div class="search-suggestion" *ngFor="let s of suggestions" (mousedown)="pickSuggestion(s)">
+          <lucide-angular name="search" [size]="13" strokeWidth="1.5"></lucide-angular>
+          {{ s }}
+        </div>
+      </div>
     </div>
   </form>
 
@@ -178,6 +186,18 @@
       </div>
     </ng-template>
 
+  </div>
+
+  <!-- ══ RECENTLY VIEWED ══════════════════════════════════════════════ -->
+  <div class="recently-viewed" *ngIf="recentlyViewed.length > 0">
+    <h2 class="deals-title" style="margin-bottom:10px">Recently Viewed</h2>
+    <div class="rv-scroll">
+      <div class="rv-card" *ngFor="let p of recentlyViewed" [routerLink]="['/customer/product', p.id]">
+        <img [src]="p.processedImg" [alt]="p.name" class="rv-img" />
+        <p class="rv-name">{{ p.name }}</p>
+        <p class="rv-price">₹{{ p.price | number }}</p>
+      </div>
+    </div>
   </div>
 
   <!-- ══ EMPTY ═══════════════════════════════════════════════════════════ -->

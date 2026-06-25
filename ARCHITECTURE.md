@@ -43,6 +43,7 @@ The project is actively transitioning from a **Spring Boot monolith** to a **mic
 | ORM | Spring Data JPA + Hibernate |
 | Database | MySQL 8.0 |
 | Build | Maven 3.9 |
+| Email | Spring Mail (SMTP / Gmail) |
 | API Docs | SpringDoc OpenAPI (Swagger UI at `/swagger-ui.html`) |
 | Monitoring | Spring Actuator (`/actuator/health`, `/actuator/metrics`) |
 | Payment | Razorpay |
@@ -154,6 +155,7 @@ Request → JWT Filter → SecurityConfig → Controller → Service → Reposit
 | price | BIGINT | In rupees |
 | description | TEXT | |
 | img | LONGBLOB | Single image, base64 ⚠️ |
+| stock_quantity | INTEGER | 0 = Out of Stock (added Phase 2) |
 | category_id | FK → category | Cascades on delete |
 
 ### `category`
@@ -173,10 +175,11 @@ Request → JWT Filter → SecurityConfig → Controller → Service → Reposit
 | amount | BIGINT | After discount |
 | address | VARCHAR | Free-text ⚠️ See gap |
 | payment | VARCHAR | Payment reference |
-| order_status | ENUM | `PENDING / PLACED / SHIPPED / DELIVERED` |
+| order_status | ENUM | `PENDING / PLACED / SHIPPED / DELIVERED / CANCELLED / RETURN_REQUESTED / RETURNED` |
 | total_amount | BIGINT | Before discount |
 | discount | BIGINT | |
 | tracking_id | UUID | Public tracking key |
+| return_reason | TEXT | Set when status = RETURN_REQUESTED (added Phase 4) |
 | user_id | FK → users | |
 | coupon_id | FK → coupons | Nullable |
 
@@ -234,6 +237,9 @@ Request → JWT Filter → SecurityConfig → Controller → Service → Reposit
 | POST | `/signup` | Register new user |
 | POST | `/login` | Login, returns JWT |
 | GET | `/order/{trackingId}` | Public order tracking |
+| POST | `/forgot-password?email=` | Send OTP to email (Phase 5) |
+| POST | `/verify-otp?email=&otp=` | Verify OTP (Phase 5) |
+| POST | `/reset-password?email=&otp=&newPassword=` | Reset password (Phase 5) |
 
 ### Customer — Products `/api/customer`
 | Method | Endpoint | Description |
@@ -253,6 +259,8 @@ Request → JWT Filter → SecurityConfig → Controller → Service → Reposit
 | DELETE | `/cart/{userId}/{productId}` | Remove item |
 | POST | `/cart/place-order` | Place order |
 | GET | `/cart/{userId}/orders` | My order history |
+| PATCH | `/cart/order/{orderId}/cancel?userId=` | Cancel order (Phase 4) |
+| PATCH | `/cart/order/{orderId}/return?userId=&reason=` | Request return (Phase 4) |
 
 ### Customer — Wishlist `/api/customer`
 | Method | Endpoint | Description |
@@ -304,6 +312,7 @@ Request → JWT Filter → SecurityConfig → Controller → Service → Reposit
 |---|---|---|
 | GET | `/orders` | All placed orders |
 | GET | `/orders/{orderId}/{status}` | Update order status |
+| PATCH | `/orders/{orderId}/return?action=approve\|reject` | Process return request (Phase 4) |
 | GET | `/orders/analytics` | Analytics summary |
 | GET | `/sales-chart?fromYear&toYear` | Sales chart data |
 | GET | `/sales-report?type&year` | Download Excel report |
@@ -317,20 +326,20 @@ Request → JWT Filter → SecurityConfig → Controller → Service → Reposit
 src/app/
 ├── app.module.ts              Root module
 ├── app-routing.module.ts      Top-level routes
-├── app.component              Shell (nav, toast)
+├── app.component              Shell (nav, mobile drawer, footer)
 │
-├── login/                     Login page
+├── login/                     Login page + 3-step forgot-password dialog
 ├── signup/                    Signup page
 ├── track-order/               Public order tracking
 │
 ├── customer/                  Lazy-loaded customer module
 │   ├── components/
-│   │   ├── dashboard/         Product listing + search + category filter
+│   │   ├── dashboard/         Product listing + search autocomplete + sort/filter + recently viewed
 │   │   ├── cart/              Cart view + coupon + place order
-│   │   ├── place-order/       Order form (address, description)
-│   │   ├── my-orders/         Order history list
+│   │   ├── place-order/       Order form (address pre-fill from profile)
+│   │   ├── my-orders/         Order history + cancel + return + invoice download
 │   │   ├── view-ordered-products/  Items in a specific order
-│   │   ├── view-product-detail/    Product detail + reviews + FAQs
+│   │   ├── view-product-detail/    Product detail + zoom + share + recently-viewed tracking
 │   │   ├── review-ordered-product/ Write a review
 │   │   ├── view-wishlist/     Wishlist page
 │   │   └── profile/           User profile edit
@@ -341,7 +350,7 @@ src/app/
 │   ├── components/
 │   │   ├── dashboard/         Stats overview
 │   │   ├── analytics/         Charts + sales report download
-│   │   ├── orders/            Order management + status update
+│   │   ├── orders/            Order management + status update + return approval
 │   │   ├── post-product/      Add product
 │   │   ├── update-product/    Edit product
 │   │   ├── post-category/     Add category
@@ -357,7 +366,7 @@ src/app/
 │   └── wishlist/              Wishlisted product IDs
 │
 ├── services/
-│   ├── auth/auth.service.ts
+│   ├── auth/auth.service.ts       Includes forgot-password OTP flow
 │   ├── storage/user-storage.service.ts
 │   └── interceptors/
 │       ├── auth.interceptor.ts     Attaches JWT to every request
@@ -389,6 +398,12 @@ Cart Store:   { itemCount }
 Wishlist:     { ids: number[] }
 ```
 
+### Client-Side Storage (localStorage)
+| Key | Purpose |
+|---|---|
+| `ecom-token` | JWT token |
+| `sk_recently_viewed` | Recently viewed products (max 10, trimmed on each view) |
+
 ---
 
 ## 7. Authentication Flow
@@ -400,6 +415,11 @@ Wishlist:     { ids: number[] }
 4. Spring JwtAuthFilter validates token on every protected request
 5. Role-based access: CUSTOMER routes vs ADMIN routes
 6. Token expiry: 24 hours (86400000 ms)
+
+Forgot Password (Phase 5):
+1. POST /api/auth/forgot-password?email=  → generates 6-digit OTP, emails it (10 min TTL)
+2. POST /api/auth/verify-otp?email=&otp=  → validates OTP + TTL
+3. POST /api/auth/reset-password?email=&otp=&newPassword=  → BCrypt encodes + saves
 ```
 
 ---
@@ -410,163 +430,177 @@ Wishlist:     { ids: number[] }
 
 #### Customer
 - [x] Register / Login with JWT
+- [x] **Forgot password — 3-step email OTP flow** (Phase 5)
 - [x] Browse all products
 - [x] Search products by name
+- [x] **Search autocomplete / live suggestions** (Phase 6)
 - [x] Filter products by category
+- [x] **Sort products** by price (asc/desc), top rated (Phase 2)
+- [x] **Price range slider filter** (Phase 2)
+- [x] **Out of Stock badge** — stock field on product (Phase 2)
+- [x] **Average star rating** on product cards (Phase 2)
 - [x] View product detail (description, FAQs, reviews)
+- [x] **Image zoom on product detail** (Phase 6)
+- [x] **Share product link** (copy to clipboard) (Phase 6)
 - [x] Add to cart / remove from cart
+- [x] **Quantity selector** on product detail and cart (Phase 3)
 - [x] Increase / decrease item quantity in cart
 - [x] Apply discount coupon to cart
+- [x] **Empty state** for cart, wishlist, orders, search (Phase 3)
+- [x] **Skeleton loaders** while data loads (Phase 3)
 - [x] Wishlist (add, remove, view)
-- [x] Place order (address + note)
+- [x] Place order (structured address form with pre-fill from profile) (Phase 3 + 5)
+- [x] **Delivery date estimate** on order confirmation (Phase 3)
 - [x] Razorpay payment integration
-- [x] View order history
+- [x] View order history (all statuses including cancelled/return)
+- [x] **Cancel order** (PENDING/PLACED status) (Phase 4)
+- [x] **Return/refund request** with reason (DELIVERED status) (Phase 4)
+- [x] **Order invoice** — print-friendly HTML in new tab (Phase 4)
 - [x] Track order by tracking ID (public)
 - [x] Write product review (with image + rating)
 - [x] Edit profile (name, phone, address, profile photo)
+- [x] **Recently viewed products** — localStorage, shown on dashboard (Phase 6)
 - [x] Scroll-reveal animations on product listing
+- [x] **404 / error page** (Phase 1)
 
 #### Admin
 - [x] Dashboard with stats (total orders, revenue, products, categories)
 - [x] Analytics with charts (revenue by month, orders by status)
 - [x] Export sales report as Excel
-- [x] Add / update / delete products (with image upload)
+- [x] Add / update / delete products (with image upload + stock quantity)
 - [x] Add categories
 - [x] Add product FAQs
 - [x] Create / list coupons
-- [x] View all orders + change status (Pending → Placed → Shipped → Delivered)
+- [x] View all orders + change status (Pending → Placed → Shipped → Delivered → Cancelled)
+- [x] **Approve / reject customer return requests** (Phase 4)
+
+#### UI / Shell
+- [x] **Mobile hamburger nav** + slide-in drawer (Phase 6)
+- [x] **Site footer** with brand and navigation links (Phase 6)
 
 ---
 
 ## 9. Identified Gaps
 
-### 🔴 Critical
+### ✅ Resolved
+
+| # | Gap | Fixed in |
+|---|---|---|
+| G1 | No product sorting | Phase 2 |
+| G2 | No price range filter | Phase 2 |
+| G3 | No stock field on Product | Phase 2 |
+| G5 | No order cancellation for customer | Phase 4 |
+| G6 | No forgot password / reset flow | Phase 5 |
+| G7 | No 404 / error pages | Phase 1 |
+| G9 | Rating not shown on product cards | Phase 2 |
+| G10 | No quantity selector before Add to Cart | Phase 3 |
+| G12 | No skeleton loaders | Phase 3 |
+| G13 | No empty states | Phase 3 |
+| G14 | No delivery date estimate | Phase 3 |
+| G15 | Single image per product (zoom added) | Phase 6 |
+| G16 | No CANCELLED order status | Phase 1 |
+| G17 | No return / refund request | Phase 4 |
+| G18 | No search autocomplete | Phase 6 |
+| G19 | No recently viewed products | Phase 6 |
+| G22 | No footer | Phase 6 |
+| G23 | Mobile nav not verified | Phase 6 |
+| G26 | Share product link | Phase 6 |
+| G27 | Address pre-fill at checkout | Phase 5 |
+| G30 | Order invoice / PDF download | Phase 4 |
+
+### 🔴 Still Open — Critical
 
 | # | Gap | Impact |
 |---|---|---|
-| G1 | **No product sorting** | User cannot sort by price, rating, or newest — bad discovery |
-| G2 | **No price range filter** | No way to shop within a budget |
-| G3 | **No stock field on Product** | No "Out of Stock" state — users add unavailable items |
 | G4 | **No pagination / infinite scroll** | All products load at once — will break at scale |
-| G5 | **No order cancellation for customer** | Once placed, cannot cancel |
-| G6 | **No forgot password / reset flow** | Locked out forever if password forgotten |
-| G7 | **No 404 / error pages** | Bad routes fail silently |
 | G8 | **Card details stored in plain text** | `cardNumber`, `cardCvv` in User entity — critical security violation |
+| G11 | **Address stored as free-text string** | Structured form exists but stored as one string in DB |
 
-### 🟠 High Priority
-
-| # | Gap | Impact |
-|---|---|---|
-| G9 | **Rating not shown on product cards** | Review data exists but no star display on listing |
-| G10 | **No quantity selector before Add to Cart** | Must enter cart to change qty — extra friction |
-| G11 | **Address is a free-text string** | Should be structured (street, city, state, pin, country) |
-| G12 | **No skeleton loaders** | Blank screen while data loads — feels broken |
-| G13 | **No empty states** | Empty cart/wishlist/orders shows nothing |
-| G14 | **No delivery date estimate** | User has no idea when order arrives |
-| G15 | **Single image per product** | No gallery, no zoom, no multiple angles |
-
-### 🟡 Medium Priority
+### 🟡 Still Open — Medium
 
 | # | Gap | Impact |
 |---|---|---|
-| G16 | **No order cancellation status** | No `CANCELLED` status in `OrderStatus` enum |
-| G17 | **No return / refund request** | No post-delivery customer action |
-| G18 | **No search autocomplete** | Submit-only search, no live suggestions |
-| G19 | **No recently viewed products** | No browsing history |
 | G20 | **No product variants** | No size/colour selection (critical for fashion) |
-| G21 | **No email/in-app notifications** | No alert when order ships |
-| G22 | **No footer** | No About, Contact, Privacy Policy, Terms pages |
-| G23 | **Mobile nav not verified** | Top nav may overflow on small screens |
+| G21 | **No in-app notifications** | No alert when order ships |
 | G24 | **Images stored as LONGBLOB in DB** | Performance issue — should use file storage / CDN |
-
-### 🟢 Nice to Have
-
-| # | Gap |
-|---|---|
-| G25 | Product comparison |
-| G26 | Share product link |
-| G27 | Address book (multiple saved addresses) |
-| G28 | Coupon visibility in cart before checkout step |
-| G29 | "Continue shopping" flow after add-to-cart |
-| G30 | Order invoice / PDF download |
+| G25 | Product comparison | Nice to have |
+| G28 | Coupon visibility in cart before checkout | Nice to have |
+| G29 | "Continue shopping" flow after add-to-cart | Nice to have |
 
 ---
 
 ## 10. Improvement Roadmap
 
-Ordered by value/effort ratio — each item references the gap(s) it closes.
+### ✅ Phase 1 — Security & Stability
+> Completed
 
-### Phase 1 — Security & Stability
-> Must ship before any public access
+| Task | Status |
+|---|---|
+| Remove card fields from User entity | ✅ Done |
+| Add 404 page + global error boundary | ✅ Done |
+| Add `CANCELLED` to `OrderStatus` enum | ✅ Done |
 
-| Task | Gaps | Effort |
-|---|---|---|
-| Remove `cardNumber`, `cardCvv`, `cardExpiry` from User entity | G8 | 0.5 day |
-| Add 404 page + global error boundary | G7 | 0.5 day |
-| Add `CANCELLED` to `OrderStatus` enum | G16 | 0.5 day |
+### ✅ Phase 2 — Product Discovery
+> Completed
 
-### Phase 2 — Product Discovery
-> Biggest daily-use pain points
+| Task | Status |
+|---|---|
+| Add `stockQuantity` field to Product entity | ✅ Done |
+| Show "Out of Stock" badge + disable Add to Cart | ✅ Done |
+| Sort (price asc/desc, rating) + price range filter | ✅ Done |
+| Display average star rating on product cards | ✅ Done |
 
-| Task | Gaps | Effort |
-|---|---|---|
-| Add `stockQuantity` field to Product entity | G3 | 0.5 day |
-| Show "Out of Stock" badge + disable Add to Cart | G3 | 0.5 day |
-| Backend: sort params (`sortBy`, `sortOrder`) on `/products` | G1 | 0.5 day |
-| Frontend: sort dropdown (Price ↑↓, Newest, Rating) | G1 | 0.5 day |
-| Backend: price range filter params on `/products` | G2 | 0.5 day |
-| Frontend: price range slider | G2 | 0.5 day |
-| Backend: paginated product endpoint | G4 | 1 day |
-| Frontend: infinite scroll or page controls | G4 | 1 day |
-| Display average star rating on product cards | G9 | 0.5 day |
+### ✅ Phase 3 — Cart & Checkout UX
+> Completed
 
-### Phase 3 — Cart & Checkout UX
-> Friction points in the buy flow
+| Task | Status |
+|---|---|
+| Quantity selector on product detail page | ✅ Done |
+| Structured address form at checkout | ✅ Done |
+| Delivery date estimate on order confirmation | ✅ Done |
+| Skeleton loaders for product grid, cart, orders | ✅ Done |
+| Empty states for cart, wishlist, orders, search | ✅ Done |
 
-| Task | Gaps | Effort |
-|---|---|---|
-| Quantity selector on product detail page | G10 | 0.5 day |
-| Replace free-text address with structured form | G11 | 1 day |
-| Delivery date estimate display on order confirmation | G14 | 0.5 day |
-| Skeleton loaders for product grid, cart, orders | G12 | 1 day |
-| Empty states for cart, wishlist, orders, search | G13 | 0.5 day |
+### ✅ Phase 4 — Order Management
+> Completed
 
-### Phase 4 — Order Management
-> Post-purchase user control
+| Task | Status |
+|---|---|
+| Customer: cancel order (PENDING/PLACED) | ✅ Done |
+| Customer: return/refund request with reason | ✅ Done |
+| Admin: approve / reject return requests | ✅ Done |
+| Order invoice — print-friendly HTML in new tab | ✅ Done |
 
-| Task | Gaps | Effort |
-|---|---|---|
-| Customer: cancel order button (for PENDING/PLACED status) | G5 | 1 day |
-| Customer: return/refund request form | G17 | 1.5 days |
-| Admin: handle return requests | G17 | 1 day |
-| Order invoice PDF download | G30 | 1 day |
+### ✅ Phase 5 — Auth & Account
+> Completed
 
-### Phase 5 — Auth & Account
-> Account self-service
+| Task | Status |
+|---|---|
+| Forgot password — email OTP via Spring Mail / SMTP | ✅ Done |
+| Address pre-fill at checkout from saved profile | ✅ Done |
 
-| Task | Gaps | Effort |
-|---|---|---|
-| Forgot password flow (email OTP) | G6 | 2 days |
-| Address book (save multiple addresses) | G27 | 1 day |
+### ✅ Phase 6 — UI Polish & Responsiveness
+> Completed
 
-### Phase 6 — UI Polish & Responsiveness
-
-| Task | Gaps | Effort |
-|---|---|---|
-| Verified mobile-responsive nav (hamburger menu) | G23 | 1 day |
-| Product image gallery with zoom | G15 | 1 day |
-| Search autocomplete / live suggestions | G18 | 1 day |
-| Recently viewed products (localStorage) | G19 | 0.5 day |
-| Footer (About, Contact, Privacy Policy, Terms) | G22 | 0.5 day |
-| Share product link | G26 | 0.25 day |
+| Task | Status |
+|---|---|
+| Mobile hamburger nav with slide-in drawer | ✅ Done |
+| Search autocomplete / live suggestions | ✅ Done |
+| Recently viewed products (localStorage + dashboard row) | ✅ Done |
+| Site footer with brand + navigation links | ✅ Done |
+| Product image zoom dialog (click to enlarge) | ✅ Done |
+| Share product link (copy to clipboard + toast) | ✅ Done |
 
 ### Phase 7 — Advanced Features
+> Pending
 
 | Task | Gaps | Effort |
 |---|---|---|
 | Product variants (size, colour) | G20 | 2 days |
 | In-app notifications for order status change | G21 | 2 days |
 | Migrate images from LONGBLOB to file storage | G24 | 2 days |
+| Pagination / infinite scroll on product listing | G4 | 1 day |
+| Encrypt / remove card detail fields | G8 | 0.5 day |
 
 ---
 
@@ -590,7 +624,7 @@ cd EcomUI && npm start
 ```bash
 # Create .env from example
 cp .env.example .env
-# Fill in: DB_PASSWORD, JWT_SECRET, RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET
+# Fill in: DB_PASSWORD, JWT_SECRET, RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET, MAIL_USERNAME, MAIL_PASSWORD
 
 docker compose up --build
 # Frontend:       http://localhost:4200
@@ -609,6 +643,10 @@ docker compose up --build
 | `CLIENT_URL` | — | `http://localhost:4200` | Angular origin for CORS |
 | `RAZORPAY_KEY_ID` | — | — | Razorpay API key |
 | `RAZORPAY_KEY_SECRET` | — | — | Razorpay secret |
+| `MAIL_HOST` | — | `smtp.gmail.com` | SMTP host for OTP emails |
+| `MAIL_PORT` | — | `587` | SMTP port |
+| `MAIL_USERNAME` | ✅ | — | SMTP username / Gmail address |
+| `MAIL_PASSWORD` | ✅ | — | SMTP password / Gmail App Password |
 
 ### AI Dev Pipeline
 

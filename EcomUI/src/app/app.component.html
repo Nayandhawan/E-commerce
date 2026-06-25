@@ -32,8 +32,8 @@
       </button>
     </nav>
 
-    <!-- Customer Nav -->
-    <nav class="sk-nav" *ngIf="isCustomerLoggedIn">
+    <!-- Customer Nav (desktop) -->
+    <nav class="sk-nav sk-nav--desktop" *ngIf="isCustomerLoggedIn">
       <a class="sk-icon-link" routerLink="/customer/dashboard" routerLinkActive="active" title="Shop">
         <lucide-angular name="shopping-bag" [size]="18" strokeWidth="1.5"></lucide-angular>
         <span>Shop</span>
@@ -50,7 +50,6 @@
         <lucide-angular name="receipt" [size]="18" strokeWidth="1.5"></lucide-angular>
         <span>Orders</span>
       </a>
-
       <!-- User menu -->
       <div class="sk-user" (mouseenter)="dropdownOpen=true" (mouseleave)="dropdownOpen=false">
         <button class="sk-user__trigger">
@@ -70,8 +69,78 @@
       </div>
     </nav>
 
+    <!-- Hamburger (mobile customer) -->
+    <button class="sk-hamburger" *ngIf="isCustomerLoggedIn" (click)="mobileMenuOpen=!mobileMenuOpen"
+            [attr.aria-label]="mobileMenuOpen ? 'Close menu' : 'Open menu'">
+      <lucide-angular [name]="mobileMenuOpen ? 'x' : 'menu'" [size]="22" strokeWidth="2"></lucide-angular>
+    </button>
+
   </div>
 </header>
 
+<!-- Mobile drawer -->
+<div class="sk-mobile-backdrop" [class.open]="mobileMenuOpen" (click)="closeMobileMenu()"></div>
+<nav class="sk-mobile-nav" [class.open]="mobileMenuOpen" *ngIf="isCustomerLoggedIn">
+  <div class="sk-mobile-nav__user">
+    <div class="sk-user__avatar sk-user__avatar--lg">{{ userInitial }}</div>
+    <span class="sk-mobile-nav__username">{{ userName }}</span>
+  </div>
+  <a class="sk-mobile-link" routerLink="/customer/dashboard" routerLinkActive="active" (click)="closeMobileMenu()">
+    <lucide-angular name="shopping-bag" [size]="18" strokeWidth="1.5"></lucide-angular> Shop
+  </a>
+  <a class="sk-mobile-link" routerLink="/customer/wishlist" routerLinkActive="active" (click)="closeMobileMenu()">
+    <lucide-angular name="heart" [size]="18" strokeWidth="1.5"></lucide-angular> Wishlist
+  </a>
+  <a class="sk-mobile-link" routerLink="/customer/cart" routerLinkActive="active" (click)="closeMobileMenu()">
+    <lucide-angular name="shopping-cart" [size]="18" strokeWidth="1.5"></lucide-angular> Cart
+  </a>
+  <a class="sk-mobile-link" routerLink="/customer/my_orders" routerLinkActive="active" (click)="closeMobileMenu()">
+    <lucide-angular name="receipt" [size]="18" strokeWidth="1.5"></lucide-angular> My Orders
+  </a>
+  <a class="sk-mobile-link" routerLink="/customer/profile" (click)="closeMobileMenu()">
+    <lucide-angular name="user" [size]="18" strokeWidth="1.5"></lucide-angular> Profile
+  </a>
+  <button class="sk-mobile-link sk-mobile-link--danger" (click)="logout()">
+    <lucide-angular name="log-out" [size]="18" strokeWidth="1.5"></lucide-angular> Logout
+  </button>
+</nav>
+
 <router-outlet></router-outlet>
 
+<!-- Site Footer -->
+<footer class="sk-footer" *ngIf="!isAdminLoggedIn">
+  <div class="sk-footer-inner">
+    <div class="sk-footer-brand">
+      <span class="footer-logo">Shop<em>Kart</em></span>
+      <p class="footer-tagline">India's most trusted marketplace</p>
+    </div>
+    <div class="sk-footer-links">
+      <div class="footer-col">
+        <h4>Shop</h4>
+        <a routerLink="/customer/dashboard">All Products</a>
+        <a routerLink="/customer/wishlist">My Wishlist</a>
+        <a routerLink="/customer/cart">Cart</a>
+      </div>
+      <div class="footer-col">
+        <h4>Account</h4>
+        <a routerLink="/customer/my_orders">My Orders</a>
+        <a routerLink="/customer/profile">Profile</a>
+        <a routerLink="/login">Sign In</a>
+      </div>
+      <div class="footer-col">
+        <h4>Help</h4>
+        <a routerLink="/order">Track Order</a>
+        <span>Returns &amp; Refunds</span>
+        <span>Contact Support</span>
+      </div>
+    </div>
+  </div>
+  <div class="sk-footer-bottom">
+    <span>© {{ currentYear }} ShopKart. All rights reserved.</span>
+    <span class="footer-badges">
+      <lucide-angular name="shield-check" [size]="13" strokeWidth="2"></lucide-angular> Secure Payments
+      &nbsp;·&nbsp;
+      <lucide-angular name="truck" [size]="13" strokeWidth="2"></lucide-angular> Free Delivery
+    </span>
+  </div>
+</footer>

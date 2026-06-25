@@ -30,6 +30,8 @@ export class AppComponent {
   isAdminLoggedIn: boolean = UserStorageService.isAdminLoggedIn();
   isCustomerLoggedIn: boolean = UserStorageService.isCustomerLoggedIn();
   dropdownOpen = false;
+  mobileMenuOpen = false;
+  readonly currentYear = new Date().getFullYear();
   userDetails: any = null;
   userName = '';
   userInitial = '';
@@ -56,10 +58,14 @@ export class AppComponent {
 
   openProfile() {
     this.dropdownOpen = false;
+    this.mobileMenuOpen = false;
     this.router.navigateByUrl('customer/profile');
   }
 
+  closeMobileMenu() { this.mobileMenuOpen = false; }
+
   logout() {
+    this.mobileMenuOpen = false;
     UserStorageService.signOut();
     this.router.navigateByUrl('login');
   }

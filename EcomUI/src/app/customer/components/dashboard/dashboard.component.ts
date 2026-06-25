@@ -50,6 +50,10 @@ export class DashboardComponent implements OnInit {
   wishlistedIds$: Observable<number[]>;
   private _wishlistedIds: number[] = [];
 
+  suggestions: string[] = [];
+  showSuggestions = false;
+  recentlyViewed: any[] = [];
+
   sortBy = 'default';
   maxPrice: number = 0;
   maxPriceLimit: number = 0;
@@ -69,6 +73,35 @@ export class DashboardComponent implements OnInit {
     this.getAllProducts();
     this.store.dispatch(loadWishlist());
     this.wishlistedIds$.subscribe(ids => { this._wishlistedIds = ids; });
+    this.loadRecentlyViewed();
+
+    this.searchProductForm.get('title')!.valueChanges.subscribe(val => {
+      if (val && val.length >= 2) {
+        const q = val.toLowerCase();
+        this.suggestions = this.allProducts
+          .map(p => p.name as string)
+          .filter(n => n.toLowerCase().includes(q))
+          .slice(0, 6);
+        this.showSuggestions = this.suggestions.length > 0;
+      } else {
+        this.showSuggestions = false;
+      }
+    });
+  }
+
+  pickSuggestion(name: string) {
+    this.searchProductForm.patchValue({ title: name });
+    this.showSuggestions = false;
+    this.submitForm();
+  }
+
+  hideSuggestions() { setTimeout(() => { this.showSuggestions = false; }, 150); }
+
+  private loadRecentlyViewed() {
+    try {
+      const raw = localStorage.getItem('sk_recently_viewed');
+      this.recentlyViewed = raw ? JSON.parse(raw) : [];
+    } catch { this.recentlyViewed = []; }
   }
 
   isWishlisted(productId: number): boolean {
