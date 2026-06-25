@@ -66,7 +66,7 @@ export class UpdateProductComponent {
   getProductById() {
     this.adminService.getProductById(this.productId).subscribe(res => {
       this.productForm.patchValue(res);
-      this.existingImage = 'data:image/jpeg;base64,' + res.byteImg;
+      this.existingImage = res.imgUrl || (res.byteImg ? 'data:image/jpeg;base64,' + res.byteImg : null);
     });
   }
 
@@ -120,7 +120,7 @@ export class UpdateProductComponent {
 
       this.adminService.updateProduct(this.productId, formData).subscribe((res) => {
         if (res != null) {
-          this.existingImage = res.byteImg ? 'data:image/jpeg;base64,' + res.byteImg : this.existingImage;
+          this.existingImage = res.imgUrl || (res.byteImg ? 'data:image/jpeg;base64,' + res.byteImg : this.existingImage);
           this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Product updated successfully', life: 5000 });
           this.router.navigateByUrl('/admin/dashboard');
         } else {

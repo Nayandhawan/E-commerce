@@ -52,7 +52,11 @@ public class Wishlist {
         WishlistDto wishlistDto = new WishlistDto();
         wishlistDto.setId(id);
         wishlistDto.setProductId(product.getId());
-        wishlistDto.setReturnedImg(product.getImg());
+        if (product.getImgPath() != null) {
+            wishlistDto.setImgUrl(product.getImgPath());
+        } else {
+            wishlistDto.setReturnedImg(product.getImg());
+        }
         wishlistDto.setProductName(product.getName());
         wishlistDto.setProductDescription(product.getDescription());
         wishlistDto.setPrice(product.getPrice());

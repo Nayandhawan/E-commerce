@@ -17,6 +17,8 @@ public class WishlistDto {
 
     private byte[] returnedImg;
 
+    private String imgUrl;
+
     private Long price;
 
     private String message;
@@ -68,6 +70,9 @@ public class WishlistDto {
     public void setReturnedImg(byte[] returnedImg) {
         this.returnedImg = returnedImg;
     }
+
+    public String getImgUrl() { return imgUrl; }
+    public void setImgUrl(String imgUrl) { this.imgUrl = imgUrl; }
 
     public Long getPrice() {
         return price;

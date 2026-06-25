@@ -43,6 +43,7 @@ public class WebSecurityConfiguration {
                         // Public endpoints
                         .requestMatchers("/api/auth/login", "/api/auth/signup",
                                 "/api/auth/forgot-password", "/api/auth/verify-otp", "/api/auth/reset-password").permitAll()
+                        .requestMatchers("/api/images/**").permitAll()
                         .requestMatchers("/api/customer/cart/track/**").permitAll()
                         .requestMatchers("/order/**").permitAll()
                         // Swagger / Actuator (health check)

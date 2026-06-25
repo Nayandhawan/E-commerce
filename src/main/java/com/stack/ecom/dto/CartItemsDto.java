@@ -19,6 +19,8 @@ public class CartItemsDto {
 
     private byte[] returnedImg;
 
+    private String imgUrl;
+
     private Long userId;
 
     public Long getId() {
@@ -76,6 +78,9 @@ public class CartItemsDto {
     public void setReturnedImg(byte[] returnedImg) {
         this.returnedImg = returnedImg;
     }
+
+    public String getImgUrl() { return imgUrl; }
+    public void setImgUrl(String imgUrl) { this.imgUrl = imgUrl; }
 
     public Long getUserId() {
         return userId;

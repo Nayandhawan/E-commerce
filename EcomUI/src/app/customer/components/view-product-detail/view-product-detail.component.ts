@@ -34,18 +34,16 @@ export class ViewProductDetailComponent implements OnInit {
     this.customerService.getProductDetailById(this.productId).subscribe(res => {
       if (res.productDto) {
         this.product = res.productDto;
-        if (this.product.byteImg) {
-          this.product.processedImg = 'data:image/png;base64,' + this.product.byteImg;
-        }
+        this.product.processedImg = this.product.imgUrl ||
+          (this.product.byteImg ? 'data:image/png;base64,' + this.product.byteImg : null);
         this.FAQS = res.faqDtoList || [];
         this.variants = (res.variantList || []).map((v: any) => ({
           ...v,
           label: v.size && v.colour ? `${v.size} / ${v.colour}` : (v.size || v.colour || '')
         }));
         (res.reviewDtoList || []).forEach((element: any) => {
-          if (element.returnedImg) {
-            element.processedImg = 'data:image/png;base64,' + element.returnedImg;
-          }
+          element.processedImg = element.imgUrl ||
+            (element.returnedImg ? 'data:image/png;base64,' + element.returnedImg : null);
           this.reviews.push(element);
         });
         this.trackRecentlyViewed();

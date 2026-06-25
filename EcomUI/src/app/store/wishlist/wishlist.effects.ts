@@ -25,7 +25,7 @@ export class WishlistEffects {
           map((res: any[]) => {
             const products = res.map((item: any) => ({
               ...item,
-              processedImg: item.byteImg ? 'data:image/jpeg;base64,' + item.byteImg : null
+              processedImg: item.imgUrl || (item.byteImg ? 'data:image/jpeg;base64,' + item.byteImg : null)
             }));
             const ids = res.map((item: any) => item.productId ?? item.product?.id ?? item.id);
             return loadWishlistSuccess({ products, ids });
