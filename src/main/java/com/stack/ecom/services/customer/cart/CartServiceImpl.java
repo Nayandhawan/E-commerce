@@ -163,6 +163,15 @@ public class CartServiceImpl implements CartService{
         return activeOrder.getOrderDto();
     }
 
+    private String buildAddress(PlaceOrderDto dto) {
+        return String.join(", ",
+            nullSafe(dto.getStreet()), nullSafe(dto.getCity()),
+            nullSafe(dto.getState()), nullSafe(dto.getZipCode()),
+            nullSafe(dto.getCountry())).replaceAll("(, )+", ", ").strip();
+    }
+
+    private String nullSafe(String s) { return s != null ? s : ""; }
+
     private boolean couponIsExpired(Coupon coupon){
         Date currentDate = new Date();
         Date expirationDate = coupon.getExpirationDate();
@@ -237,7 +246,14 @@ public class CartServiceImpl implements CartService{
         Optional<User> optionalUser = userRepository.findById(placeOrderDto.getUserId());
         if (optionalUser.isPresent()){
             activeOrder.setOrderDescription(placeOrderDto.getOrderDescription());
-            activeOrder.setAddress(placeOrderDto.getAddress());
+            activeOrder.setDeliveryStreet(placeOrderDto.getStreet());
+            activeOrder.setDeliveryCity(placeOrderDto.getCity());
+            activeOrder.setDeliveryState(placeOrderDto.getState());
+            activeOrder.setDeliveryZipCode(placeOrderDto.getZipCode());
+            activeOrder.setDeliveryCountry(placeOrderDto.getCountry());
+            String addr = placeOrderDto.getAddress() != null ? placeOrderDto.getAddress()
+                : buildAddress(placeOrderDto);
+            activeOrder.setAddress(addr);
             activeOrder.setDate(new Date());
             activeOrder.setOrderStatus(OrderStatus.PLACED);
             activeOrder.setTrackingId(UUID.randomUUID());

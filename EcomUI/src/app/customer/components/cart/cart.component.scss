@@ -203,3 +203,13 @@
   h3 { font-size: 22px; font-family: var(--font-display); color: var(--text); margin: 0 0 8px; }
   p { font-size: 14px; margin: 0 0 24px; }
 }
+
+.avail-coupons { margin-top: 10px; }
+.avail-label { font-size: 11px; color: var(--text-muted); font-weight: 600; margin: 0 0 6px; text-transform: uppercase; letter-spacing: .5px; }
+.avail-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.avail-chip {
+  background: var(--bg-elevated); border: 1.5px dashed var(--border); border-radius: var(--radius);
+  padding: 5px 12px; font-size: 12px; color: var(--text); cursor: pointer; font-family: var(--font-ui);
+  transition: border-color .15s, background .15s;
+  &:hover { border-color: var(--primary); background: var(--primary-glow); }
+}

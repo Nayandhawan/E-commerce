@@ -54,6 +54,16 @@
             <input pInputText placeholder="Coupon code" formControlName="code" class="coupon-input" />
             <button pButton type="submit" label="Apply" class="p-button-outlined p-button-sm" [disabled]="couponForm.invalid"></button>
           </form>
+          <div class="avail-coupons" *ngIf="availableCoupons.length > 0">
+            <p class="avail-label">Available coupons:</p>
+            <div class="avail-chips">
+              <button class="avail-chip" *ngFor="let c of availableCoupons"
+                      (click)="couponForm.patchValue({code: c.code}); applyCoupon()"
+                      type="button" title="Click to apply">
+                <strong>{{ c.code }}</strong> — {{ c.discount }}% off
+              </button>
+            </div>
+          </div>
         </div>
         <div class="coupon-applied" *ngIf="vm.order.couponName">
           <lucide-angular name="circle-check" [size]="16" strokeWidth="2"></lucide-angular>

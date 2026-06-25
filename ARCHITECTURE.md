@@ -1,7 +1,7 @@
 # ShopKart — Full Architecture & Improvement Roadmap
 
 > Last updated: June 2026  
-> Branch: `website-enhancement`
+> Branch: `gap-fixes` (all gaps resolved)
 
 ---
 
@@ -154,9 +154,19 @@ Request → JWT Filter → SecurityConfig → Controller → Service → Reposit
 | name | VARCHAR | |
 | price | BIGINT | In rupees |
 | description | TEXT | |
-| img | LONGBLOB | Single image, base64 ⚠️ |
+| img | LONGBLOB | Legacy — kept for backward compat; new uploads use `img_path` |
+| img_path | VARCHAR | Filesystem path served via `/api/images/product/{filename}` |
 | stock_quantity | INTEGER | 0 = Out of Stock (added Phase 2) |
 | category_id | FK → category | Cascades on delete |
+
+### `product_variants`
+| Column | Type | Notes |
+|---|---|---|
+| id | BIGINT PK | |
+| size | VARCHAR | e.g. S, M, L, XL |
+| colour | VARCHAR | e.g. Red, Blue |
+| stock_quantity | INTEGER | Variant-level stock |
+| product_id | FK → product | |
 
 ### `category`
 | Column | Type |
@@ -173,13 +183,18 @@ Request → JWT Filter → SecurityConfig → Controller → Service → Reposit
 | order_description | TEXT | Customer note |
 | date | DATETIME | |
 | amount | BIGINT | After discount |
-| address | VARCHAR | Free-text ⚠️ See gap |
+| address | VARCHAR | Legacy formatted string |
+| delivery_street | VARCHAR | Structured snapshot at order time |
+| delivery_city | VARCHAR | |
+| delivery_state | VARCHAR | |
+| delivery_zip_code | VARCHAR | |
+| delivery_country | VARCHAR | |
 | payment | VARCHAR | Payment reference |
 | order_status | ENUM | `PENDING / PLACED / SHIPPED / DELIVERED / CANCELLED / RETURN_REQUESTED / RETURNED` |
 | total_amount | BIGINT | Before discount |
 | discount | BIGINT | |
 | tracking_id | UUID | Public tracking key |
-| return_reason | TEXT | Set when status = RETURN_REQUESTED (added Phase 4) |
+| return_reason | TEXT | Set when status = RETURN_REQUESTED |
 | user_id | FK → users | |
 | coupon_id | FK → coupons | Nullable |
 
@@ -203,14 +218,25 @@ Request → JWT Filter → SecurityConfig → Controller → Service → Reposit
 | expiration_date | DATETIME |
 
 ### `review`
-| Column | Type |
-|---|---|
-| id | BIGINT PK |
+| Column | Type | Notes |
+|---|---|---|
+| id | BIGINT PK | |
 | rating | BIGINT | 1–5 |
-| description | TEXT |
-| img | LONGBLOB |
-| user_id | FK → users |
-| product_id | FK → product |
+| description | TEXT | |
+| img | LONGBLOB | Legacy — kept for backward compat |
+| img_path | VARCHAR | Filesystem path for new review images |
+| user_id | FK → users | |
+| product_id | FK → product | |
+
+### `notifications`
+| Column | Type | Notes |
+|---|---|---|
+| id | BIGINT PK | |
+| message | VARCHAR | Notification text |
+| type | VARCHAR | e.g. ORDER_SHIPPED |
+| is_read | BOOLEAN | |
+| created_at | DATETIME | |
+| user_id | FK → users | |
 
 ### `wishlist`
 | Column | Type |
@@ -280,6 +306,23 @@ Request → JWT Filter → SecurityConfig → Controller → Service → Reposit
 |---|---|---|
 | POST | `/reviews` | Submit review |
 
+### Customer — Coupons `/api/customer`
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/coupons` | List non-expired coupons (for display in cart) |
+
+### Customer — Notifications `/api/customer`
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/notifications` | Last 20 notifications for current user |
+| PATCH | `/notifications/{id}/read` | Mark notification as read |
+| PATCH | `/notifications/read-all` | Mark all as read |
+
+### Images (public)
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/api/images/{type}/{filename}` | Serve uploaded image (long cache header) |
+
 ### Payment `/api/payment`
 | Method | Endpoint | Description |
 |---|---|---|
@@ -312,10 +355,22 @@ Request → JWT Filter → SecurityConfig → Controller → Service → Reposit
 |---|---|---|
 | GET | `/orders` | All placed orders |
 | GET | `/orders/{orderId}/{status}` | Update order status |
-| PATCH | `/orders/{orderId}/return?action=approve\|reject` | Process return request (Phase 4) |
+| PATCH | `/orders/{orderId}/return?action=approve\|reject` | Process return request |
 | GET | `/orders/analytics` | Analytics summary |
 | GET | `/sales-chart?fromYear&toYear` | Sales chart data |
 | GET | `/sales-report?type&year` | Download Excel report |
+
+### Admin — Image Migration `/api/admin`
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | `/migrate-images` | One-time migration: move all product/review BLOBs to filesystem |
+
+### Admin — Product Variants `/api/admin`
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | `/products/{id}/variants` | Add variant to product |
+| PUT | `/variants/{id}` | Update variant |
+| DELETE | `/variants/{id}` | Delete variant |
 
 ---
 
@@ -334,12 +389,13 @@ src/app/
 │
 ├── customer/                  Lazy-loaded customer module
 │   ├── components/
-│   │   ├── dashboard/         Product listing + search autocomplete + sort/filter + recently viewed
-│   │   ├── cart/              Cart view + coupon + place order
+│   │   ├── dashboard/         Product listing + search autocomplete + sort/filter + recently viewed + compare toggle + continue shopping dialog
+│   │   ├── cart/              Cart view + coupon input + available coupon chips + place order
 │   │   ├── place-order/       Order form (address pre-fill from profile)
+│   │   ├── compare/           Side-by-side product comparison (up to 3 products)
 │   │   ├── my-orders/         Order history + cancel + return + invoice download
 │   │   ├── view-ordered-products/  Items in a specific order
-│   │   ├── view-product-detail/    Product detail + zoom + share + recently-viewed tracking
+│   │   ├── view-product-detail/    Product detail + zoom + share + variant selection + recently-viewed tracking
 │   │   ├── review-ordered-product/ Write a review
 │   │   ├── view-wishlist/     Wishlist page
 │   │   └── profile/           User profile edit
@@ -362,8 +418,8 @@ src/app/
 │
 ├── store/                     NgRx state
 │   ├── auth/                  Login state (token, user info)
-│   ├── cart/                  Cart item count
-│   └── wishlist/              Wishlisted product IDs
+│   ├── cart/                  Full cart state (items, order/totals, loading)
+│   └── wishlist/              Wishlisted product IDs + full item list
 │
 ├── services/
 │   ├── auth/auth.service.ts       Includes forgot-password OTP flow
@@ -387,15 +443,23 @@ src/app/
 | `/customer/my_orders` | MyOrdersComponent | Auth |
 | `/customer/wishlist` | WishlistComponent | Auth |
 | `/customer/profile` | ProfileComponent | Auth |
+| `/customer/compare` | CompareComponent | Auth |
+| `/customer/product/:id` | ViewProductDetailComponent | Auth |
 | `/admin/dashboard` | AdminDashboardComponent | Auth + Admin |
 | `/admin/analytics` | AnalyticsComponent | Auth + Admin |
 | `/admin/orders` | OrdersComponent | Auth + Admin |
 
 ### State Management (NgRx)
 ```
-Auth Store:   { token, userId, userName, userRole }
-Cart Store:   { itemCount }
-Wishlist:     { ids: number[] }
+Auth Store:    { token, userId, userName, userRole }
+Cart Store:    { items: CartItem[], order: OrderSummary, loading: boolean }
+Wishlist Store:{ ids: number[], items: WishlistItem[] }
+```
+
+### Services (Angular)
+```
+CompareService    — in-memory BehaviorSubject<Product[]>, max 3 items, drives compare bar + /customer/compare
+CustomerService   — all customer API calls (products, cart, orders, wishlist, profile, coupons, notifications)
 ```
 
 ### Client-Side Storage (localStorage)
@@ -462,6 +526,13 @@ Forgot Password (Phase 5):
 - [x] **Recently viewed products** — localStorage, shown on dashboard (Phase 6)
 - [x] Scroll-reveal animations on product listing
 - [x] **404 / error page** (Phase 1)
+- [x] **Pagination** on product listing (Phase 7)
+- [x] **Product variants** (size/colour selection on product detail) (Phase 7)
+- [x] **In-app notifications** — bell icon in nav, unread count badge, mark read (Phase 7)
+- [x] **Product comparison** — compare up to 3 products, floating bar, side-by-side table (gap-fixes)
+- [x] **Available coupons** shown as clickable chips in cart (gap-fixes)
+- [x] **Continue shopping dialog** after add-to-cart (gap-fixes)
+- [x] **Structured delivery address** stored per-order (street, city, state, zip, country) (gap-fixes)
 
 #### Admin
 - [x] Dashboard with stats (total orders, revenue, products, categories)
@@ -473,6 +544,7 @@ Forgot Password (Phase 5):
 - [x] Create / list coupons
 - [x] View all orders + change status (Pending → Placed → Shipped → Delivered → Cancelled)
 - [x] **Approve / reject customer return requests** (Phase 4)
+- [x] **Image file storage** — product/review images served from filesystem via `/api/images/**`, migration endpoint available (image-migration)
 
 #### UI / Shell
 - [x] **Mobile hamburger nav** + slide-in drawer (Phase 6)
@@ -482,18 +554,21 @@ Forgot Password (Phase 5):
 
 ## 9. Identified Gaps
 
-### ✅ Resolved
+### ✅ All Resolved
 
 | # | Gap | Fixed in |
 |---|---|---|
 | G1 | No product sorting | Phase 2 |
 | G2 | No price range filter | Phase 2 |
 | G3 | No stock field on Product | Phase 2 |
+| G4 | No pagination on product listing | Phase 7 |
 | G5 | No order cancellation for customer | Phase 4 |
 | G6 | No forgot password / reset flow | Phase 5 |
 | G7 | No 404 / error pages | Phase 1 |
+| G8 | Card details stored in plain text | Phase 1 |
 | G9 | Rating not shown on product cards | Phase 2 |
 | G10 | No quantity selector before Add to Cart | Phase 3 |
+| G11 | Address stored as free-text string | gap-fixes |
 | G12 | No skeleton loaders | Phase 3 |
 | G13 | No empty states | Phase 3 |
 | G14 | No delivery date estimate | Phase 3 |
@@ -502,30 +577,17 @@ Forgot Password (Phase 5):
 | G17 | No return / refund request | Phase 4 |
 | G18 | No search autocomplete | Phase 6 |
 | G19 | No recently viewed products | Phase 6 |
+| G20 | No product variants | Phase 7 |
+| G21 | No in-app notifications | Phase 7 |
 | G22 | No footer | Phase 6 |
 | G23 | Mobile nav not verified | Phase 6 |
+| G24 | Images stored as LONGBLOB in DB | image-migration |
+| G25 | Product comparison | gap-fixes |
 | G26 | Share product link | Phase 6 |
 | G27 | Address pre-fill at checkout | Phase 5 |
+| G28 | Coupon visibility in cart before checkout | gap-fixes |
+| G29 | "Continue shopping" flow after add-to-cart | gap-fixes |
 | G30 | Order invoice / PDF download | Phase 4 |
-
-### 🔴 Still Open — Critical
-
-| # | Gap | Impact |
-|---|---|---|
-| G4 | **No pagination / infinite scroll** | All products load at once — will break at scale |
-| G8 | **Card details stored in plain text** | `cardNumber`, `cardCvv` in User entity — critical security violation |
-| G11 | **Address stored as free-text string** | Structured form exists but stored as one string in DB |
-
-### 🟡 Still Open — Medium
-
-| # | Gap | Impact |
-|---|---|---|
-| G20 | **No product variants** | No size/colour selection (critical for fashion) |
-| G21 | **No in-app notifications** | No alert when order ships |
-| G24 | **Images stored as LONGBLOB in DB** | Performance issue — should use file storage / CDN |
-| G25 | Product comparison | Nice to have |
-| G28 | Coupon visibility in cart before checkout | Nice to have |
-| G29 | "Continue shopping" flow after add-to-cart | Nice to have |
 
 ---
 
@@ -591,16 +653,26 @@ Forgot Password (Phase 5):
 | Product image zoom dialog (click to enlarge) | ✅ Done |
 | Share product link (copy to clipboard + toast) | ✅ Done |
 
-### Phase 7 — Advanced Features
-> Pending
+### ✅ Phase 7 — Advanced Features
+> Completed
 
-| Task | Gaps | Effort |
+| Task | Gaps | Status |
 |---|---|---|
-| Product variants (size, colour) | G20 | 2 days |
-| In-app notifications for order status change | G21 | 2 days |
-| Migrate images from LONGBLOB to file storage | G24 | 2 days |
-| Pagination / infinite scroll on product listing | G4 | 1 day |
-| Encrypt / remove card detail fields | G8 | 0.5 day |
+| Product variants (size, colour) | G20 | ✅ Done |
+| In-app notifications for order status change | G21 | ✅ Done |
+| Migrate images from LONGBLOB to file storage | G24 | ✅ Done |
+| Pagination on product listing | G4 | ✅ Done |
+| Remove card detail fields from User | G8 | ✅ Done |
+
+### ✅ Phase 8 — Gap Fixes
+> Completed
+
+| Task | Gaps | Status |
+|---|---|---|
+| Structured delivery address snapshot on Order | G11 | ✅ Done |
+| Product comparison (CompareService + /customer/compare) | G25 | ✅ Done |
+| Available coupons as clickable chips in cart | G28 | ✅ Done |
+| Continue shopping dialog after add-to-cart | G29 | ✅ Done |
 
 ---
 

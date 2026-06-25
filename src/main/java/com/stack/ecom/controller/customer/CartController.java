@@ -3,11 +3,16 @@ package com.stack.ecom.controller.customer;
 import com.stack.ecom.dto.AddProductInCartDto;
 import com.stack.ecom.dto.OrderDto;
 import com.stack.ecom.dto.PlaceOrderDto;
+import com.stack.ecom.entity.Coupon;
 import com.stack.ecom.exceptions.ValidationException;
+import com.stack.ecom.repository.CouponRepository;
 import com.stack.ecom.services.customer.cart.CartService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Date;
+import java.util.Map;
 
 import java.util.List;
 
@@ -16,9 +21,20 @@ import java.util.List;
 public class CartController {
 
     private final CartService cartService;
+    private final CouponRepository couponRepository;
 
-    public CartController(CartService cartService){
+    public CartController(CartService cartService, CouponRepository couponRepository){
         this.cartService = cartService;
+        this.couponRepository = couponRepository;
+    }
+
+    @GetMapping("/coupons")
+    public ResponseEntity<?> getAvailableCoupons() {
+        Date now = new Date();
+        return ResponseEntity.ok(couponRepository.findAll().stream()
+            .filter(c -> c.getExpirationDate() == null || c.getExpirationDate().after(now))
+            .map(c -> Map.of("name", c.getName(), "code", c.getCode(), "discount", c.getDiscount()))
+            .toList());
     }
 
     @PostMapping("/cart")
