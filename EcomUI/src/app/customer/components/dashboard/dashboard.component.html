@@ -122,7 +122,7 @@
 
     <!-- ── GRID ──────────────────────────────────────────────────────── -->
     <div class="pk-grid" *ngIf="products.length > 0; else noMatch">
-      <div class="pk-tile" *ngFor="let product of products"
+      <div class="pk-tile" *ngFor="let product of paginatedProducts"
            [class.pk-tile--oos]="product.stockQuantity === 0">
 
         <!-- Image + hover CTA -->
@@ -185,6 +185,20 @@
         <button class="pk-empty__reset" (click)="resetFilters()">Reset filters</button>
       </div>
     </ng-template>
+
+    <!-- ── PAGINATION ────────────────────────────────────────────────── -->
+    <div class="pagination" *ngIf="totalPages > 1">
+      <button class="pg-btn pg-btn--nav" [disabled]="currentPage === 1" (click)="changePage(currentPage - 1)">
+        <lucide-angular name="chevron-left" [size]="15" strokeWidth="2.5"></lucide-angular>
+      </button>
+      <button class="pg-btn" *ngFor="let p of pageNumbers"
+              [class.pg-btn--active]="p === currentPage"
+              (click)="changePage(p)">{{ p }}</button>
+      <button class="pg-btn pg-btn--nav" [disabled]="currentPage === totalPages" (click)="changePage(currentPage + 1)">
+        <lucide-angular name="chevron-right" [size]="15" strokeWidth="2.5"></lucide-angular>
+      </button>
+      <span class="pg-info">Page {{ currentPage }} of {{ totalPages }}</span>
+    </div>
 
   </div>
 

@@ -59,6 +59,12 @@ export class DashboardComponent implements OnInit {
   maxPriceLimit: number = 0;
   readonly starRange = [1, 2, 3, 4, 5];
 
+  currentPage = 1;
+  readonly pageSize = 12;
+  get totalPages(): number { return Math.max(1, Math.ceil(this.products.length / this.pageSize)); }
+  get paginatedProducts(): any[] { return this.products.slice((this.currentPage - 1) * this.pageSize, this.currentPage * this.pageSize); }
+  get pageNumbers(): number[] { return Array.from({ length: this.totalPages }, (_, i) => i + 1); }
+
   constructor(
     private customerService: CustomerService,
     private fb: FormBuilder,
@@ -130,13 +136,21 @@ export class DashboardComponent implements OnInit {
     });
   }
 
+  changePage(page: number) {
+    if (page < 1 || page > this.totalPages) return;
+    this.currentPage = page;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
   filterByCategory(cat: string) {
     this.selectedCategory = cat;
+    this.currentPage = 1;
     this.applyFilter();
   }
 
   setSortBy(sort: string) {
     this.sortBy = sort;
+    this.currentPage = 1;
     this.applyFilter();
   }
 
@@ -144,6 +158,7 @@ export class DashboardComponent implements OnInit {
     this.sortBy = 'default';
     this.maxPrice = this.maxPriceLimit;
     this.selectedCategory = 'All';
+    this.currentPage = 1;
     this.applyFilter();
   }
 
@@ -178,6 +193,7 @@ export class DashboardComponent implements OnInit {
       }));
       this.selectedCategory = 'All';
       this.sortBy = 'default';
+      this.currentPage = 1;
       this.categories = [...new Set<string>(this.allProducts.map(p => p.categoryName))];
       this.maxPriceLimit = Math.max(...this.allProducts.map(p => p.price ?? 0), 0);
       this.maxPrice = this.maxPriceLimit;

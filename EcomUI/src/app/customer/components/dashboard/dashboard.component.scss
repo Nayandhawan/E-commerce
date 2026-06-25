@@ -613,3 +613,42 @@
 }
 
 .pk-empty__icon { color: var(--text-dim); }
+
+/* ══ PAGINATION ═════════════════════════════════ */
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 24px 0 8px;
+  flex-wrap: wrap;
+}
+
+.pg-btn {
+  min-width: 36px;
+  height: 36px;
+  padding: 0 10px;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text-muted);
+  border-radius: var(--radius);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: var(--font-ui);
+  transition: background .15s, border-color .15s, color .15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  &:hover:not(:disabled) { border-color: var(--primary); color: var(--primary-l); background: var(--primary-glow); }
+  &:disabled { opacity: .4; cursor: default; }
+  &.pg-btn--active { background: var(--primary); color: #0f1111; border-color: var(--primary); font-weight: 700; }
+  &.pg-btn--nav { background: var(--bg-elevated); }
+}
+
+.pg-info {
+  font-size: 12px;
+  color: var(--text-dim);
+  margin-left: 8px;
+  white-space: nowrap;
+}
