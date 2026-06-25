@@ -11,6 +11,7 @@
         <th>Address</th>
         <th>Date</th>
         <th>Status</th>
+        <th>Return Reason</th>
         <th>Action</th>
       </tr>
     </ng-template>
@@ -22,9 +23,12 @@
         <td>{{ order.orderDescription }}</td>
         <td style="max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ order.address }}</td>
         <td>{{ order.date | date:'dd/MM/yyyy' }}</td>
+        <td style="max-width:140px;font-size:.75rem;color:#7c3aed;font-style:italic">
+          {{ order.returnReason || '—' }}
+        </td>
         <td>
           <p-tag [value]="order.orderStatus"
-                 [severity]="order.orderStatus==='DELIVERED'?'success':order.orderStatus==='SHIPPED'?'warning':'info'">
+                 [severity]="order.orderStatus==='DELIVERED'?'success':order.orderStatus==='SHIPPED'?'warning':order.orderStatus==='RETURN_REQUESTED'?'danger':order.orderStatus==='RETURNED'?'secondary':'info'">
           </p-tag>
         </td>
         <td>
@@ -46,11 +50,27 @@
             <lucide-angular name="circle-check" [size]="13" strokeWidth="2.5"></lucide-angular>
             Fulfilled
           </span>
+          <ng-container *ngIf="order.orderStatus === 'RETURN_REQUESTED'">
+            <button class="ord-btn ord-approve-return" (click)="processReturn(order.id, 'approve')"
+                    pTooltip="Approve Return" tooltipPosition="left">
+              <lucide-angular name="circle-check" [size]="13" strokeWidth="2.5"></lucide-angular>
+              Approve
+            </button>
+            <button class="ord-btn ord-reject-return" (click)="processReturn(order.id, 'reject')"
+                    pTooltip="Reject Return" tooltipPosition="left" style="margin-left:4px">
+              <lucide-angular name="x-circle" [size]="13" strokeWidth="2.5"></lucide-angular>
+              Reject
+            </button>
+          </ng-container>
+          <span *ngIf="order.orderStatus === 'RETURNED'" class="ord-fulfilled" style="color:#0d9488">
+            <lucide-angular name="undo-2" [size]="13" strokeWidth="2.5"></lucide-angular>
+            Returned
+          </span>
         </td>
       </tr>
     </ng-template>
     <ng-template pTemplate="emptymessage">
-      <tr><td colspan="8">
+      <tr><td colspan="9">
         <div class="empty-state">
           <lucide-angular name="package" [size]="48" strokeWidth="1" style="color:var(--text-dim)"></lucide-angular>
           <h3>No orders found</h3>

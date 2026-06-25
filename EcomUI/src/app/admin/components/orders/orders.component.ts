@@ -39,4 +39,17 @@ export class OrdersComponent {
       }
     })
   }
+
+  processReturn(orderId: number, action: string) {
+    this.adminService.processReturn(orderId, action).subscribe({
+      next: () => {
+        const label = action === 'approve' ? 'Return Approved' : 'Return Rejected';
+        this.messageService.add({ severity: 'success', summary: label, detail: `Return has been ${action}d.`, life: 4000 });
+        this.getPlacedOrders();
+      },
+      error: () => {
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Could not process return.', life: 4000 });
+      }
+    });
+  }
 }

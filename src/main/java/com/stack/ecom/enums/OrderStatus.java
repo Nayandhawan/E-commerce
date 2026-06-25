@@ -9,5 +9,11 @@ public enum OrderStatus {
 
     SHIPPED,
 
-    DELIVERED;
+    DELIVERED,
+
+    CANCELLED,
+
+    RETURN_REQUESTED,
+
+    RETURNED;
 }

@@ -1,51 +1,83 @@
-<div class="bg-amber-50 rounded-lg p-4 mb-5 border border-amber-200 flex items-center gap-3" *ngIf="amount">
-  <div class="bg-amber-500 rounded-lg p-2">
-    <lucide-angular name="indian-rupee" [size]="16" class="text-gray-900" strokeWidth="2"></lucide-angular>
+<!-- Order Total -->
+<div class="order-total-bar" *ngIf="amount">
+  <div class="order-total-bar__icon">
+    <lucide-angular name="indian-rupee" [size]="16" strokeWidth="2"></lucide-angular>
   </div>
   <div>
-    <p class="text-xs text-gray-500 font-bold uppercase tracking-wider">Order Total</p>
-    <p class="text-xl font-bold text-gray-900 font-mono">{{ amount | currency:'INR':'symbol':'1.0-0' }}</p>
+    <p class="order-total-bar__label">Order Total</p>
+    <p class="order-total-bar__amount">{{ amount | currency:'INR':'symbol':'1.0-0' }}</p>
   </div>
 </div>
 
-<form [formGroup]="orderForm" class="space-y-4">
+<!-- Delivery Estimate -->
+<div class="delivery-est" *ngIf="deliveryEstimate">
+  <lucide-angular name="truck" [size]="14" strokeWidth="2"></lucide-angular>
+  <span>Estimated delivery: <strong>{{ deliveryEstimate }}</strong></span>
+</div>
 
-  <!-- Delivery Address -->
-  <div>
-    <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">
-      Delivery Address <span class="text-red-400">*</span>
-    </label>
-    <textarea pInputTextarea formControlName="address"
-              placeholder="House/Flat no., Street, Area, City, State, PIN" rows="3"></textarea>
-    <p class="text-red-500 text-xs mt-1.5 flex items-center gap-1"
-       *ngIf="orderForm.get('address')?.invalid && orderForm.get('address')?.touched">
-      <lucide-angular name="circle-alert" [size]="13" strokeWidth="2"></lucide-angular>
-      Address is required
+<form [formGroup]="orderForm" class="po-form">
+
+  <!-- Street -->
+  <div class="po-field">
+    <label class="po-label">Street / Flat / Area <span class="req">*</span></label>
+    <input pInputText formControlName="street" placeholder="House no., Street, Area" />
+    <p class="po-error" *ngIf="orderForm.get('street')?.invalid && orderForm.get('street')?.touched">
+      <lucide-angular name="circle-alert" [size]="13" strokeWidth="2"></lucide-angular> Required
     </p>
   </div>
 
+  <!-- City + State -->
+  <div class="po-row">
+    <div class="po-field">
+      <label class="po-label">City <span class="req">*</span></label>
+      <input pInputText formControlName="city" placeholder="City" />
+      <p class="po-error" *ngIf="orderForm.get('city')?.invalid && orderForm.get('city')?.touched">
+        <lucide-angular name="circle-alert" [size]="13" strokeWidth="2"></lucide-angular> Required
+      </p>
+    </div>
+    <div class="po-field">
+      <label class="po-label">State <span class="req">*</span></label>
+      <input pInputText formControlName="state" placeholder="State" />
+      <p class="po-error" *ngIf="orderForm.get('state')?.invalid && orderForm.get('state')?.touched">
+        <lucide-angular name="circle-alert" [size]="13" strokeWidth="2"></lucide-angular> Required
+      </p>
+    </div>
+  </div>
+
+  <!-- ZIP + Country -->
+  <div class="po-row">
+    <div class="po-field">
+      <label class="po-label">ZIP / PIN Code <span class="req">*</span></label>
+      <input pInputText formControlName="zipCode" placeholder="110001" />
+      <p class="po-error" *ngIf="orderForm.get('zipCode')?.invalid && orderForm.get('zipCode')?.touched">
+        <lucide-angular name="circle-alert" [size]="13" strokeWidth="2"></lucide-angular> Required
+      </p>
+    </div>
+    <div class="po-field">
+      <label class="po-label">Country</label>
+      <input pInputText formControlName="country" placeholder="India" />
+    </div>
+  </div>
+
   <!-- Order Note -->
-  <div>
-    <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">
+  <div class="po-field">
+    <label class="po-label">
       Order Note
-      <span class="text-gray-300 font-normal normal-case tracking-normal ml-1">(optional)</span>
+      <span class="po-label__opt">(optional)</span>
     </label>
     <input pInputText formControlName="orderDescription" placeholder="Any special instructions…" />
   </div>
 
   <!-- Actions -->
-  <div class="flex justify-end gap-3 pt-3 border-t border-gray-100">
-    <button type="button"
-            class="flex items-center gap-2 px-4 py-2.5 border border-gray-200 text-gray-600 rounded-lg font-semibold text-sm hover:bg-gray-50 transition-colors disabled:opacity-50"
-            (click)="cancel()" [disabled]="loading">
+  <div class="po-actions">
+    <button type="button" class="po-btn po-btn--cancel" (click)="cancel()" [disabled]="loading">
       Cancel
     </button>
-    <button type="button"
-            class="flex items-center gap-2 px-4 py-2.5 bg-amber-500 text-gray-900 rounded-lg font-semibold text-sm hover:bg-amber-400 transition-colors disabled:opacity-50"
-            (click)="placeOrder()" [disabled]="orderForm.invalid || loading">
+    <button type="button" class="po-btn po-btn--pay" (click)="placeOrder()" [disabled]="orderForm.invalid || loading">
       <lucide-angular *ngIf="!loading" name="credit-card" [size]="15" strokeWidth="2"></lucide-angular>
       <lucide-angular *ngIf="loading" name="loader-circle" [size]="15" strokeWidth="2" class="animate-spin"></lucide-angular>
       Pay with Razorpay
     </button>
   </div>
+
 </form>

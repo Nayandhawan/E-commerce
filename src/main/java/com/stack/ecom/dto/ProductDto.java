@@ -24,6 +24,10 @@ public class ProductDto {
 
     private Long quantity;
 
+    private Long stockQuantity;
+
+    private Double averageRating;
+
     public String getCategoryName() {
         return categoryName;
     }
@@ -94,5 +98,21 @@ public class ProductDto {
 
     public void setQuantity(Long quantity) {
         this.quantity = quantity;
+    }
+
+    public Long getStockQuantity() {
+        return stockQuantity;
+    }
+
+    public void setStockQuantity(Long stockQuantity) {
+        this.stockQuantity = stockQuantity;
+    }
+
+    public Double getAverageRating() {
+        return averageRating;
+    }
+
+    public void setAverageRating(Double averageRating) {
+        this.averageRating = averageRating;
     }
 }

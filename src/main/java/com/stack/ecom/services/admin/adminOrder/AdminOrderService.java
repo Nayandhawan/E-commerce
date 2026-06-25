@@ -17,4 +17,6 @@ public interface AdminOrderService {
     byte[] generateSalesReport(String type, int year, Integer month, Integer quarter);
 
     SalesChartResponse getSalesChart(int fromYear, int toYear);
+
+    OrderDto processReturn(Long orderId, String action);
 }

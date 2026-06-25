@@ -66,4 +66,14 @@ public class CartController {
     public ResponseEntity<?> removeFromCart(@PathVariable Long userId, @PathVariable Long productId) {
         return ResponseEntity.ok(cartService.removeFromCart(userId, productId));
     }
+
+    @PatchMapping("/cart/order/{orderId}/cancel")
+    public ResponseEntity<?> cancelOrder(@PathVariable Long orderId, @RequestParam Long userId) {
+        return cartService.cancelOrder(userId, orderId);
+    }
+
+    @PatchMapping("/cart/order/{orderId}/return")
+    public ResponseEntity<?> requestReturn(@PathVariable Long orderId, @RequestParam Long userId, @RequestParam String reason) {
+        return cartService.requestReturn(userId, orderId, reason);
+    }
 }

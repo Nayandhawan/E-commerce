@@ -76,4 +76,31 @@ public class AuthController {
         UserDto userDto = authService.createUser(signupRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(userDto);
     }
+
+    @PostMapping("/api/auth/forgot-password")
+    public ResponseEntity<?> forgotPassword(@RequestParam String email) {
+        try {
+            authService.sendPasswordResetOtp(email);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to send OTP");
+        }
+        return ResponseEntity.ok("OTP sent");
+    }
+
+    @PostMapping("/api/auth/verify-otp")
+    public ResponseEntity<?> verifyOtp(@RequestParam String email, @RequestParam String otp) {
+        if (authService.verifyOtp(email, otp)) {
+            return ResponseEntity.ok("OTP valid");
+        }
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid or expired OTP");
+    }
+
+    @PostMapping("/api/auth/reset-password")
+    public ResponseEntity<?> resetPassword(@RequestParam String email, @RequestParam String otp,
+                                            @RequestParam String newPassword) {
+        if (authService.resetPassword(email, otp, newPassword)) {
+            return ResponseEntity.ok("Password reset successful");
+        }
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid or expired OTP");
+    }
 }

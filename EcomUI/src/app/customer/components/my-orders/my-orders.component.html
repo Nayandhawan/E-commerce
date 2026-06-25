@@ -1,3 +1,4 @@
+<p-toast position="top-right"></p-toast>
 <div class="page-wrap">
   <h2 class="section-title">My Orders</h2>
 
@@ -12,20 +13,26 @@
           [class.chip-green]="order.orderStatus === 'DELIVERED'"
           [class.chip-orange]="order.orderStatus === 'SHIPPED'"
           [class.chip-blue]="order.orderStatus === 'PLACED'"
-          [class.chip-red]="order.orderStatus === 'CANCELLED'">
-          {{ order.orderStatus }}
+          [class.chip-red]="order.orderStatus === 'CANCELLED'"
+          [class.chip-purple]="order.orderStatus === 'RETURN_REQUESTED'"
+          [class.chip-teal]="order.orderStatus === 'RETURNED'">
+          {{ statusLabel(order.orderStatus) }}
         </span>
       </div>
 
       <div class="order-body">
         <div class="order-info">
-          <p class="info-row">
+          <p class="info-row" *ngIf="order.orderDescription">
             <lucide-angular name="receipt" [size]="15" strokeWidth="1.5"></lucide-angular>
             {{ order.orderDescription }}
           </p>
           <p class="info-row">
             <lucide-angular name="map-pin" [size]="15" strokeWidth="1.5"></lucide-angular>
             {{ order.address }}
+          </p>
+          <p class="info-row return-reason-row" *ngIf="order.returnReason">
+            <lucide-angular name="undo-2" [size]="15" strokeWidth="1.5"></lucide-angular>
+            Return reason: <em>{{ order.returnReason }}</em>
           </p>
         </div>
         <div class="order-amount">
@@ -34,11 +41,35 @@
         </div>
       </div>
 
-      <div class="order-footer" *ngIf="order.orderStatus === 'DELIVERED'">
-        <a class="btn-review" [routerLink]="['/customer/ordered_products', order.id]">
+      <div class="order-footer">
+        <a class="btn-review" [routerLink]="['/customer/ordered_products', order.id]"
+           *ngIf="order.orderStatus === 'DELIVERED'">
           <lucide-angular name="pen-line" [size]="15" strokeWidth="2"></lucide-angular>
           Write a Review
         </a>
+
+        <button class="btn-cancel" *ngIf="canCancel(order)"
+                [disabled]="cancellingId === order.id"
+                (click)="cancelOrder(order.id)">
+          <lucide-angular *ngIf="cancellingId !== order.id" name="x-circle" [size]="15" strokeWidth="2"></lucide-angular>
+          <lucide-angular *ngIf="cancellingId === order.id" name="loader-circle" [size]="15" strokeWidth="2" class="animate-spin"></lucide-angular>
+          {{ cancellingId === order.id ? 'Cancelling…' : 'Cancel Order' }}
+        </button>
+
+        <button class="btn-return" *ngIf="canReturn(order)"
+                [disabled]="returningId === order.id"
+                (click)="openReturnDialog(order.id)">
+          <lucide-angular *ngIf="returningId !== order.id" name="undo-2" [size]="15" strokeWidth="2"></lucide-angular>
+          <lucide-angular *ngIf="returningId === order.id" name="loader-circle" [size]="15" strokeWidth="2" class="animate-spin"></lucide-angular>
+          {{ returningId === order.id ? 'Submitting…' : 'Return / Refund' }}
+        </button>
+
+        <button class="btn-invoice"
+                *ngIf="['PLACED','SHIPPED','DELIVERED','RETURNED'].includes(order.orderStatus)"
+                (click)="downloadInvoice(order)">
+          <lucide-angular name="file-text" [size]="15" strokeWidth="2"></lucide-angular>
+          Invoice
+        </button>
       </div>
     </div>
   </div>
@@ -52,3 +83,23 @@
     </div>
   </ng-template>
 </div>
+
+<!-- Return Request Dialog -->
+<p-dialog header="Request Return / Refund" [(visible)]="showReturnDialog" [modal]="true" [style]="{width:'420px'}" [closable]="true">
+  <div class="return-dialog">
+    <p class="return-info">
+      <lucide-angular name="info" [size]="15" strokeWidth="2"></lucide-angular>
+      Please describe your reason for returning this order.
+    </p>
+    <textarea class="return-textarea" rows="4" placeholder="e.g. Item is defective, wrong product received…"
+              [(ngModel)]="returnReason" maxlength="500"></textarea>
+    <div class="return-char">{{ returnReason.length }}/500</div>
+    <div class="return-actions">
+      <button class="rd-btn rd-cancel" (click)="showReturnDialog = false">Cancel</button>
+      <button class="rd-btn rd-submit" [disabled]="!returnReason.trim()" (click)="submitReturn()">
+        <lucide-angular name="send" [size]="14" strokeWidth="2"></lucide-angular>
+        Submit Request
+      </button>
+    </div>
+  </div>
+</p-dialog>

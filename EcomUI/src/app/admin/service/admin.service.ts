@@ -113,6 +113,12 @@ export class AdminService {
     });
   }
 
+  processReturn(orderId: number, action: string): Observable<any> {
+    return this.http.patch(environment.apiUrl + `api/admin/orders/${orderId}/return?action=${action}`, {}, {
+      headers: this.createAuthorizationHeader(),
+    });
+  }
+
   postFAQ(productId: number, FaqDto: any): Observable<any> {
     const faqWithProduct = { ...FaqDto, productId };
     return this.http.post(environment.apiUrl + `api/admin/faq`, faqWithProduct, {
@@ -141,6 +147,24 @@ export class AdminService {
     return this.http.get(environment.apiUrl + `api/admin/sales-report?${queryParams}`, {
       headers: this.createAuthorizationHeader(),
       responseType: 'blob'
+    });
+  }
+
+  getVariants(productId: number): Observable<any[]> {
+    return this.http.get<any[]>(environment.apiUrl + `api/admin/products/${productId}/variants`, {
+      headers: this.createAuthorizationHeader()
+    });
+  }
+
+  addVariant(productId: number, variant: { size?: string; colour?: string; stockQuantity: number }): Observable<any> {
+    return this.http.post(environment.apiUrl + `api/admin/products/${productId}/variants`, variant, {
+      headers: this.createAuthorizationHeader()
+    });
+  }
+
+  deleteVariant(variantId: number): Observable<any> {
+    return this.http.delete(environment.apiUrl + `api/admin/variants/${variantId}`, {
+      headers: this.createAuthorizationHeader()
     });
   }
 

@@ -182,3 +182,140 @@
   text-decoration: none;
   &:hover { text-decoration: underline; }
 }
+
+/* ── Password label row ── */
+.password-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+  label { margin-bottom: 0; }
+}
+
+/* ── Forgot-password link ── */
+.fp-link {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 12px;
+  color: var(--primary-l);
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  &:hover { text-decoration: underline; }
+}
+
+/* ── Forgot-password dialog ── */
+.fp-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.fp-steps-indicator {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.fp-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--border);
+  transition: background .2s;
+
+  &.active { background: var(--primary); }
+  &.done   { background: #059669; }
+}
+
+.fp-step {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 4px 0;
+}
+
+.fp-desc {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin: 0;
+  strong { color: var(--text); }
+}
+
+.fp-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  .p-input-icon-left, .p-input-icon-right {
+    display: block;
+    position: relative;
+    > lucide-angular:first-child { position: absolute; left: .75rem; top: 50%; transform: translateY(-50%); color: var(--text-dim); z-index: 1; pointer-events: none; display: flex; }
+    > lucide-angular.toggle-eye { position: absolute; right: .75rem; top: 50%; transform: translateY(-50%); color: var(--text-dim); z-index: 1; cursor: pointer; pointer-events: all; display: flex; }
+    > input { padding-left: 2.25rem !important; width: 100%; }
+  }
+  .p-input-icon-right > input { padding-right: 2.25rem !important; }
+}
+
+.fp-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  color: var(--text-muted);
+}
+
+.fp-mismatch {
+  font-size: 11px;
+  color: var(--danger);
+}
+
+.fp-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+  margin-top: 4px;
+}
+
+.fp-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 18px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: background .15s;
+  &:disabled { opacity: .5; cursor: not-allowed; }
+
+  &--cancel {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    &:hover { background: var(--bg-card); }
+  }
+
+  &--primary {
+    background: var(--primary);
+    color: #0f1111;
+    &:hover:not(:disabled) { background: var(--primary-h); }
+  }
+}
+
+.fp-resend {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-dim);
+  justify-content: center;
+}

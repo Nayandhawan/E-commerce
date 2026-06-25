@@ -42,6 +42,7 @@ export class PostProductComponent {
       name: [null, Validators.required],
       description: [null, Validators.required],
       price: [null, Validators.required],
+      stockQuantity: [100, [Validators.required, Validators.min(0)]],
     });
 
     this.getAllCategories();
@@ -61,6 +62,7 @@ export class PostProductComponent {
       formData.append('name', this.productForm.get('name').value);
       formData.append('description', this.productForm.get('description').value);
       formData.append('price', this.productForm.get('price').value);
+      formData.append('stockQuantity', this.productForm.get('stockQuantity').value);
 
       this.adminService.addProduct(formData).subscribe((res)=>{
         if(res!=null){

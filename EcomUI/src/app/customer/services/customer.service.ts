@@ -80,6 +80,20 @@ export class CustomerService {
     });
   }
 
+  cancelOrder(orderId: number): Observable<any> {
+    const userId = UserStorageService.getUserId();
+    return this.http.patch(environment.apiUrl + `api/customer/cart/order/${orderId}/cancel?userId=${userId}`, {}, {
+      headers: this.createAuthorizationHeader(),
+    });
+  }
+
+  requestReturn(orderId: number, reason: string): Observable<any> {
+    const userId = UserStorageService.getUserId();
+    return this.http.patch(environment.apiUrl + `api/customer/cart/order/${orderId}/return?userId=${userId}&reason=${encodeURIComponent(reason)}`, {}, {
+      headers: this.createAuthorizationHeader(),
+    });
+  }
+
   giveReview(reviewDto: any): Observable<any> {
     return this.http.post(environment.apiUrl + `api/customer/reviews`, reviewDto, {
       headers: this.createAuthorizationHeader(),

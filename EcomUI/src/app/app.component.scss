@@ -208,6 +208,169 @@
   &__sep { height: 1px; background: #D5D9D9; }
 }
 
+// ── Mobile hamburger ──────────────────────────────────────────────────────────
+.sk-hamburger {
+  display: none;
+  background: transparent;
+  border: 1px solid rgba(255,255,255,.35);
+  border-radius: 3px;
+  color: rgba(255,255,255,.88);
+  padding: .35rem .5rem;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  transition: border-color .15s;
+  &:hover { border-color: rgba(255,255,255,.7); color: #fff; }
+
+  @media (max-width: 720px) { display: flex; }
+}
+
+.sk-nav--desktop {
+  @media (max-width: 720px) { display: none !important; }
+}
+
+// ── Mobile backdrop ────────────────────────────────────────────────────────────
+.sk-mobile-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.5);
+  z-index: 1100;
+  opacity: 0;
+  transition: opacity .25s;
+  &.open { display: block; opacity: 1; }
+}
+
+// ── Mobile nav drawer ─────────────────────────────────────────────────────────
+.sk-mobile-nav {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 280px;
+  height: 100dvh;
+  background: #1a2332;
+  z-index: 1200;
+  display: flex;
+  flex-direction: column;
+  padding: 24px 0 16px;
+  transform: translateX(100%);
+  transition: transform .28s cubic-bezier(.4,0,.2,1);
+  box-shadow: -4px 0 24px rgba(0,0,0,.4);
+  overflow-y: auto;
+
+  &.open { transform: translateX(0); }
+
+  &__user {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 20px 20px;
+    border-bottom: 1px solid rgba(255,255,255,.1);
+    margin-bottom: 8px;
+  }
+
+  &__username {
+    font-size: 15px;
+    font-weight: 700;
+    color: #fff;
+  }
+}
+
+.sk-user__avatar--lg {
+  width: 38px;
+  height: 38px;
+  font-size: .95rem;
+}
+
+.sk-mobile-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 20px;
+  color: rgba(255,255,255,.82);
+  font-size: .9rem;
+  font-weight: 500;
+  text-decoration: none;
+  background: none;
+  border: none;
+  font-family: var(--font-ui);
+  cursor: pointer;
+  transition: background .15s, color .15s;
+  width: 100%;
+  text-align: left;
+
+  &:hover, &.active { background: rgba(255,255,255,.07); color: #fff; }
+  &--danger { color: #f87171; &:hover { background: rgba(220,38,38,.12); } }
+}
+
+// ── Site footer ───────────────────────────────────────────────────────────────
+.sk-footer {
+  background: #0d1117;
+  border-top: 1px solid rgba(255,255,255,.08);
+  margin-top: 40px;
+  color: rgba(255,255,255,.6);
+  font-size: .82rem;
+}
+
+.sk-footer-inner {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 40px 24px 32px;
+  display: flex;
+  gap: 40px;
+  flex-wrap: wrap;
+}
+
+.sk-footer-brand {
+  flex: 0 0 200px;
+  .footer-logo {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #fff;
+    em { font-style: italic; color: #FF9900; }
+  }
+  .footer-tagline { margin: 6px 0 0; font-size: .78rem; color: rgba(255,255,255,.45); }
+}
+
+.sk-footer-links {
+  flex: 1;
+  display: flex;
+  gap: 32px;
+  flex-wrap: wrap;
+}
+
+.footer-col {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 120px;
+
+  h4 { color: rgba(255,255,255,.85); font-size: .8rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; margin: 0 0 4px; }
+  a, span { color: rgba(255,255,255,.5); text-decoration: none; font-size: .8rem; cursor: pointer; transition: color .15s; &:hover { color: #FF9900; } }
+}
+
+.sk-footer-bottom {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 14px 24px;
+  border-top: 1px solid rgba(255,255,255,.06);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: .76rem;
+
+  .footer-badges {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: rgba(255,255,255,.4);
+    lucide-angular { color: #059669; }
+  }
+}
+
 // ── Profile dialog content ────────────────────────────────────────────────────
 .profile-body {
   display: flex;
@@ -269,4 +432,113 @@
   font-size: .83rem;
   color: #565959;
   lucide-angular { color: #C45500; flex-shrink: 0; }
+}
+
+// ── Notification Bell ──────────────────────────────────────────────────────────
+.sk-notif-wrap {
+  position: relative;
+}
+
+.sk-notif-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #ccc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  border-radius: 50%;
+  position: relative;
+  transition: color .15s, background .15s;
+  &:hover { color: #febd69; background: rgba(255,255,255,.08); }
+}
+
+.sk-notif-badge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: #e53e3e;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  min-width: 17px;
+  height: 17px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 3px;
+  line-height: 1;
+}
+
+.sk-notif-dropdown {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  width: 320px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 8px 30px rgba(0,0,0,.18);
+  border: 1px solid #e2e8f0;
+  z-index: 1000;
+  display: none;
+  flex-direction: column;
+  max-height: 380px;
+  overflow-y: auto;
+  &.open { display: flex; }
+}
+
+.sk-notif-header {
+  padding: 12px 16px 10px;
+  font-weight: 700;
+  font-size: 13px;
+  color: #1a202c;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sk-notif-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 32px 16px;
+  color: #a0aec0;
+  gap: 8px;
+  p { font-size: 13px; margin: 0; }
+}
+
+.sk-notif-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 16px;
+  border-bottom: 1px solid #f0f4f8;
+  transition: background .12s;
+  &:last-child { border-bottom: none; }
+  &:hover { background: #f7fafc; }
+  &.sk-notif-item--unread { background: #fffbeb; }
+}
+
+.sk-notif-icon {
+  color: #7c3aed;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.sk-notif-body { flex: 1; }
+
+.sk-notif-msg {
+  font-size: 13px;
+  color: #1a202c;
+  margin: 0 0 3px;
+  line-height: 1.45;
+}
+
+.sk-notif-time {
+  font-size: 11px;
+  color: #a0aec0;
+  margin: 0;
 }

@@ -44,6 +44,20 @@
   }
 }
 
+.ord-approve-return {
+  background: #7c3aed;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(124,58,237,.35);
+  &:hover { box-shadow: 0 4px 14px rgba(124,58,237,.45); }
+}
+
+.ord-reject-return {
+  background: #dc2626;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(220,38,38,.3);
+  &:hover { box-shadow: 0 4px 14px rgba(220,38,38,.4); }
+}
+
 .ord-fulfilled {
   display: inline-flex;
   align-items: center;

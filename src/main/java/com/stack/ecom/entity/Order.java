@@ -37,6 +37,8 @@ public class Order {
 
     private UUID trackingId;
 
+    private String returnReason;
+
     @OneToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "user_id" , referencedColumnName = "id")
     private User user;
@@ -128,6 +130,14 @@ public class Order {
         this.trackingId = trackingId;
     }
 
+    public String getReturnReason() {
+        return returnReason;
+    }
+
+    public void setReturnReason(String returnReason) {
+        this.returnReason = returnReason;
+    }
+
     public User getUser() {
         return user;
     }
@@ -161,6 +171,7 @@ public class Order {
         orderDto.setAmount(amount);
         orderDto.setDate(date);
         orderDto.setOrderStatus(orderStatus);
+        orderDto.setReturnReason(returnReason);
         orderDto.setUserName(user.getName());
         if (coupon !=null){
             orderDto.setCouponName(coupon.getName());

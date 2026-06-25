@@ -48,6 +48,15 @@ public class AdminOrderController {
         return ResponseEntity.ok(adminOrderService.getSalesChart(fromYear, toYear));
     }
 
+    @PatchMapping("/orders/{orderId}/return")
+    public ResponseEntity<?> processReturn(@PathVariable Long orderId, @RequestParam String action) {
+        OrderDto orderDto = adminOrderService.processReturn(orderId, action);
+        if (orderDto == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Cannot process return for this order");
+        }
+        return ResponseEntity.ok(orderDto);
+    }
+
     @GetMapping("/sales-report")
     public ResponseEntity<byte[]> getSalesReport(
             @RequestParam String type,

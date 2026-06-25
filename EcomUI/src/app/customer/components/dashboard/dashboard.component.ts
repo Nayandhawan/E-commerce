@@ -50,6 +50,21 @@ export class DashboardComponent implements OnInit {
   wishlistedIds$: Observable<number[]>;
   private _wishlistedIds: number[] = [];
 
+  suggestions: string[] = [];
+  showSuggestions = false;
+  recentlyViewed: any[] = [];
+
+  sortBy = 'default';
+  maxPrice: number = 0;
+  maxPriceLimit: number = 0;
+  readonly starRange = [1, 2, 3, 4, 5];
+
+  currentPage = 1;
+  readonly pageSize = 12;
+  get totalPages(): number { return Math.max(1, Math.ceil(this.products.length / this.pageSize)); }
+  get paginatedProducts(): any[] { return this.products.slice((this.currentPage - 1) * this.pageSize, this.currentPage * this.pageSize); }
+  get pageNumbers(): number[] { return Array.from({ length: this.totalPages }, (_, i) => i + 1); }
+
   constructor(
     private customerService: CustomerService,
     private fb: FormBuilder,
@@ -64,6 +79,35 @@ export class DashboardComponent implements OnInit {
     this.getAllProducts();
     this.store.dispatch(loadWishlist());
     this.wishlistedIds$.subscribe(ids => { this._wishlistedIds = ids; });
+    this.loadRecentlyViewed();
+
+    this.searchProductForm.get('title')!.valueChanges.subscribe(val => {
+      if (val && val.length >= 2) {
+        const q = val.toLowerCase();
+        this.suggestions = this.allProducts
+          .map(p => p.name as string)
+          .filter(n => n.toLowerCase().includes(q))
+          .slice(0, 6);
+        this.showSuggestions = this.suggestions.length > 0;
+      } else {
+        this.showSuggestions = false;
+      }
+    });
+  }
+
+  pickSuggestion(name: string) {
+    this.searchProductForm.patchValue({ title: name });
+    this.showSuggestions = false;
+    this.submitForm();
+  }
+
+  hideSuggestions() { setTimeout(() => { this.showSuggestions = false; }, 150); }
+
+  private loadRecentlyViewed() {
+    try {
+      const raw = localStorage.getItem('sk_recently_viewed');
+      this.recentlyViewed = raw ? JSON.parse(raw) : [];
+    } catch { this.recentlyViewed = []; }
   }
 
   isWishlisted(productId: number): boolean {
@@ -86,19 +130,58 @@ export class DashboardComponent implements OnInit {
         processedImg: p.byteImg ? 'data:image/jpeg;base64,' + p.byteImg : null
       }));
       this.categories = [...new Set<string>(this.allProducts.map(p => p.categoryName))];
+      this.maxPriceLimit = Math.max(...this.allProducts.map(p => p.price ?? 0), 0);
+      this.maxPrice = this.maxPriceLimit;
       this.applyFilter();
     });
   }
 
+  changePage(page: number) {
+    if (page < 1 || page > this.totalPages) return;
+    this.currentPage = page;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
   filterByCategory(cat: string) {
     this.selectedCategory = cat;
+    this.currentPage = 1;
     this.applyFilter();
   }
 
-  private applyFilter() {
-    this.products = this.selectedCategory === 'All'
-      ? this.allProducts
+  setSortBy(sort: string) {
+    this.sortBy = sort;
+    this.currentPage = 1;
+    this.applyFilter();
+  }
+
+  resetFilters() {
+    this.sortBy = 'default';
+    this.maxPrice = this.maxPriceLimit;
+    this.selectedCategory = 'All';
+    this.currentPage = 1;
+    this.applyFilter();
+  }
+
+  applyFilter() {
+    let filtered = this.selectedCategory === 'All'
+      ? [...this.allProducts]
       : this.allProducts.filter(p => p.categoryName === this.selectedCategory);
+
+    filtered = filtered.filter(p => (p.price ?? 0) <= this.maxPrice);
+
+    switch (this.sortBy) {
+      case 'price_asc':
+        filtered.sort((a, b) => (a.price ?? 0) - (b.price ?? 0));
+        break;
+      case 'price_desc':
+        filtered.sort((a, b) => (b.price ?? 0) - (a.price ?? 0));
+        break;
+      case 'rating':
+        filtered.sort((a, b) => (b.averageRating ?? 0) - (a.averageRating ?? 0));
+        break;
+    }
+
+    this.products = filtered;
   }
 
   submitForm() {
@@ -109,7 +192,11 @@ export class DashboardComponent implements OnInit {
         processedImg: p.byteImg ? 'data:image/jpeg;base64,' + p.byteImg : null
       }));
       this.selectedCategory = 'All';
+      this.sortBy = 'default';
+      this.currentPage = 1;
       this.categories = [...new Set<string>(this.allProducts.map(p => p.categoryName))];
+      this.maxPriceLimit = Math.max(...this.allProducts.map(p => p.price ?? 0), 0);
+      this.maxPrice = this.maxPriceLimit;
       this.applyFilter();
     });
   }
@@ -119,7 +206,9 @@ export class DashboardComponent implements OnInit {
     this.getAllProducts();
   }
 
-  addToCart(id: any) {
+  addToCart(id: any, inStock: boolean, event: Event) {
+    event.stopPropagation();
+    if (!inStock) return;
     this.customerService.addToCart(id).subscribe(() => {
       this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Product added to cart!', life: 3000 });
     });
@@ -128,5 +217,10 @@ export class DashboardComponent implements OnInit {
   getCatIcon(cat: string): string {
     const key = cat.toLowerCase().split(' ')[0];
     return CAT_ICONS[key] ?? 'square-stack';
+  }
+
+  getStarFill(star: number, rating: number | null): string {
+    if (!rating) return 'none';
+    return star <= Math.round(rating) ? 'currentColor' : 'none';
   }
 }

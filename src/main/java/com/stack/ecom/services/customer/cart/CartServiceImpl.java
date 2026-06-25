@@ -8,6 +8,7 @@ import com.stack.ecom.entity.*;
 import com.stack.ecom.enums.OrderStatus;
 import com.stack.ecom.exceptions.ValidationException;
 import com.stack.ecom.repository.*;
+import com.stack.ecom.services.notification.NotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,6 +35,9 @@ public class CartServiceImpl implements CartService{
 
     @Autowired
     private CouponRepository couponRepository;
+
+    @Autowired
+    private NotificationService notificationService;
 
     /*public ResponseEntity<?> addProductToCart(AddProductInCartDto addProductInCartDto){
         Order activeOrder = orderRepository.findByUserIdAndOrderStatus(addProductInCartDto.getUserId(), OrderStatus.PENDING);
@@ -238,6 +242,7 @@ public class CartServiceImpl implements CartService{
             activeOrder.setOrderStatus(OrderStatus.PLACED);
             activeOrder.setTrackingId(UUID.randomUUID());
             orderRepository.save(activeOrder);
+            notificationService.create(placeOrderDto.getUserId(), "Your order has been placed successfully!");
 
             Order order =new Order();
             order.setAmount(0L);
@@ -254,12 +259,49 @@ public class CartServiceImpl implements CartService{
     }
 
     public List<OrderDto> getPlacedOrder(Long userId){
-        return orderRepository.findByUserIdAndOrderStatusIn(userId,List.of(OrderStatus.PLACED,OrderStatus.SHIPPED, OrderStatus.DELIVERED)).stream().map(Order::getOrderDto).collect(Collectors.toList());
+        return orderRepository.findByUserIdAndOrderStatusIn(userId, List.of(
+                OrderStatus.PLACED, OrderStatus.SHIPPED, OrderStatus.DELIVERED,
+                OrderStatus.CANCELLED, OrderStatus.RETURN_REQUESTED, OrderStatus.RETURNED))
+            .stream().map(Order::getOrderDto).collect(Collectors.toList());
     }
 
     public OrderDto searchOrderByTrackingId(UUID trackingId){
         Optional<Order> optionalOrder = orderRepository.findByTrackingId(trackingId);
         return optionalOrder.map(Order::getOrderDto).orElse(null);
+    }
+
+    public ResponseEntity<?> cancelOrder(Long userId, Long orderId) {
+        Optional<Order> optionalOrder = orderRepository.findByIdAndUserId(orderId, userId);
+        if (optionalOrder.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Order not found");
+        }
+        Order order = optionalOrder.get();
+        if (order.getOrderStatus() == OrderStatus.SHIPPED || order.getOrderStatus() == OrderStatus.DELIVERED) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Order cannot be cancelled after it has been shipped");
+        }
+        if (order.getOrderStatus() == OrderStatus.CANCELLED) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Order is already cancelled");
+        }
+        order.setOrderStatus(OrderStatus.CANCELLED);
+        orderRepository.save(order);
+        notificationService.create(userId, "Your order #" + orderId + " has been cancelled.");
+        return ResponseEntity.ok(order.getOrderDto());
+    }
+
+    public ResponseEntity<?> requestReturn(Long userId, Long orderId, String reason) {
+        Optional<Order> optionalOrder = orderRepository.findByIdAndUserId(orderId, userId);
+        if (optionalOrder.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Order not found");
+        }
+        Order order = optionalOrder.get();
+        if (order.getOrderStatus() != OrderStatus.DELIVERED) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Only delivered orders can be returned");
+        }
+        order.setOrderStatus(OrderStatus.RETURN_REQUESTED);
+        order.setReturnReason(reason);
+        orderRepository.save(order);
+        notificationService.create(userId, "Your return request for order #" + orderId + " has been submitted.");
+        return ResponseEntity.ok(order.getOrderDto());
     }
 
     public OrderDto removeFromCart(Long userId, Long productId) {

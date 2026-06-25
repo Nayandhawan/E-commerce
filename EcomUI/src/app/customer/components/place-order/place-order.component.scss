@@ -1,1 +1,137 @@
-// Global styles.scss handles: order-amount-badge, form-group, order-form, dialog-actions, field-error
+.order-total-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255,153,0,.08);
+  border: 1px solid rgba(255,153,0,.25);
+  border-radius: 10px;
+  padding: 12px 16px;
+  margin-bottom: 14px;
+}
+
+.order-total-bar__icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: #0f1111;
+}
+
+.order-total-bar__label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .6px;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.order-total-bar__amount {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--text);
+  font-family: var(--font-mono);
+  margin: 0;
+}
+
+.delivery-est {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: #059669;
+  background: rgba(5,150,105,.06);
+  border: 1px solid rgba(5,150,105,.2);
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin-bottom: 16px;
+
+  strong { font-weight: 700; }
+}
+
+.po-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.po-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.po-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.po-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  color: var(--text-muted);
+}
+
+.po-label__opt {
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--text-dim);
+  font-size: 11px;
+  margin-left: 4px;
+}
+
+.req { color: var(--danger); }
+
+.po-error {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--danger);
+  margin: 0;
+}
+
+.po-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+  margin-top: 4px;
+}
+
+.po-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .15s, opacity .15s;
+  border: none;
+
+  &:disabled { opacity: .5; cursor: not-allowed; }
+
+  &--cancel {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    &:hover:not(:disabled) { background: var(--bg-card); }
+  }
+
+  &--pay {
+    background: var(--primary);
+    color: #0f1111;
+    &:hover:not(:disabled) { background: var(--primary-h); }
+  }
+}

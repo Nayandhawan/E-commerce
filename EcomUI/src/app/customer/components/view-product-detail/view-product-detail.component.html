@@ -1,9 +1,13 @@
+<p-toast position="top-right"></p-toast>
 <div class="page-wrap" *ngIf="product">
 
   <!-- Product Hero -->
   <div class="product-hero">
-    <div class="hero-img-wrap">
+    <div class="hero-img-wrap" (click)="showZoom=true" title="Click to zoom">
       <img [src]="product.processedImg" [alt]="product.name" class="hero-img" />
+      <div class="zoom-hint">
+        <lucide-angular name="zoom-in" [size]="14" strokeWidth="2"></lucide-angular> Click to zoom
+      </div>
     </div>
     <div class="hero-details">
       <p class="hero-category">{{ product.categoryName }}</p>
@@ -18,10 +22,40 @@
         </span>
       </div>
 
+      <!-- Variant selector -->
+      <div class="variant-section" *ngIf="variants.length > 0">
+        <p class="variant-label">
+          Select Option<span *ngIf="selectedVariant">: <strong>{{ selectedVariant.label }}</strong></span>
+        </p>
+        <div class="variant-chips">
+          <button class="variant-chip"
+                  *ngFor="let v of variants"
+                  [class.variant-chip--active]="selectedVariant?.id === v.id"
+                  [class.variant-chip--oos]="v.stockQuantity === 0"
+                  (click)="v.stockQuantity > 0 && (selectedVariant = v)"
+                  [title]="v.stockQuantity === 0 ? 'Out of stock' : ''">
+            {{ v.label }}
+            <span class="variant-oos-tag" *ngIf="v.stockQuantity === 0">OOS</span>
+          </button>
+        </div>
+        <p class="variant-stock" *ngIf="selectedVariant">
+          <lucide-angular name="package" [size]="12" strokeWidth="2"></lucide-angular>
+          {{ selectedVariant.stockQuantity }} in stock
+        </p>
+      </div>
+
       <div class="hero-actions">
+        <button class="btn-cart" (click)="addToCart()">
+          <lucide-angular name="shopping-cart" [size]="16" strokeWidth="2"></lucide-angular>
+          Add to Cart
+        </button>
         <button class="btn-wishlist" (click)="addToWishlist()">
           <lucide-angular name="heart" [size]="16" strokeWidth="2"></lucide-angular>
           Wishlist
+        </button>
+        <button class="btn-share" (click)="shareLink()" [class.btn-share--copied]="copied">
+          <lucide-angular [name]="copied ? 'check' : 'share-2'" [size]="16" strokeWidth="2"></lucide-angular>
+          {{ copied ? 'Copied!' : 'Share' }}
         </button>
       </div>
     </div>
@@ -37,7 +71,7 @@
           <div class="review-rating">
             <span class="rating-badge">
               {{ review.rating }}
-              <lucide-angular name="star" [size]="11" strokeWidth="2" style="fill:currentColor; display:inline-block; vertical-align:middle;"></lucide-angular>
+              <lucide-angular name="star" [size]="11" strokeWidth="2" style="fill:currentColor;display:inline-block;vertical-align:middle"></lucide-angular>
             </span>
           </div>
           <p class="review-text">{{ review.description }}</p>
@@ -53,7 +87,7 @@
     <div class="faq-list">
       <div class="faq-item" *ngFor="let faq of FAQS">
         <p class="faq-q">
-          <lucide-angular name="circle-question-mark" [size]="16" strokeWidth="1.5"></lucide-angular>
+          <lucide-angular name="circle-help" [size]="16" strokeWidth="1.5"></lucide-angular>
           {{ faq.question }}
         </p>
         <p class="faq-a">{{ faq.answer }}</p>
@@ -62,3 +96,11 @@
   </section>
 
 </div>
+
+<!-- Image Zoom Dialog -->
+<p-dialog [(visible)]="showZoom" [modal]="true" [style]="{width:'90vw','max-width':'700px'}"
+          [closable]="true" [draggable]="false" header="{{ product?.name }}">
+  <div class="zoom-dialog-body" *ngIf="product">
+    <img [src]="product.processedImg" [alt]="product.name" class="zoom-img" />
+  </div>
+</p-dialog>
