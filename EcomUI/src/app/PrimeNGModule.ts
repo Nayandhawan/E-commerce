@@ -43,6 +43,12 @@ import {
   ChevronDown, ChevronUp, Phone,
   // Admin panel icons
   Package, Layers, MessageCircleQuestionMark, Ticket, Percent, CalendarX2,
+  // Previously missing icons
+  Bell, BellOff, Menu, ArrowUp, ArrowDown, ArrowLeft,
+  ChevronLeft, ChevronRight,
+  CircleHelp, FilterX, GitCompare, ZoomIn,
+  Check, Share2, Save, FileText,
+  ShieldCheck, KeyRound, Undo2, XCircle, Smartphone,
 } from 'lucide-angular';
 
 const ICONS = {
@@ -57,6 +63,12 @@ const ICONS = {
   ChevronDown, ChevronUp, Phone,
   // Admin panel icons
   Package, Layers, MessageCircleQuestionMark, Ticket, Percent, CalendarX2,
+  // Previously missing icons
+  Bell, BellOff, Menu, ArrowUp, ArrowDown, ArrowLeft,
+  ChevronLeft, ChevronRight,
+  CircleHelp, FilterX, GitCompare, ZoomIn,
+  Check, Share2, Save, FileText,
+  ShieldCheck, KeyRound, Undo2, XCircle, Smartphone,
 };
 
 const PRIME_MODULES = [
