@@ -1,8 +1,14 @@
 <p-toast position="top-right"></p-toast>
 <div class="page-wrap">
-  <ng-container *ngIf="{ items: cartItems$ | async, order: order$ | async } as vm">
+  <ng-container *ngIf="{ items: cartItems$ | async, order: order$ | async, loading: loading$ | async } as vm">
 
-    <div class="cart-layout" *ngIf="vm.items && vm.items.length > 0; else emptyCart">
+    <!-- Loading state -->
+    <div class="empty-state" *ngIf="vm.loading">
+      <lucide-angular name="loader-circle" [size]="48" strokeWidth="1.5" style="animation:spin 1s linear infinite"></lucide-angular>
+      <p style="margin-top:12px;color:#6b7280">Loading your cart…</p>
+    </div>
+
+    <div class="cart-layout" *ngIf="!vm.loading && vm.items && vm.items.length > 0; else emptyCart">
 
       <!-- Items -->
       <div class="cart-items-panel">
@@ -80,7 +86,7 @@
     </div>
 
     <ng-template #emptyCart>
-      <div class="empty-state">
+      <div class="empty-state" *ngIf="!(loading$ | async)">
         <lucide-angular name="shopping-cart" [size]="56" class="empty-icon" strokeWidth="1"></lucide-angular>
         <h3>Your cart is empty</h3>
         <p>Add items to get started</p>

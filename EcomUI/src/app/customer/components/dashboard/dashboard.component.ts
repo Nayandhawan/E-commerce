@@ -58,6 +58,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
   showHistory = false;
   recentlyViewed: any[] = [];
 
+  productsLoading = true;
+  productsError = false;
+
   sortBy = 'default';
   maxPrice: number = 0;
   maxPriceLimit: number = 0;
@@ -173,18 +176,27 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   getAllProducts() {
-    this.customerService.getAllProducts().subscribe(res => {
-      this.allProducts = res.map((p: any) => ({
-        ...p,
-        processedImg: p.imgUrl || (p.byteImg ? 'data:image/jpeg;base64,' + p.byteImg : null)
-      }));
-      this.categories = [...new Set<string>(
-        this.allProducts.map(p => p.categoryName).filter(Boolean)
-      )];
-      const prices = this.allProducts.map(p => p.price ?? 0).filter(v => v > 0);
-      this.maxPriceLimit = prices.length > 0 ? Math.max(...prices) : 100000;
-      this.maxPrice = this.maxPriceLimit;
-      this.applyFilter();
+    this.productsLoading = true;
+    this.productsError = false;
+    this.customerService.getAllProducts().subscribe({
+      next: (res) => {
+        this.allProducts = res.map((p: any) => ({
+          ...p,
+          processedImg: p.imgUrl || (p.byteImg ? 'data:image/jpeg;base64,' + p.byteImg : null)
+        }));
+        this.categories = [...new Set<string>(
+          this.allProducts.map(p => p.categoryName).filter(Boolean)
+        )];
+        const prices = this.allProducts.map(p => p.price ?? 0).filter(v => v > 0);
+        this.maxPriceLimit = prices.length > 0 ? Math.max(...prices) : 100000;
+        this.maxPrice = this.maxPriceLimit;
+        this.applyFilter();
+        this.productsLoading = false;
+      },
+      error: () => {
+        this.productsLoading = false;
+        this.productsError = true;
+      }
     });
   }
 
