@@ -15,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -77,6 +78,7 @@ public class CartServiceImpl implements CartService{
 
     }*/
 
+    @Transactional
     public ResponseEntity<?> addProductToCart(AddProductInCartDto addProductInCartDto) {
         // Retrieve any existing order with PENDING status for the user
         Order activeOrder = orderRepository.findByUserIdAndOrderStatus(
@@ -120,7 +122,6 @@ public class CartServiceImpl implements CartService{
                 CartItems updatedCart = cartItemsRepository.save(cartItems);
                 activeOrder.setTotalAmount(activeOrder.getTotalAmount() + cartItems.getPrice());
                 activeOrder.setAmount(activeOrder.getAmount() + cartItems.getPrice());
-                activeOrder.getCartItems().add(cartItems);
                 orderRepository.save(activeOrder);
 
                 return ResponseEntity.status(HttpStatus.CREATED).body(updatedCart.cartItemsDto());

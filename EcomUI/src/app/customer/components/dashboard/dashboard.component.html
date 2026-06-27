@@ -84,8 +84,21 @@
 
   </div>
 
+  <!-- ══ LOADING / ERROR ═══════════════════════════════════════════════ -->
+  <div class="pk-empty" *ngIf="productsLoading">
+    <lucide-angular name="loader-circle" [size]="48" strokeWidth="1.5" style="animation:spin 1s linear infinite"></lucide-angular>
+    <p style="margin-top:12px;color:#6b7280">Loading products…</p>
+  </div>
+
+  <div class="pk-empty" *ngIf="!productsLoading && productsError">
+    <lucide-angular name="wifi-off" [size]="48" strokeWidth="1.5"></lucide-angular>
+    <h3>Could not load products</h3>
+    <p>Check your connection and try again</p>
+    <button class="pk-empty__reset" (click)="getAllProducts()">Retry</button>
+  </div>
+
   <!-- ══ PRODUCT SECTION ════════════════════════════════════════════════ -->
-  <div class="deals-section" appScrollReveal *ngIf="products.length > 0 || allProducts.length > 0; else noProducts">
+  <div class="deals-section" appScrollReveal *ngIf="!productsLoading && !productsError && (products.length > 0 || allProducts.length > 0); else noProducts">
 
     <div class="deals-header">
       <h2 class="deals-title">
@@ -238,7 +251,7 @@
 
   <!-- ══ EMPTY ═══════════════════════════════════════════════════════════ -->
   <ng-template #noProducts>
-    <div class="pk-empty">
+    <div class="pk-empty" *ngIf="!productsLoading && !productsError">
       <lucide-angular name="search-x" [size]="56" class="pk-empty__icon" strokeWidth="1"></lucide-angular>
       <h3>No products found</h3>
       <p>Try a different keyword or browse another category</p>
