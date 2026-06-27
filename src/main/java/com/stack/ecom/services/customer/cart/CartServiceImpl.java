@@ -123,7 +123,7 @@ public class CartServiceImpl implements CartService{
                 activeOrder.getCartItems().add(cartItems);
                 orderRepository.save(activeOrder);
 
-                return ResponseEntity.status(HttpStatus.CREATED).body(updatedCart);
+                return ResponseEntity.status(HttpStatus.CREATED).body(updatedCart.cartItemsDto());
             } else {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Product Not Found");
             }
