@@ -11,6 +11,7 @@ import com.stack.ecom.repository.ProductRepository;
 import com.stack.ecom.repository.StockSubscriptionRepository;
 import com.stack.ecom.repository.UserRepository;
 import com.stack.ecom.services.customer.CustomerProductService;
+import com.stack.ecom.utils.SecurityUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,17 +29,20 @@ public class CustomerProductController {
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
     private final ProductImageRepository productImageRepository;
+    private final SecurityUtils securityUtils;
 
     public CustomerProductController(CustomerProductService customerProductService,
                                      StockSubscriptionRepository stockSubscriptionRepository,
                                      ProductRepository productRepository,
                                      UserRepository userRepository,
-                                     ProductImageRepository productImageRepository) {
+                                     ProductImageRepository productImageRepository,
+                                     SecurityUtils securityUtils) {
         this.customerProductService = customerProductService;
         this.stockSubscriptionRepository = stockSubscriptionRepository;
         this.productRepository = productRepository;
         this.userRepository = userRepository;
         this.productImageRepository = productImageRepository;
+        this.securityUtils = securityUtils;
     }
 
     @GetMapping("/products")
@@ -78,12 +82,14 @@ public class CustomerProductController {
     @GetMapping("/products/{productId}/notify/{userId}")
     public ResponseEntity<Map<String, Boolean>> checkSubscription(@PathVariable Long productId,
                                                                    @PathVariable Long userId) {
+        if (!securityUtils.isCurrentUser(userId)) return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         boolean subscribed = stockSubscriptionRepository.existsByUserIdAndProductId(userId, productId);
         return ResponseEntity.ok(Map.of("subscribed", subscribed));
     }
 
     @PostMapping("/products/{productId}/notify/{userId}")
     public ResponseEntity<Void> subscribe(@PathVariable Long productId, @PathVariable Long userId) {
+        if (!securityUtils.isCurrentUser(userId)) return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         if (stockSubscriptionRepository.existsByUserIdAndProductId(userId, productId)) {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }
@@ -99,6 +105,7 @@ public class CustomerProductController {
 
     @DeleteMapping("/products/{productId}/notify/{userId}")
     public ResponseEntity<Void> unsubscribe(@PathVariable Long productId, @PathVariable Long userId) {
+        if (!securityUtils.isCurrentUser(userId)) return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         if (!stockSubscriptionRepository.existsByUserIdAndProductId(userId, productId)) {
             return ResponseEntity.notFound().build();
         }

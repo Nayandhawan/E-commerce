@@ -10,6 +10,7 @@ import com.stack.ecom.repository.OrderRepository;
 import com.stack.ecom.repository.UserRepository;
 import com.stack.ecom.utils.OtpStore;
 import jakarta.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -26,6 +27,9 @@ public class AuthServiceImpl implements AuthService {
     private final OrderRepository orderRepository;
     private final OtpStore otpStore;
     private final JavaMailSender mailSender;
+
+    @Value("${app.admin.password:admin}")
+    private String adminPassword;
 
     public AuthServiceImpl(UserRepository userRepository,
                            PasswordEncoder passwordEncoder,
@@ -114,7 +118,7 @@ public class AuthServiceImpl implements AuthService {
             user.setEmail("admin@test.com");
             user.setName("admin");
             user.setRole(UserRole.ADMIN);
-            user.setPassword(passwordEncoder.encode("admin"));
+            user.setPassword(passwordEncoder.encode(adminPassword));
             userRepository.save(user);
         }
     }
