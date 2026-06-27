@@ -17,6 +17,20 @@ export class MyOrdersComponent implements OnInit {
   returnComment = '';
   returningId: number | null = null;
 
+  readonly timelineSteps = ['Placed', 'Shipped', 'Delivered'];
+  private readonly statusIndex: Record<string, number> = {
+    PLACED: 0, SHIPPED: 1, DELIVERED: 2
+  };
+
+  isStepDone(status: string, i: number): boolean {
+    const cur = this.statusIndex[status] ?? -1;
+    return i < cur;
+  }
+
+  isStepActive(status: string, i: number): boolean {
+    return this.statusIndex[status] === i;
+  }
+
   readonly returnReasonOptions = [
     'Product is defective or not working',
     'Wrong product delivered',

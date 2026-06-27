@@ -38,6 +38,12 @@ public class CustomerProductController {
         ProductDetailDto productDetailDto = customerProductService.getProductDetailById(productId);
         if (productDetailDto ==null) return  ResponseEntity.notFound().build();
         return ResponseEntity.ok(productDetailDto);
+    }
 
+    @GetMapping("/products/{productId}/related")
+    public ResponseEntity<List<ProductDto>> getRelatedProducts(
+            @PathVariable Long productId,
+            @RequestParam String category) {
+        return ResponseEntity.ok(customerProductService.getRelatedProducts(category, productId));
     }
 }

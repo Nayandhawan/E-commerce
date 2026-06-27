@@ -20,6 +20,33 @@
         </span>
       </div>
 
+      <!-- Order Status Timeline -->
+      <div class="order-timeline" *ngIf="!['CANCELLED','RETURN_REQUESTED','RETURNED'].includes(order.orderStatus)">
+        <div class="ot-step" *ngFor="let step of timelineSteps; let i = index"
+             [class.ot-step--done]="isStepDone(order.orderStatus, i)"
+             [class.ot-step--active]="isStepActive(order.orderStatus, i)">
+          <div class="ot-dot">
+            <lucide-angular *ngIf="isStepDone(order.orderStatus, i)" name="check" [size]="11" strokeWidth="3"></lucide-angular>
+          </div>
+          <span class="ot-label">{{ step }}</span>
+        </div>
+      </div>
+      <div class="order-timeline order-timeline--alt" *ngIf="order.orderStatus === 'CANCELLED'">
+        <span class="ot-alt-badge ot-alt-badge--red">
+          <lucide-angular name="x-circle" [size]="13" strokeWidth="2"></lucide-angular> Order Cancelled
+        </span>
+      </div>
+      <div class="order-timeline order-timeline--alt" *ngIf="order.orderStatus === 'RETURN_REQUESTED'">
+        <span class="ot-alt-badge ot-alt-badge--purple">
+          <lucide-angular name="undo-2" [size]="13" strokeWidth="2"></lucide-angular> Return Requested
+        </span>
+      </div>
+      <div class="order-timeline order-timeline--alt" *ngIf="order.orderStatus === 'RETURNED'">
+        <span class="ot-alt-badge ot-alt-badge--teal">
+          <lucide-angular name="refresh-cw" [size]="13" strokeWidth="2"></lucide-angular> Returned & Refunded
+        </span>
+      </div>
+
       <div class="order-body">
         <div class="order-info">
           <p class="info-row" *ngIf="order.orderDescription">

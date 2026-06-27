@@ -3,6 +3,8 @@ import { trigger, state, style, animate, transition } from '@angular/animations'
 import { UserStorageService } from './services/storage/user-storage.service';
 import { Router } from '@angular/router';
 import { NotificationService } from './services/notification/notification.service';
+import { Store } from '@ngrx/store';
+import { selectCartItems } from './store/cart/cart.selectors';
 
 @Component({
   selector: 'app-root',
@@ -32,7 +34,9 @@ export class AppComponent {
   userName = '';
   userInitial = '';
 
-  constructor(private router: Router, public notifService: NotificationService) {}
+  cartCount = 0;
+
+  constructor(private router: Router, public notifService: NotificationService, private store: Store) {}
 
   ngOnInit(): void {
     this.router.events.subscribe(() => {
@@ -48,6 +52,7 @@ export class AppComponent {
     this.loadUser();
     if (this.isCustomerLoggedIn) this.notifService.startPolling();
     this.notifService.unreadCount.subscribe(c => this.unreadCount = c);
+    this.store.select(selectCartItems).subscribe(items => this.cartCount = items?.length ?? 0);
   }
 
   private loadUser() {

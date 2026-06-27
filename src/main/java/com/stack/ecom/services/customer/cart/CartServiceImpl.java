@@ -8,6 +8,7 @@ import com.stack.ecom.entity.*;
 import com.stack.ecom.enums.OrderStatus;
 import com.stack.ecom.exceptions.ValidationException;
 import com.stack.ecom.repository.*;
+import com.stack.ecom.services.email.EmailService;
 import com.stack.ecom.services.notification.NotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -38,6 +39,9 @@ public class CartServiceImpl implements CartService{
 
     @Autowired
     private NotificationService notificationService;
+
+    @Autowired
+    private EmailService emailService;
 
     /*public ResponseEntity<?> addProductToCart(AddProductInCartDto addProductInCartDto){
         Order activeOrder = orderRepository.findByUserIdAndOrderStatus(addProductInCartDto.getUserId(), OrderStatus.PENDING);
@@ -264,6 +268,8 @@ public class CartServiceImpl implements CartService{
             activeOrder.setTrackingId(UUID.randomUUID());
             orderRepository.save(activeOrder);
             notificationService.create(placeOrderDto.getUserId(), "Your order has been placed successfully!");
+            User user = optionalUser.get();
+            emailService.sendOrderConfirmation(user.getEmail(), user.getName(), activeOrder);
 
             Order order =new Order();
             order.setAmount(0L);

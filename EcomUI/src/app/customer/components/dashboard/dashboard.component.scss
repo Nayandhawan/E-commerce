@@ -37,6 +37,30 @@
   &:hover { background: var(--bg-elevated); }
 }
 
+.search-history-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 14px 4px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  border-bottom: 1px solid var(--border);
+}
+
+.search-history-clear {
+  background: none;
+  border: none;
+  font-size: 11px;
+  color: var(--primary-l);
+  cursor: pointer;
+  padding: 0;
+  font-weight: 600;
+  &:hover { text-decoration: underline; }
+}
+
 /* ══ RECENTLY VIEWED ══════════════════════════ */
 .recently-viewed { padding-top: 4px; }
 
@@ -223,6 +247,13 @@
   color: rgba(255,255,255,.08);
 }
 .banner__deco--dark { color: rgba(255,153,0,.15); }
+
+.flash-countdown {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 1px;
+  color: #FF9900;
+}
 
 /* ══ DEALS SECTION ═════════════════════════════ */
 .deals-section {
