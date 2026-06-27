@@ -1,5 +1,6 @@
 package com.stack.ecom.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.stack.ecom.dto.CartItemsDto;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -28,6 +29,7 @@ public class CartItems {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private User user;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id")
     private Order order;
