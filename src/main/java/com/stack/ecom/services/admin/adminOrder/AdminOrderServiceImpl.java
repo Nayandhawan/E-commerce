@@ -8,6 +8,7 @@ import com.stack.ecom.entity.CartItems;
 import com.stack.ecom.entity.Order;
 import com.stack.ecom.enums.OrderStatus;
 import com.stack.ecom.repository.OrderRepository;
+import com.stack.ecom.services.email.EmailService;
 import com.stack.ecom.services.notification.NotificationService;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
@@ -26,10 +27,13 @@ public class AdminOrderServiceImpl implements AdminOrderService{
 
     private final OrderRepository orderRepository;
     private final NotificationService notificationService;
+    private final EmailService emailService;
 
-    public AdminOrderServiceImpl(OrderRepository orderRepository, NotificationService notificationService) {
+    public AdminOrderServiceImpl(OrderRepository orderRepository, NotificationService notificationService,
+                                 EmailService emailService) {
         this.orderRepository = orderRepository;
         this.notificationService = notificationService;
+        this.emailService = emailService;
     }
 
     public List<OrderDto> getAllPlacedOrders(){
@@ -47,6 +51,8 @@ public class AdminOrderServiceImpl implements AdminOrderService{
                 order.setOrderStatus(OrderStatus.SHIPPED);
                 notificationService.create(order.getUser().getId(),
                     "Your order #" + orderId + " has been shipped!");
+                emailService.sendShippingNotification(
+                    order.getUser().getEmail(), order.getUser().getName(), order);
             } else if (Objects.equals(status, "Delivered")) {
                 order.setOrderStatus(OrderStatus.DELIVERED);
                 notificationService.create(order.getUser().getId(),
