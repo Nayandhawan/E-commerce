@@ -126,6 +126,12 @@ export class AdminService {
     });
   }
 
+  getAllCustomers(): Observable<any[]> {
+    return this.http.get<any[]>(environment.apiUrl + 'api/admin/customers', {
+      headers: this.createAuthorizationHeader(),
+    });
+  }
+
   getAnalytics(): Observable<any> {
     return this.http.get(environment.apiUrl + 'api/admin/orders/analytics', {
       headers: this.createAuthorizationHeader(),
