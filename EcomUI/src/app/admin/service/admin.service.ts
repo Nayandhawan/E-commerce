@@ -168,6 +168,24 @@ export class AdminService {
     });
   }
 
+  getProductImages(productId: number): Observable<any[]> {
+    return this.http.get<any[]>(environment.apiUrl + `api/admin/products/${productId}/images`, {
+      headers: this.createAuthorizationHeader()
+    });
+  }
+
+  addProductImage(productId: number, formData: FormData): Observable<any[]> {
+    return this.http.post<any[]>(environment.apiUrl + `api/admin/products/${productId}/images`, formData, {
+      headers: new HttpHeaders().set('Authorization', 'Bearer ' + UserStorageService.getToken())
+    });
+  }
+
+  deleteProductImage(productId: number, imageId: number): Observable<any> {
+    return this.http.delete(environment.apiUrl + `api/admin/products/${productId}/images/${imageId}`, {
+      headers: this.createAuthorizationHeader()
+    });
+  }
+
   private createAuthorizationHeader(): HttpHeaders {
     return new HttpHeaders().set('Authorization', 'Bearer ' + UserStorageService.getToken());
   }

@@ -15,6 +15,24 @@
   <span>Estimated delivery: <strong>{{ deliveryEstimate }}</strong></span>
 </div>
 
+<!-- Saved Addresses Quick-pick -->
+<div class="po-saved-addrs" *ngIf="savedAddresses.length > 0">
+  <p class="po-saved-label">
+    <lucide-angular name="book-marked" [size]="14" strokeWidth="2"></lucide-angular>
+    Use a saved address
+  </p>
+  <div class="po-addr-chips">
+    <button type="button" class="po-addr-chip"
+            *ngFor="let addr of savedAddresses"
+            [class.po-addr-chip--active]="selectedSavedAddressId === addr.id"
+            (click)="applySavedAddress(addr)">
+      <lucide-angular name="map-pin" [size]="12" strokeWidth="2"></lucide-angular>
+      {{ addr.label }}
+      <span class="po-addr-chip__detail">{{ addr.city }}</span>
+    </button>
+  </div>
+</div>
+
 <form [formGroup]="orderForm" class="po-form">
 
   <!-- Street -->

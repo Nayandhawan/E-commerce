@@ -18,6 +18,8 @@ export class PlaceOrderComponent implements OnInit {
   orderForm: FormGroup;
   loading = false;
   deliveryEstimate = '';
+  savedAddresses: any[] = [];
+  selectedSavedAddressId: number | null = null;
 
   constructor(
     private fb: FormBuilder,
@@ -37,6 +39,26 @@ export class PlaceOrderComponent implements OnInit {
     });
     this.deliveryEstimate = this.getDeliveryEstimate();
     this.prefillFromProfile();
+    this.loadSavedAddresses();
+  }
+
+  private loadSavedAddresses(): void {
+    this.customerService.getSavedAddresses().subscribe({
+      next: (addrs) => {
+        this.savedAddresses = addrs;
+        const def = addrs.find(a => a.isDefault);
+        if (def) this.applySavedAddress(def);
+      },
+      error: () => {}
+    });
+  }
+
+  applySavedAddress(addr: any): void {
+    this.selectedSavedAddressId = addr.id;
+    this.orderForm.patchValue({
+      street: addr.street, city: addr.city, state: addr.state,
+      zipCode: addr.zipCode, country: addr.country || 'India',
+    });
   }
 
   private prefillFromProfile() {

@@ -146,6 +146,62 @@ export class CustomerService {
     );
   }
 
+  getProductImages(productId: number): Observable<any[]> {
+    return this.http.get<any[]>(environment.apiUrl + `api/customer/products/${productId}/images`, {
+      headers: this.createAuthorizationHeader(),
+    });
+  }
+
+  getSavedAddresses(): Observable<any[]> {
+    const userId = UserStorageService.getUserId();
+    return this.http.get<any[]>(environment.apiUrl + `api/customer/addresses/${userId}`, {
+      headers: this.createAuthorizationHeader(),
+    });
+  }
+
+  addSavedAddress(dto: any): Observable<any> {
+    const userId = UserStorageService.getUserId();
+    return this.http.post(environment.apiUrl + `api/customer/addresses/${userId}`, dto, {
+      headers: this.createAuthorizationHeader(),
+    });
+  }
+
+  deleteSavedAddress(addressId: number): Observable<any> {
+    const userId = UserStorageService.getUserId();
+    return this.http.delete(environment.apiUrl + `api/customer/addresses/${userId}/${addressId}`, {
+      headers: this.createAuthorizationHeader(),
+    });
+  }
+
+  setDefaultAddress(addressId: number): Observable<any> {
+    const userId = UserStorageService.getUserId();
+    return this.http.patch(environment.apiUrl + `api/customer/addresses/${userId}/${addressId}/default`, {}, {
+      headers: this.createAuthorizationHeader(),
+    });
+  }
+
+  checkStockSubscription(productId: number): Observable<{ subscribed: boolean }> {
+    const userId = UserStorageService.getUserId();
+    return this.http.get<{ subscribed: boolean }>(
+      environment.apiUrl + `api/customer/products/${productId}/notify/${userId}`,
+      { headers: this.createAuthorizationHeader() }
+    );
+  }
+
+  subscribeToStock(productId: number): Observable<any> {
+    const userId = UserStorageService.getUserId();
+    return this.http.post(environment.apiUrl + `api/customer/products/${productId}/notify/${userId}`, {}, {
+      headers: this.createAuthorizationHeader(),
+    });
+  }
+
+  unsubscribeFromStock(productId: number): Observable<any> {
+    const userId = UserStorageService.getUserId();
+    return this.http.delete(environment.apiUrl + `api/customer/products/${productId}/notify/${userId}`, {
+      headers: this.createAuthorizationHeader(),
+    });
+  }
+
   addProductToWishlist(wishlistDto: any): Observable<any> {
     const userId = wishlistDto.userId;
     const productId = wishlistDto.productId;

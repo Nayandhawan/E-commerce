@@ -4,7 +4,7 @@ import { MessageService } from 'primeng/api';
 import { CustomerService } from '../../services/customer.service';
 import { UserStorageService } from '../../../services/storage/user-storage.service';
 
-type Section = 'personal' | 'address';
+type Section = 'personal' | 'address' | 'saved-addresses';
 
 @Component({
   selector: 'app-profile',
@@ -20,6 +20,11 @@ export class ProfileComponent implements OnInit {
 
   personalForm!: FormGroup;
   addressForm!: FormGroup;
+  newAddressForm!: FormGroup;
+
+  savedAddresses: any[] = [];
+  showAddAddressForm = false;
+  savingAddress = false;
 
   constructor(
     private fb: FormBuilder,
@@ -49,6 +54,16 @@ export class ProfileComponent implements OnInit {
       zipCode: [''],
       country: [''],
     });
+
+    this.newAddressForm = this.fb.group({
+      label:   ['Home'],
+      street:  ['', Validators.required],
+      city:    ['', Validators.required],
+      state:   ['', Validators.required],
+      zipCode: ['', Validators.required],
+      country: ['India'],
+      isDefault: [false],
+    });
   }
 
   private loadProfile(): void {
@@ -67,6 +82,43 @@ export class ProfileComponent implements OnInit {
 
   selectSection(section: Section): void {
     this.activeSection = section;
+    if (section === 'saved-addresses') this.loadSavedAddresses();
+  }
+
+  loadSavedAddresses(): void {
+    this.customerService.getSavedAddresses().subscribe({
+      next: (data) => this.savedAddresses = data,
+      error: () => {}
+    });
+  }
+
+  addAddress(): void {
+    if (this.newAddressForm.invalid) { this.newAddressForm.markAllAsTouched(); return; }
+    this.savingAddress = true;
+    this.customerService.addSavedAddress(this.newAddressForm.value).subscribe({
+      next: () => {
+        this.savingAddress = false;
+        this.showAddAddressForm = false;
+        this.newAddressForm.reset({ label: 'Home', country: 'India', isDefault: false });
+        this.loadSavedAddresses();
+        this.messageService.add({ severity: 'success', summary: 'Saved', detail: 'Address added' });
+      },
+      error: () => { this.savingAddress = false; }
+    });
+  }
+
+  deleteAddress(addressId: number): void {
+    this.customerService.deleteSavedAddress(addressId).subscribe({
+      next: () => { this.loadSavedAddresses(); this.messageService.add({ severity: 'info', summary: 'Removed', detail: 'Address removed' }); },
+      error: () => {}
+    });
+  }
+
+  setDefaultAddress(addressId: number): void {
+    this.customerService.setDefaultAddress(addressId).subscribe({
+      next: () => { this.loadSavedAddresses(); this.messageService.add({ severity: 'success', summary: 'Updated', detail: 'Default address updated' }); },
+      error: () => {}
+    });
   }
 
   togglePersonalEdit(): void {
