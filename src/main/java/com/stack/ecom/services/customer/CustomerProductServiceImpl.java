@@ -66,6 +66,15 @@ public class CustomerProductServiceImpl implements CustomerProductService{
         return null;
     }
 
+    public List<ProductDto> getRelatedProducts(String categoryName, Long excludeId) {
+        Map<Long, Double> ratingMap = buildRatingMap();
+        return productRepository.findByCategoryNameIgnoreCaseAndIdNot(categoryName, excludeId)
+            .stream()
+            .limit(8)
+            .map(p -> enrichDto(p.getDto(), ratingMap))
+            .collect(Collectors.toList());
+    }
+
     private Map<Long, Double> buildRatingMap() {
         Map<Long, Double> map = new HashMap<>();
         for (Object[] row : reviewRepository.findAverageRatingsPerProduct()) {

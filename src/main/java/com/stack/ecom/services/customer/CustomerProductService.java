@@ -13,4 +13,6 @@ public interface CustomerProductService {
     List<ProductDto> getAllProducts();
 
     ProductDetailDto getProductDetailById(Long productId);
+
+    List<ProductDto> getRelatedProducts(String categoryName, Long excludeId);
 }

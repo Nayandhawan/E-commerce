@@ -98,6 +98,25 @@
 
 </div>
 
+<!-- You May Also Like -->
+<section class="section-block related-section" *ngIf="relatedProducts.length > 0">
+  <h2 class="section-title">You May Also Like</h2>
+  <div class="related-scroll">
+    <a class="related-card" *ngFor="let p of relatedProducts" [routerLink]="['/customer/product', p.id]">
+      <img [src]="p.processedImg" [alt]="p.name" class="related-img" loading="lazy"
+           (error)="$any($event.target).src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22200%22 viewBox=%220 0 200 200%22%3E%3Crect fill=%22%23f3f4f6%22 width=%22200%22 height=%22200%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 font-size=%2214%22 fill=%22%239ca3af%22%3ENo Image%3C/text%3E%3C/svg%3E'" />
+      <div class="related-info">
+        <p class="related-name">{{ p.name }}</p>
+        <p class="related-price">₹{{ p.price | number }}</p>
+        <div class="related-rating" *ngIf="p.averageRating">
+          <lucide-angular name="star" [size]="11" strokeWidth="1.5" style="fill:#f59e0b;color:#f59e0b"></lucide-angular>
+          {{ p.averageRating | number:'1.1-1' }}
+        </div>
+      </div>
+    </a>
+  </div>
+</section>
+
 <!-- Image Zoom Dialog -->
 <p-dialog [(visible)]="showZoom" [modal]="true" [style]="{width:'90vw','max-width':'700px'}"
           [closable]="true" [draggable]="false" header="{{ product?.name }}">

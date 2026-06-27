@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { MessageService } from 'primeng/api';
 import { Router } from '@angular/router';
@@ -42,7 +42,7 @@ const CAT_ICONS: Record<string, string> = {
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss'
 })
-export class DashboardComponent implements OnInit {
+export class DashboardComponent implements OnInit, OnDestroy {
 
   allProducts: any[] = [];
   products: any[] = [];
@@ -54,6 +54,8 @@ export class DashboardComponent implements OnInit {
 
   suggestions: string[] = [];
   showSuggestions = false;
+  searchHistory: string[] = [];
+  showHistory = false;
   recentlyViewed: any[] = [];
 
   sortBy = 'default';
@@ -70,6 +72,8 @@ export class DashboardComponent implements OnInit {
   showAddedDialog = false;
   addedProductName = '';
   compareItems$: Observable<any[]>;
+  flashCountdown = '';
+  private countdownTimer: any;
 
   constructor(
     private customerService: CustomerService,
@@ -89,6 +93,8 @@ export class DashboardComponent implements OnInit {
     this.store.dispatch(loadWishlist());
     this.wishlistedIds$.subscribe(ids => { this._wishlistedIds = ids; });
     this.loadRecentlyViewed();
+    this.loadSearchHistory();
+    this.startFlashCountdown();
 
     this.searchProductForm.get('title')!.valueChanges.subscribe(val => {
       if (val && val.length >= 2) {
@@ -107,10 +113,44 @@ export class DashboardComponent implements OnInit {
   pickSuggestion(name: string) {
     this.searchProductForm.patchValue({ title: name });
     this.showSuggestions = false;
+    this.saveSearchHistory(name);
     this.submitForm();
   }
 
-  hideSuggestions() { setTimeout(() => { this.showSuggestions = false; }, 150); }
+  hideSuggestions() { setTimeout(() => { this.showSuggestions = false; this.showHistory = false; }, 150); }
+
+  onSearchFocus() {
+    const val = this.searchProductForm.get('title')!.value;
+    if (!val && this.searchHistory.length > 0) {
+      this.showHistory = true;
+    }
+  }
+
+  pickHistory(term: string) {
+    this.searchProductForm.patchValue({ title: term });
+    this.showHistory = false;
+    this.submitForm();
+  }
+
+  clearHistory() {
+    this.searchHistory = [];
+    localStorage.removeItem('sk_search_history');
+    this.showHistory = false;
+  }
+
+  private loadSearchHistory() {
+    try {
+      const raw = localStorage.getItem('sk_search_history');
+      this.searchHistory = raw ? JSON.parse(raw) : [];
+    } catch { this.searchHistory = []; }
+  }
+
+  private saveSearchHistory(term: string) {
+    const t = term.trim();
+    if (!t) return;
+    this.searchHistory = [t, ...this.searchHistory.filter(h => h !== t)].slice(0, 5);
+    localStorage.setItem('sk_search_history', JSON.stringify(this.searchHistory));
+  }
 
   private loadRecentlyViewed() {
     try {
@@ -198,6 +238,7 @@ export class DashboardComponent implements OnInit {
 
   submitForm() {
     const title = this.searchProductForm.get('title')!.value;
+    this.saveSearchHistory(title);
     this.customerService.getAllProductsByName(title).subscribe(res => {
       this.allProducts = res.map((p: any) => ({
         ...p,
@@ -238,6 +279,25 @@ export class DashboardComponent implements OnInit {
 
   goToCart() { this.showAddedDialog = false; this.router.navigateByUrl('/customer/cart'); }
   continueShopping() { this.showAddedDialog = false; }
+
+  ngOnDestroy() {
+    if (this.countdownTimer) clearInterval(this.countdownTimer);
+  }
+
+  private startFlashCountdown() {
+    const tick = () => {
+      const now = new Date();
+      const midnight = new Date(now);
+      midnight.setHours(24, 0, 0, 0);
+      const diff = midnight.getTime() - now.getTime();
+      const h = Math.floor(diff / 3600000);
+      const m = Math.floor((diff % 3600000) / 60000);
+      const s = Math.floor((diff % 60000) / 1000);
+      this.flashCountdown = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    };
+    tick();
+    this.countdownTimer = setInterval(tick, 1000);
+  }
 
   getCatIcon(cat: string): string {
     const key = cat.toLowerCase().split(' ')[0];

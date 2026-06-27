@@ -43,7 +43,10 @@
         <span>Wishlist</span>
       </a>
       <a class="sk-icon-link" routerLink="/customer/cart" routerLinkActive="active" title="Cart">
-        <lucide-angular name="shopping-cart" [size]="18" strokeWidth="1.5"></lucide-angular>
+        <div class="sk-icon-wrap">
+          <lucide-angular name="shopping-cart" [size]="18" strokeWidth="1.5"></lucide-angular>
+          <span class="sk-cart-badge" *ngIf="cartCount > 0">{{ cartCount > 99 ? '99+' : cartCount }}</span>
+        </div>
         <span>Cart</span>
       </a>
       <a class="sk-icon-link" routerLink="/customer/my_orders" routerLinkActive="active" title="Orders">
@@ -116,7 +119,11 @@
     <lucide-angular name="heart" [size]="18" strokeWidth="1.5"></lucide-angular> Wishlist
   </a>
   <a class="sk-mobile-link" routerLink="/customer/cart" routerLinkActive="active" (click)="closeMobileMenu()">
-    <lucide-angular name="shopping-cart" [size]="18" strokeWidth="1.5"></lucide-angular> Cart
+    <div class="sk-icon-wrap" style="position:relative;display:inline-flex">
+      <lucide-angular name="shopping-cart" [size]="18" strokeWidth="1.5"></lucide-angular>
+      <span class="sk-cart-badge" *ngIf="cartCount > 0">{{ cartCount > 99 ? '99+' : cartCount }}</span>
+    </div>
+    Cart
   </a>
   <a class="sk-mobile-link" routerLink="/customer/my_orders" routerLinkActive="active" (click)="closeMobileMenu()">
     <lucide-angular name="receipt" [size]="18" strokeWidth="1.5"></lucide-angular> My Orders

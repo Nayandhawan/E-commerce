@@ -16,6 +16,7 @@ export class ViewProductDetailComponent implements OnInit {
   FAQS: any[] = [];
   reviews: any[] = [];
   variants: any[] = [];
+  relatedProducts: any[] = [];
   selectedVariant: any = null;
   showZoom = false;
   copied = false;
@@ -47,6 +48,14 @@ export class ViewProductDetailComponent implements OnInit {
           this.reviews.push(element);
         });
         this.trackRecentlyViewed();
+        if (this.product.categoryName) {
+          this.customerService.getRelatedProducts(this.productId, this.product.categoryName).subscribe(items => {
+            this.relatedProducts = items.map((p: any) => ({
+              ...p,
+              processedImg: p.imgUrl || (p.byteImg ? 'data:image/jpeg;base64,' + p.byteImg : null)
+            }));
+          });
+        }
       }
     });
   }

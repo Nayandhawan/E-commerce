@@ -139,6 +139,13 @@ export class CustomerService {
     });
   }
 
+  getRelatedProducts(productId: number, category: string): Observable<any[]> {
+    return this.http.get<any[]>(
+      environment.apiUrl + `api/customer/products/${productId}/related?category=${encodeURIComponent(category)}`,
+      { headers: this.createAuthorizationHeader() }
+    );
+  }
+
   addProductToWishlist(wishlistDto: any): Observable<any> {
     const userId = wishlistDto.userId;
     const productId = wishlistDto.productId;
