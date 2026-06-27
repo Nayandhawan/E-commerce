@@ -47,3 +47,6 @@ pom.xml.versionsBackup
 .env
 *.env
 application-local.properties
+
+### Local tooling — never commit ############################################
+agents/

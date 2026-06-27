@@ -27,8 +27,8 @@ public class AdminCustomerController {
 
     @GetMapping
     public ResponseEntity<List<CustomerSummaryDto>> getAllCustomers() {
-        List<CustomerSummaryDto> customers = userRepository.findAll().stream()
-            .filter(u -> u.getRole() == UserRole.CUSTOMER)
+        List<CustomerSummaryDto> customers = userRepository.findAllByRole(UserRole.CUSTOMER)
+            .stream()
             .map(this::toSummary)
             .toList();
         return ResponseEntity.ok(customers);
