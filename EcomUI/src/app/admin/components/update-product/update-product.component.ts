@@ -25,6 +25,10 @@ export class UpdateProductComponent {
   variantStock = 0;
   addingVariant = false;
 
+  galleryImages: any[] = [];
+  galleryFile: File | null = null;
+  uploadingGallery = false;
+
   constructor(
     private fb: FormBuilder,
     private router: Router,
@@ -57,6 +61,7 @@ export class UpdateProductComponent {
     this.getAllCategories();
     this.getProductById();
     this.loadVariants();
+    this.loadGallery();
   }
 
   getAllCategories() {
@@ -106,6 +111,42 @@ export class UpdateProductComponent {
     this.adminService.deleteVariant(variantId).subscribe(() => {
       this.variants = this.variants.filter(v => v.id !== variantId);
       this.messageService.add({ severity: 'info', summary: 'Removed', detail: 'Variant removed.', life: 2000 });
+    });
+  }
+
+  loadGallery() {
+    this.adminService.getProductImages(this.productId).subscribe({
+      next: (imgs) => { this.galleryImages = imgs; },
+      error: () => {}
+    });
+  }
+
+  onGalleryFileSelected(event: any) {
+    this.galleryFile = event.target.files[0];
+  }
+
+  uploadGalleryImage() {
+    if (!this.galleryFile) return;
+    this.uploadingGallery = true;
+    const fd = new FormData();
+    fd.append('file', this.galleryFile);
+    this.adminService.addProductImage(this.productId, fd).subscribe({
+      next: (imgs) => {
+        this.galleryImages = imgs;
+        this.galleryFile = null;
+        this.uploadingGallery = false;
+        this.messageService.add({ severity: 'success', summary: 'Uploaded', detail: 'Image added to gallery.', life: 3000 });
+      },
+      error: () => { this.uploadingGallery = false; }
+    });
+  }
+
+  deleteGalleryImage(imageId: number) {
+    this.adminService.deleteProductImage(this.productId, imageId).subscribe({
+      next: () => {
+        this.galleryImages = this.galleryImages.filter(img => img.id !== imageId);
+        this.messageService.add({ severity: 'info', summary: 'Removed', detail: 'Gallery image removed.', life: 2000 });
+      }
     });
   }
 

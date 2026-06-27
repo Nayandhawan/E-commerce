@@ -20,6 +20,10 @@
         <lucide-angular name="map-pin" [size]="16" strokeWidth="2"></lucide-angular>
         <span>My Address</span>
       </button>
+      <button class="pf-nav-item" [class.pf-nav-item--active]="activeSection === 'saved-addresses'" (click)="selectSection('saved-addresses')">
+        <lucide-angular name="book-marked" [size]="16" strokeWidth="2"></lucide-angular>
+        <span>Saved Addresses</span>
+      </button>
     </aside>
 
     <!-- Form Panel -->
@@ -103,6 +107,86 @@
             <lucide-angular name="save" [size]="15" strokeWidth="2"></lucide-angular>
             Update Address
           </button>
+        </form>
+      </ng-container>
+
+      <!-- Saved Addresses -->
+      <ng-container *ngIf="activeSection === 'saved-addresses'">
+        <div class="pf-panel__head">
+          <h3 class="pf-panel__title">Saved Addresses</h3>
+          <p class="pf-panel__desc">Manage your delivery addresses. Pick one at checkout.</p>
+        </div>
+
+        <div class="addr-list" *ngIf="savedAddresses.length > 0">
+          <div class="addr-card" *ngFor="let addr of savedAddresses" [class.addr-card--default]="addr.isDefault">
+            <div class="addr-card-top">
+              <span class="addr-label">
+                <lucide-angular name="map-pin" [size]="14" strokeWidth="2"></lucide-angular>
+                {{ addr.label }}
+              </span>
+              <span class="addr-default-tag" *ngIf="addr.isDefault">Default</span>
+            </div>
+            <p class="addr-text">{{ addr.street }}, {{ addr.city }}, {{ addr.state }} {{ addr.zipCode }}, {{ addr.country }}</p>
+            <div class="addr-actions">
+              <button class="addr-btn addr-btn--default" *ngIf="!addr.isDefault" (click)="setDefaultAddress(addr.id)">
+                <lucide-angular name="star" [size]="13" strokeWidth="2"></lucide-angular> Set Default
+              </button>
+              <button class="addr-btn addr-btn--delete" (click)="deleteAddress(addr.id)">
+                <lucide-angular name="trash-2" [size]="13" strokeWidth="2"></lucide-angular> Remove
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="addr-empty" *ngIf="savedAddresses.length === 0 && !showAddAddressForm">
+          <lucide-angular name="map-pin-off" [size]="36" strokeWidth="1" style="color:var(--text-dim)"></lucide-angular>
+          <p>No saved addresses yet.</p>
+        </div>
+
+        <button class="pf-save-btn" *ngIf="!showAddAddressForm" (click)="showAddAddressForm=true" style="margin-top:16px">
+          <lucide-angular name="plus" [size]="15" strokeWidth="2"></lucide-angular>
+          Add New Address
+        </button>
+
+        <form *ngIf="showAddAddressForm" [formGroup]="newAddressForm" (ngSubmit)="addAddress()" class="pf-form" style="margin-top:16px;border-top:1px solid var(--border);padding-top:16px">
+          <div class="pf-field">
+            <label class="pf-label">Label</label>
+            <input class="pf-input" formControlName="label" placeholder="Home / Office / Other" />
+          </div>
+          <div class="pf-field">
+            <label class="pf-label">Street / Flat / Area</label>
+            <input class="pf-input" formControlName="street" placeholder="House no., Street, Area" />
+          </div>
+          <div class="pf-row">
+            <div class="pf-field">
+              <label class="pf-label">City</label>
+              <input class="pf-input" formControlName="city" placeholder="City" />
+            </div>
+            <div class="pf-field">
+              <label class="pf-label">State</label>
+              <input class="pf-input" formControlName="state" placeholder="State" />
+            </div>
+          </div>
+          <div class="pf-row">
+            <div class="pf-field">
+              <label class="pf-label">Pin Code</label>
+              <input class="pf-input" formControlName="zipCode" placeholder="Zip Code" />
+            </div>
+            <div class="pf-field">
+              <label class="pf-label">Country</label>
+              <input class="pf-input" formControlName="country" placeholder="Country" />
+            </div>
+          </div>
+          <label class="pf-check-label">
+            <input type="checkbox" formControlName="isDefault" /> Set as default address
+          </label>
+          <div class="pf-actions">
+            <button class="pf-save-btn" type="submit" [disabled]="savingAddress">
+              <lucide-angular name="save" [size]="15" strokeWidth="2"></lucide-angular>
+              {{ savingAddress ? 'Saving…' : 'Save Address' }}
+            </button>
+            <button class="pf-cancel-btn" type="button" (click)="showAddAddressForm=false">Cancel</button>
+          </div>
         </form>
       </ng-container>
 

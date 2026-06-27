@@ -3,11 +3,25 @@
 
   <!-- Product Hero -->
   <div class="product-hero">
-    <div class="hero-img-wrap" (click)="showZoom=true" title="Click to zoom">
-      <img [src]="product.processedImg" [alt]="product.name" class="hero-img"
-           (error)="$any($event.target).src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22200%22 viewBox=%220 0 200 200%22%3E%3Crect fill=%22%23f3f4f6%22 width=%22200%22 height=%22200%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 font-size=%2214%22 fill=%22%239ca3af%22%3ENo Image%3C/text%3E%3C/svg%3E'" />
-      <div class="zoom-hint">
-        <lucide-angular name="zoom-in" [size]="14" strokeWidth="2"></lucide-angular> Click to zoom
+    <div class="hero-img-col">
+      <div class="hero-img-wrap" (click)="showZoom=true" title="Click to zoom">
+        <img [src]="activeImageUrl" [alt]="product.name" class="hero-img"
+             (error)="$any($event.target).src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22200%22 viewBox=%220 0 200 200%22%3E%3Crect fill=%22%23f3f4f6%22 width=%22200%22 height=%22200%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 font-size=%2214%22 fill=%22%239ca3af%22%3ENo Image%3C/text%3E%3C/svg%3E'" />
+        <div class="zoom-hint">
+          <lucide-angular name="zoom-in" [size]="14" strokeWidth="2"></lucide-angular> Click to zoom
+        </div>
+      </div>
+      <!-- Gallery thumbnails -->
+      <div class="gallery-strip" *ngIf="galleryImages.length > 0">
+        <button class="gallery-thumb" (click)="selectGalleryImage(product.processedImg)"
+                [class.gallery-thumb--active]="activeImageUrl === product.processedImg">
+          <img [src]="product.processedImg" [alt]="product.name" />
+        </button>
+        <button class="gallery-thumb" *ngFor="let img of galleryImages"
+                (click)="selectGalleryImage(img.imgUrl)"
+                [class.gallery-thumb--active]="activeImageUrl === img.imgUrl">
+          <img [src]="img.imgUrl" [alt]="product.name" />
+        </button>
       </div>
     </div>
     <div class="hero-details">
@@ -45,7 +59,19 @@
         </p>
       </div>
 
-      <div class="hero-actions">
+      <!-- Out of stock notice + notify -->
+      <div class="oos-block" *ngIf="product.stockQuantity === 0 && variants.length === 0">
+        <span class="oos-label">
+          <lucide-angular name="package-x" [size]="14" strokeWidth="2"></lucide-angular>
+          Out of Stock
+        </span>
+        <button class="btn-notify" (click)="toggleNotify()" [disabled]="notifyLoading">
+          <lucide-angular [name]="isSubscribed ? 'bell-off' : 'bell'" [size]="15" strokeWidth="2"></lucide-angular>
+          {{ isSubscribed ? 'Remove Notification' : 'Notify Me When Available' }}
+        </button>
+      </div>
+
+      <div class="hero-actions" *ngIf="product.stockQuantity > 0 || variants.length > 0">
         <button class="btn-cart" (click)="addToCart()">
           <lucide-angular name="shopping-cart" [size]="16" strokeWidth="2"></lucide-angular>
           Add to Cart
@@ -54,6 +80,12 @@
           <lucide-angular name="heart" [size]="16" strokeWidth="2"></lucide-angular>
           Wishlist
         </button>
+        <button class="btn-share" (click)="shareLink()" [class.btn-share--copied]="copied">
+          <lucide-angular [name]="copied ? 'check' : 'share-2'" [size]="16" strokeWidth="2"></lucide-angular>
+          {{ copied ? 'Copied!' : 'Share' }}
+        </button>
+      </div>
+      <div class="hero-actions--share-only" *ngIf="product.stockQuantity === 0 && variants.length === 0">
         <button class="btn-share" (click)="shareLink()" [class.btn-share--copied]="copied">
           <lucide-angular [name]="copied ? 'check' : 'share-2'" [size]="16" strokeWidth="2"></lucide-angular>
           {{ copied ? 'Copied!' : 'Share' }}
@@ -121,6 +153,6 @@
 <p-dialog [(visible)]="showZoom" [modal]="true" [style]="{width:'90vw','max-width':'700px'}"
           [closable]="true" [draggable]="false" header="{{ product?.name }}">
   <div class="zoom-dialog-body" *ngIf="product">
-    <img [src]="product.processedImg" [alt]="product.name" class="zoom-img" />
+    <img [src]="activeImageUrl" [alt]="product.name" class="zoom-img" />
   </div>
 </p-dialog>

@@ -95,6 +95,37 @@
 
         <div style="border-top:1px solid var(--border);padding-top:.5rem"></div>
 
+        <!-- ── Image Gallery ── -->
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-widest mb-3" style="color:var(--text-muted)">
+            Product Gallery
+          </label>
+
+          <div class="gallery-grid" *ngIf="galleryImages.length > 0">
+            <div class="gallery-item" *ngFor="let img of galleryImages">
+              <img [src]="img.imgUrl" alt="Gallery image" class="gallery-img" />
+              <button type="button" class="gallery-del" (click)="deleteGalleryImage(img.id)" title="Remove">
+                <lucide-angular name="x" [size]="11" strokeWidth="2.5"></lucide-angular>
+              </button>
+            </div>
+          </div>
+          <p class="text-xs mb-3" style="color:var(--text-dim)" *ngIf="galleryImages.length === 0">No extra images yet.</p>
+
+          <div class="gallery-upload-row">
+            <label class="gallery-file-label">
+              <lucide-angular name="image-plus" [size]="15" strokeWidth="1.5"></lucide-angular>
+              {{ galleryFile ? galleryFile.name : 'Choose image' }}
+              <input type="file" hidden accept="image/*" (change)="onGalleryFileSelected($event)" />
+            </label>
+            <button type="button" class="gallery-upload-btn" (click)="uploadGalleryImage()" [disabled]="!galleryFile || uploadingGallery">
+              <lucide-angular name="upload" [size]="14" strokeWidth="2"></lucide-angular>
+              {{ uploadingGallery ? 'Uploading…' : 'Upload' }}
+            </button>
+          </div>
+        </div>
+
+        <div style="border-top:1px solid var(--border);padding-top:.5rem"></div>
+
         <button type="submit"
                 class="w-full h-11 flex items-center justify-center gap-2 rounded-lg font-bold text-base transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 style="background:var(--primary);color:#0F1111"

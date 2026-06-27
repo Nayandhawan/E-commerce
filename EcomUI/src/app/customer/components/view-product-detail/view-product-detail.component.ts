@@ -17,9 +17,13 @@ export class ViewProductDetailComponent implements OnInit {
   reviews: any[] = [];
   variants: any[] = [];
   relatedProducts: any[] = [];
+  galleryImages: any[] = [];
+  activeImageUrl: string | null = null;
   selectedVariant: any = null;
   showZoom = false;
   copied = false;
+  isSubscribed = false;
+  notifyLoading = false;
 
   constructor(private messageService: MessageService,
     private customerService: CustomerService,
@@ -47,7 +51,10 @@ export class ViewProductDetailComponent implements OnInit {
             (element.returnedImg ? 'data:image/png;base64,' + element.returnedImg : null);
           this.reviews.push(element);
         });
+        this.activeImageUrl = this.product.processedImg;
         this.trackRecentlyViewed();
+        this.loadGalleryImages();
+        this.checkNotifySubscription();
         if (this.product.categoryName) {
           this.customerService.getRelatedProducts(this.productId, this.product.categoryName).subscribe(items => {
             this.relatedProducts = items.map((p: any) => ({
@@ -57,6 +64,43 @@ export class ViewProductDetailComponent implements OnInit {
           });
         }
       }
+    });
+  }
+
+  private loadGalleryImages() {
+    this.customerService.getProductImages(this.productId).subscribe({
+      next: (imgs) => { this.galleryImages = imgs; },
+      error: () => {}
+    });
+  }
+
+  selectGalleryImage(url: string) {
+    this.activeImageUrl = url;
+  }
+
+  private checkNotifySubscription() {
+    if (!UserStorageService.getUserId()) return;
+    this.customerService.checkStockSubscription(this.productId).subscribe({
+      next: (res) => { this.isSubscribed = res.subscribed; },
+      error: () => {}
+    });
+  }
+
+  toggleNotify() {
+    if (this.notifyLoading) return;
+    this.notifyLoading = true;
+    const action = this.isSubscribed
+      ? this.customerService.unsubscribeFromStock(this.productId)
+      : this.customerService.subscribeToStock(this.productId);
+
+    action.subscribe({
+      next: () => {
+        this.isSubscribed = !this.isSubscribed;
+        this.notifyLoading = false;
+        const msg = this.isSubscribed ? "We'll notify you when it's back in stock!" : 'Notification removed.';
+        this.messageService.add({ severity: 'info', summary: 'Done', detail: msg, life: 3000 });
+      },
+      error: () => { this.notifyLoading = false; }
     });
   }
 

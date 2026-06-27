@@ -236,3 +236,101 @@
   .pf-nav-item { flex-direction: column; gap: 4px; font-size: 11px; padding: 8px 12px; flex-shrink: 0; }
   .pf-row { grid-template-columns: 1fr; }
 }
+
+/* ── Saved Addresses ──────────────────────────── */
+.addr-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.addr-card {
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  background: var(--bg-elevated);
+  transition: border-color .15s;
+
+  &:hover { border-color: var(--primary); }
+  &.addr-card--default { border-color: var(--primary); background: var(--primary-glow); }
+}
+
+.addr-card-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.addr-label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.addr-default-tag {
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  background: var(--primary);
+  color: #0f1111;
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+.addr-text {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin: 0 0 10px;
+  line-height: 1.5;
+}
+
+.addr-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.addr-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: var(--radius);
+  border: 1.5px solid var(--border);
+  cursor: pointer;
+  font-family: var(--font-ui);
+  background: transparent;
+  transition: background .15s, color .15s;
+
+  &.addr-btn--default { color: var(--primary-l); border-color: var(--primary); &:hover { background: var(--primary-glow); } }
+  &.addr-btn--delete { color: var(--danger, #e53e3e); border-color: var(--danger, #e53e3e); &:hover { background: rgba(229,62,62,.08); } }
+}
+
+.addr-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 32px 0;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.pf-check-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text-muted);
+  cursor: pointer;
+  margin-bottom: 12px;
+
+  input[type="checkbox"] { accent-color: var(--primary); width: 15px; height: 15px; cursor: pointer; }
+}

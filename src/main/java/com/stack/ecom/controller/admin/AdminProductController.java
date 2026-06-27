@@ -12,9 +12,11 @@ import com.stack.ecom.services.admin.adminproduct.AdminProductService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -112,4 +114,20 @@ public class AdminProductController {
         return ResponseEntity.noContent().build();
     }
 
+    @GetMapping("/products/{productId}/images")
+    public ResponseEntity<List<Map<String, Object>>> getProductImages(@PathVariable Long productId) {
+        return ResponseEntity.ok(adminProductService.getProductImages(productId));
+    }
+
+    @PostMapping("/products/{productId}/images")
+    public ResponseEntity<List<Map<String, Object>>> addProductImage(@PathVariable Long productId,
+                                                                      @RequestParam("file") MultipartFile file) throws IOException {
+        return ResponseEntity.status(HttpStatus.CREATED).body(adminProductService.addProductImage(productId, file));
+    }
+
+    @DeleteMapping("/products/{productId}/images/{imageId}")
+    public ResponseEntity<Void> deleteProductImage(@PathVariable Long productId, @PathVariable Long imageId) {
+        boolean deleted = adminProductService.deleteProductImage(productId, imageId);
+        return deleted ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
+    }
 }

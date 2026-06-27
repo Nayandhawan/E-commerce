@@ -49,6 +49,7 @@ import {
   CircleHelp, FilterX, GitCompare, ZoomIn,
   Check, Share2, Save, FileText,
   ShieldCheck, KeyRound, Undo2, XCircle, Smartphone,
+  BookMarked, MapPinOff, PackageX, ImagePlus, Upload,
 } from 'lucide-angular';
 
 const ICONS = {
@@ -69,6 +70,7 @@ const ICONS = {
   CircleHelp, FilterX, GitCompare, ZoomIn,
   Check, Share2, Save, FileText,
   ShieldCheck, KeyRound, Undo2, XCircle, Smartphone,
+  BookMarked, MapPinOff, PackageX, ImagePlus, Upload,
 };
 
 const PRIME_MODULES = [
