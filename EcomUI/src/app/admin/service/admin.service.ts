@@ -65,6 +65,12 @@ export class AdminService {
     });
   }
 
+  updateStock(productId: number, stockQuantity: number): Observable<any> {
+    return this.http.patch(environment.apiUrl + `api/admin/products/${productId}/stock`, { stockQuantity }, {
+      headers: this.createAuthorizationHeader(),
+    });
+  }
+
   deleteProduct(productId: any): Observable<any> {
     return this.http.delete(environment.apiUrl + `api/admin/products/${productId}`, {
       headers: this.createAuthorizationHeader(),

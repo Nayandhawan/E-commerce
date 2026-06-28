@@ -545,6 +545,11 @@ Forgot Password (Phase 5):
 - [x] View all orders + change status (Pending → Placed → Shipped → Delivered → Cancelled)
 - [x] **Approve / reject customer return requests** (Phase 4)
 - [x] **Image file storage** — product/review images served from filesystem via `/api/images/**`, migration endpoint available (image-migration)
+- [x] **Stock management** — stock badge per product, inline editor, Mark OOS / Restore buttons (Phase 9)
+
+#### Payments
+- [x] **Razorpay end-to-end payment flow** — create order → modal → verify HMAC signature → place order (Phase 9)
+- [x] Stock decremented on order placement (Phase 9)
 
 #### UI / Shell
 - [x] **Mobile hamburger nav** + slide-in drawer (Phase 6)
@@ -673,6 +678,32 @@ Forgot Password (Phase 5):
 | Product comparison (CompareService + /customer/compare) | G25 | ✅ Done |
 | Available coupons as clickable chips in cart | G28 | ✅ Done |
 | Continue shopping dialog after add-to-cart | G29 | ✅ Done |
+
+### 🚧 Phase 9 — Payments, Stock & Cart Fixes
+> In progress on branch `phase-9-stock-payment`
+
+| Task | Status | Notes |
+|---|---|---|
+| Razorpay payment flow end-to-end | ✅ Done | `PaymentController` creates order + verifies HMAC signature; frontend opens Razorpay modal before placing order |
+| Admin stock management | ✅ Done | Stock badge on product cards; inline editor; Mark OOS / Restore buttons; `PATCH /api/admin/products/{id}/stock` |
+| Stock decrement on order placement | ✅ Done | `placeOrder()` reduces `product.stockQuantity` by quantity ordered |
+| Cart amount bug fix | ✅ Done | `@Transactional` on `addProductToCart`; removed inverse-side `.add()` call |
+| Email order confirmation | ✅ Done | `EmailService` with Gmail SMTP; error logging added |
+| Products loading state | ✅ Done | Spinner + error/retry on dashboard |
+| Cart loading state | ✅ Done | Spinner while cart fetches; empty state no longer flashes on load |
+
+### 🗺 Phase 10 — Microservices (Parked)
+> Start only after Phase 9 is stable in production
+
+| Task | Status |
+|---|---|
+| Split into User, Product, Order, Payment services | ⏳ Planned |
+| API Gateway (Spring Cloud Gateway) + JWT filter | ⏳ Planned |
+| Eureka service registry | ⏳ Planned |
+| Kafka for async events (order placed → notification, email) | ⏳ Planned |
+| Redis caching for product listing | ⏳ Planned |
+| Per-service MySQL databases | ⏳ Planned |
+| Docker Compose for full microservices stack | ⏳ Planned |
 
 ---
 

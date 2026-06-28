@@ -268,6 +268,17 @@ public class CartServiceImpl implements CartService{
             activeOrder.setOrderStatus(OrderStatus.PLACED);
             activeOrder.setTrackingId(UUID.randomUUID());
             orderRepository.save(activeOrder);
+
+            // Decrement stock for each product in the order
+            if (activeOrder.getCartItems() != null) {
+                for (CartItems item : activeOrder.getCartItems()) {
+                    Product product = item.getProduct();
+                    long newStock = Math.max(0, product.getStockQuantity() - item.getQuantity());
+                    product.setStockQuantity(newStock);
+                    productRepository.save(product);
+                }
+            }
+
             notificationService.create(placeOrderDto.getUserId(), "Your order has been placed successfully!");
             User user = optionalUser.get();
             emailService.sendOrderConfirmation(user.getEmail(), user.getName(), activeOrder);
