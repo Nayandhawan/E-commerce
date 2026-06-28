@@ -193,6 +193,29 @@
   &:hover { color: var(--text); }
 }
 
+// ─── Skeleton loader ─────────────────────────────────────────────────────────
+@keyframes shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+
+%sk-base {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 800px 100%;
+  animation: shimmer 1.4s infinite linear;
+  border-radius: 6px;
+}
+
+.sk-img  { @extend %sk-base; aspect-ratio: 1; width: 100%; }
+.sk-line { @extend %sk-base; height: 12px; margin-bottom: 8px;
+  &--wide   { width: 80%; }
+  &--narrow { width: 45%; }
+  &--medium { width: 60%; height: 10px; }
+}
+.sk-actions { gap: .4rem; }
+.sk-btn { @extend %sk-base; flex: 1; height: 32px; border-radius: var(--radius); }
+.sk-btn--sm { flex: 0 0 36px !important; }
+
 // ─── Empty state link ─────────────────────────────────────────────────────────
 .link-btn {
   background: none; border: none; padding: 0;

@@ -82,8 +82,23 @@
     </button>
   </div>
 
+  <!-- Skeleton loader -->
+  <div class="product-grid" *ngIf="loading">
+    <div class="product-card skeleton-card" *ngFor="let _ of skeletons">
+      <div class="sk-img"></div>
+      <div class="card-body">
+        <div class="sk-line sk-line--wide"></div>
+        <div class="sk-line sk-line--narrow"></div>
+        <div class="sk-line sk-line--medium"></div>
+      </div>
+      <div class="card-actions sk-actions">
+        <div class="sk-btn"></div><div class="sk-btn"></div><div class="sk-btn sk-btn--sm"></div>
+      </div>
+    </div>
+  </div>
+
   <!-- Product grid -->
-  <div class="product-grid">
+  <div class="product-grid" *ngIf="!loading">
     <div class="product-card"
          [class.card--low-stock]="product.stockQuantity > 0 && product.stockQuantity <= 10"
          [class.card--oos]="product.stockQuantity === 0"
@@ -151,13 +166,13 @@
   </div>
 
   <!-- Empty state -->
-  <div class="empty-state" *ngIf="filteredProducts.length === 0 && allProducts.length > 0">
+  <div class="empty-state" *ngIf="!loading && filteredProducts.length === 0 && allProducts.length > 0">
     <lucide-angular name="filter-x" [size]="48" strokeWidth="1" style="color:var(--text-dim)"></lucide-angular>
     <h3>No products in this category</h3>
     <p>Try a different filter or <button class="link-btn" (click)="setTab('all')">view all products</button>.</p>
   </div>
 
-  <div class="empty-state" *ngIf="allProducts.length === 0">
+  <div class="empty-state" *ngIf="!loading && allProducts.length === 0">
     <lucide-angular name="package" [size]="48" strokeWidth="1" style="color:var(--text-dim)"></lucide-angular>
     <h3>No products yet</h3>
     <p>Add your first product to get started.</p>

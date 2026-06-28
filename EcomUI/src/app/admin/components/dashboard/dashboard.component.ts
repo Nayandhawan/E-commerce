@@ -11,10 +11,12 @@ import { MessageService } from 'primeng/api';
 export class DashboardComponent implements OnInit {
 
   allProducts: any[] = [];
+  loading = false;
   searchProductForm!: FormGroup;
   stockEditId: number | null = null;
   stockEditValue: number = 0;
   activeTab: 'all' | 'in-stock' | 'low-stock' | 'oos' = 'all';
+  readonly skeletons = Array(8);
 
   constructor(
     private adminService: AdminService,
@@ -46,23 +48,32 @@ export class DashboardComponent implements OnInit {
   }
 
   getAllProducts() {
-    this.allProducts = [];
-    this.adminService.getAllProducts().subscribe(res => {
-      this.allProducts = res.map((el: any) => ({
-        ...el,
-        processedImg: el.imgUrl || (el.byteImg ? 'data:image/jpeg;base64,' + el.byteImg : null)
-      }));
+    this.loading = true;
+    this.adminService.getAllProducts().subscribe({
+      next: res => {
+        this.allProducts = res.map((el: any) => ({
+          ...el,
+          processedImg: el.imgUrl || (el.byteImg ? 'data:image/jpeg;base64,' + el.byteImg : null)
+        }));
+        this.loading = false;
+      },
+      error: () => { this.loading = false; }
     });
   }
 
   submitForm() {
     const title = this.searchProductForm.get('title')!.value;
-    this.adminService.getAllProductsByName(title).subscribe(res => {
-      this.allProducts = res.map((el: any) => ({
-        ...el,
-        processedImg: el.imgUrl || (el.byteImg ? 'data:image/jpeg;base64,' + el.byteImg : null)
-      }));
-      this.activeTab = 'all';
+    this.loading = true;
+    this.adminService.getAllProductsByName(title).subscribe({
+      next: res => {
+        this.allProducts = res.map((el: any) => ({
+          ...el,
+          processedImg: el.imgUrl || (el.byteImg ? 'data:image/jpeg;base64,' + el.byteImg : null)
+        }));
+        this.activeTab = 'all';
+        this.loading = false;
+      },
+      error: () => { this.loading = false; }
     });
   }
 
