@@ -1,9 +1,11 @@
 package com.stack.ecom.repository;
 
-import com.stack.ecom.dto.OrderDto;
 import com.stack.ecom.entity.Order;
 import com.stack.ecom.enums.OrderStatus;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.Date;
@@ -15,6 +17,11 @@ import java.util.UUID;
 public interface OrderRepository extends JpaRepository<Order,Long> {
 
     Order findByUserIdAndOrderStatus(Long userId, OrderStatus orderStatus);
+
+    // Loads order + cart items + their products + user + coupon in minimal queries
+    @EntityGraph(attributePaths = {"cartItems", "cartItems.product", "cartItems.user", "coupon"})
+    @Query("SELECT o FROM Order o WHERE o.user.id = :userId AND o.orderStatus = :status")
+    Order findByUserIdAndOrderStatusWithItems(@Param("userId") Long userId, @Param("status") OrderStatus status);
 
     List<Order> findAllByOrderStatusIn(List<OrderStatus> orderStatusList);
 
@@ -28,6 +35,21 @@ public interface OrderRepository extends JpaRepository<Order,Long> {
 
     List<Order> findByDateBetweenAndOrderStatusIn(Date start, Date end, List<OrderStatus> statuses);
 
+    // JOIN FETCH cart items + products for sales report (avoids N+1 on product names)
+    @Query("SELECT DISTINCT o FROM Order o LEFT JOIN FETCH o.cartItems ci LEFT JOIN FETCH ci.product WHERE o.date BETWEEN :start AND :end AND o.orderStatus IN :statuses")
+    List<Order> findByDateRangeAndStatusesWithItems(@Param("start") Date start, @Param("end") Date end, @Param("statuses") List<OrderStatus> statuses);
+
     Long countByOrderStatus(OrderStatus orderStatus);
+
+    // Aggregate analytics — replaces 3 separate countByOrderStatus calls
+    @Query("SELECT o.orderStatus, COUNT(o) FROM Order o WHERE o.orderStatus IN :statuses GROUP BY o.orderStatus")
+    List<Object[]> countGroupedByStatus(@Param("statuses") List<OrderStatus> statuses);
+
+    // Aggregate date-range queries — replaces loading full Order objects just to count/sum
+    @Query("SELECT COUNT(o) FROM Order o WHERE o.date BETWEEN :start AND :end AND o.orderStatus = :status")
+    Long countByDateRangeAndStatus(@Param("start") Date start, @Param("end") Date end, @Param("status") OrderStatus status);
+
+    @Query("SELECT COALESCE(SUM(o.amount), 0) FROM Order o WHERE o.date BETWEEN :start AND :end AND o.orderStatus = :status")
+    Long sumAmountByDateRangeAndStatus(@Param("start") Date start, @Param("end") Date end, @Param("status") OrderStatus status);
 
 }

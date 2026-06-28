@@ -133,7 +133,7 @@ public class CartServiceImpl implements CartService{
 
 
     public OrderDto getCartByUserId(Long userId){
-        Order activeOrder = orderRepository.findByUserIdAndOrderStatus(userId, OrderStatus.PENDING);
+        Order activeOrder = orderRepository.findByUserIdAndOrderStatusWithItems(userId, OrderStatus.PENDING);
         if (activeOrder == null) {
             OrderDto empty = new OrderDto();
             empty.setCartItems(Collections.emptyList());
@@ -252,7 +252,7 @@ public class CartServiceImpl implements CartService{
     }
 
     public OrderDto placeOrder(PlaceOrderDto placeOrderDto){
-        Order activeOrder = orderRepository.findByUserIdAndOrderStatus(placeOrderDto.getUserId(), OrderStatus.PENDING);
+        Order activeOrder = orderRepository.findByUserIdAndOrderStatusWithItems(placeOrderDto.getUserId(), OrderStatus.PENDING);
         Optional<User> optionalUser = userRepository.findById(placeOrderDto.getUserId());
         if (optionalUser.isPresent()){
             activeOrder.setOrderDescription(placeOrderDto.getOrderDescription());
@@ -344,7 +344,7 @@ public class CartServiceImpl implements CartService{
     }
 
     public OrderDto removeFromCart(Long userId, Long productId) {
-        Order activeOrder = orderRepository.findByUserIdAndOrderStatus(userId, OrderStatus.PENDING);
+        Order activeOrder = orderRepository.findByUserIdAndOrderStatusWithItems(userId, OrderStatus.PENDING);
         Optional<CartItems> optionalCartItems = cartItemsRepository.findByProductIdAndOrderIdAndUserId(
                 productId, activeOrder.getId(), userId);
 
