@@ -8,6 +8,10 @@ import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
 @Data
+@Table(name = "wishlist", indexes = {
+    @Index(name = "idx_wishlist_user", columnList = "user_id"),
+    @Index(name = "idx_wishlist_product_user", columnList = "product_id,user_id")
+})
 public class Wishlist {
 
     @Id

@@ -90,62 +90,39 @@ public class AdminOrderServiceImpl implements AdminOrderService{
         Long currentMonthEarnings = getTotalEarningsForMonth(currentDate.getMonthValue(), currentDate.getYear());
         Long previousMonthEarnings = getTotalEarningsForMonth(previousMonthDate.getMonthValue(), previousMonthDate.getYear());
 
-        Long placed = orderRepository.countByOrderStatus(OrderStatus.PLACED);
-        Long shipped = orderRepository.countByOrderStatus(OrderStatus.SHIPPED);
-        Long delivered = orderRepository.countByOrderStatus(OrderStatus.DELIVERED);
+        // Single aggregate query instead of 3 separate COUNT queries
+        Map<OrderStatus, Long> statusCounts = new java.util.HashMap<>();
+        orderRepository.countGroupedByStatus(List.of(OrderStatus.PLACED, OrderStatus.SHIPPED, OrderStatus.DELIVERED))
+            .forEach(row -> statusCounts.put((OrderStatus) row[0], (Long) row[1]));
+        Long placed = statusCounts.getOrDefault(OrderStatus.PLACED, 0L);
+        Long shipped = statusCounts.getOrDefault(OrderStatus.SHIPPED, 0L);
+        Long delivered = statusCounts.getOrDefault(OrderStatus.DELIVERED, 0L);
 
         return new AnalyticsResponse(placed, shipped, delivered, currentMonthOrders, previousMonthOrders,currentMonthEarnings, previousMonthEarnings);
     }
 
     public Long getTotalOrdersForMonth(int month, int year){
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.YEAR, year);
-        calendar.set(Calendar.MONTH, month-1);
-        calendar.set(Calendar.DAY_OF_MONTH,1);
-        calendar.set(Calendar.HOUR_OF_DAY,0);
-        calendar.set(Calendar.MINUTE,0);
-        calendar.set(Calendar.SECOND,0);
-
-        Date startOfMonth = calendar.getTime();
-
-        calendar.set(Calendar.DAY_OF_MONTH,calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
-        calendar.set(Calendar.HOUR_OF_DAY,23);
-        calendar.set(Calendar.MINUTE,59);
-        calendar.set(Calendar.SECOND,59);
-
-        Date endOfMonth = calendar.getTime();
-
-        List<Order> orders = orderRepository.findByDateBetweenAndOrderStatus(startOfMonth,endOfMonth, OrderStatus.DELIVERED);
-
-        return (long) orders.size();
-
+        Date[] range = monthRange(month, year);
+        Long count = orderRepository.countByDateRangeAndStatus(range[0], range[1], OrderStatus.DELIVERED);
+        return count != null ? count : 0L;
     }
 
     public Long getTotalEarningsForMonth(int month, int year){
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.YEAR, year);
-        calendar.set(Calendar.MONTH, month-1);
-        calendar.set(Calendar.DAY_OF_MONTH,1);
-        calendar.set(Calendar.HOUR_OF_DAY,0);
-        calendar.set(Calendar.MINUTE,0);
-        calendar.set(Calendar.SECOND,0);
+        Date[] range = monthRange(month, year);
+        Long sum = orderRepository.sumAmountByDateRangeAndStatus(range[0], range[1], OrderStatus.DELIVERED);
+        return sum != null ? sum : 0L;
+    }
 
-        Date startOfMonth = calendar.getTime();
-
-        calendar.set(Calendar.DAY_OF_MONTH,calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
-        calendar.set(Calendar.HOUR_OF_DAY,23);
-        calendar.set(Calendar.MINUTE,59);
-        calendar.set(Calendar.SECOND,59);
-
-        Date endOfMonth = calendar.getTime();
-
-        List<Order> orders = orderRepository.findByDateBetweenAndOrderStatus(startOfMonth,endOfMonth, OrderStatus.DELIVERED);
-
-        Long sum = 0L;
-        for (Order order:orders){
-            sum +=order.getAmount();
-        }
-        return sum;
+    private Date[] monthRange(int month, int year) {
+        Calendar cal = Calendar.getInstance();
+        cal.set(year, month - 1, 1, 0, 0, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+        Date start = cal.getTime();
+        cal.set(Calendar.DAY_OF_MONTH, cal.getActualMaximum(Calendar.DAY_OF_MONTH));
+        cal.set(Calendar.HOUR_OF_DAY, 23);
+        cal.set(Calendar.MINUTE, 59);
+        cal.set(Calendar.SECOND, 59);
+        return new Date[]{start, cal.getTime()};
     }
 
     @Override
@@ -181,7 +158,7 @@ public class AdminOrderServiceImpl implements AdminOrderService{
     @Override
     public byte[] generateSalesReport(String type, int year, Integer month, Integer quarter) {
         Date[] range = resolveDateRange(type, year, month, quarter);
-        List<Order> orders = orderRepository.findByDateBetweenAndOrderStatusIn(
+        List<Order> orders = orderRepository.findByDateRangeAndStatusesWithItems(
                 range[0], range[1],
                 List.of(OrderStatus.PLACED, OrderStatus.SHIPPED, OrderStatus.DELIVERED)
         );

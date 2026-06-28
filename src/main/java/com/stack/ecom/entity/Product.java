@@ -9,7 +9,10 @@ import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
 @Data
-@Table(name = "product")
+@Table(name = "product", indexes = {
+    @Index(name = "idx_product_name", columnList = "name"),
+    @Index(name = "idx_product_stock", columnList = "stock_quantity")
+})
 public class Product {
 
     @Id
@@ -23,6 +26,7 @@ public class Product {
     @Column(columnDefinition = "TEXT")
     private String description;
 
+    @Basic(fetch = FetchType.LAZY)
     @Lob
     @Column(columnDefinition = "longblob")
     private byte[] img;

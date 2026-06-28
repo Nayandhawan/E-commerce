@@ -11,7 +11,12 @@ import java.util.UUID;
 
 @Entity
 @Data
-@Table(name = "orders")
+@Table(name = "orders", indexes = {
+    @Index(name = "idx_order_user_status", columnList = "user_id,order_status"),
+    @Index(name = "idx_order_status", columnList = "order_status"),
+    @Index(name = "idx_order_date_status", columnList = "date,order_status"),
+    @Index(name = "idx_order_tracking", columnList = "tracking_id")
+})
 public class Order {
 
     @Id
@@ -53,7 +58,7 @@ public class Order {
     @JoinColumn(name = "coupon_id" , referencedColumnName = "id")
     private Coupon coupon;
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "order")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "order")
     private List<CartItems> cartItems;
 
     public Long getId() {

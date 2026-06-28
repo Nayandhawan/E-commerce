@@ -9,6 +9,10 @@ import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
 @Data
+@Table(name = "cart_items", indexes = {
+    @Index(name = "idx_cart_user_order", columnList = "user_id,order_id"),
+    @Index(name = "idx_cart_product_order_user", columnList = "product_id,order_id,user_id")
+})
 public class CartItems {
 
     @Id

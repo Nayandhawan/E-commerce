@@ -5,7 +5,10 @@ import jakarta.persistence.*;
 import java.util.Date;
 
 @Entity
-@Table(name = "notifications")
+@Table(name = "notifications", indexes = {
+    @Index(name = "idx_notif_user_read", columnList = "user_id,is_read"),
+    @Index(name = "idx_notif_user_created", columnList = "user_id,created_at")
+})
 public class Notification {
 
     @Id
