@@ -21,4 +21,12 @@ public class SecurityUtils {
                 .map(user -> user.getId().equals(userId))
                 .orElse(false);
     }
+
+    public Long getCurrentUserId() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated()) return null;
+        return userRepository.findFirstByEmail(auth.getName())
+                .map(user -> user.getId())
+                .orElse(null);
+    }
 }

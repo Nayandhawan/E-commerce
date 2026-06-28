@@ -81,7 +81,7 @@ public class CartServiceImpl implements CartService{
     @Transactional
     public ResponseEntity<?> addProductToCart(AddProductInCartDto addProductInCartDto) {
         // Retrieve any existing order with PENDING status for the user
-        Order activeOrder = orderRepository.findByUserIdAndOrderStatus(
+        Order activeOrder = orderRepository.findFirstByUserIdAndOrderStatus(
                 addProductInCartDto.getUserId(), OrderStatus.PENDING);
 
         // If no pending order exists, create a new one
@@ -133,7 +133,8 @@ public class CartServiceImpl implements CartService{
 
 
     public OrderDto getCartByUserId(Long userId){
-        Order activeOrder = orderRepository.findByUserIdAndOrderStatusWithItems(userId, OrderStatus.PENDING);
+        List<Order> pending = orderRepository.findByUserIdAndOrderStatusWithItems(userId, OrderStatus.PENDING);
+        Order activeOrder = pending.isEmpty() ? null : pending.get(0);
         if (activeOrder == null) {
             OrderDto empty = new OrderDto();
             empty.setCartItems(Collections.emptyList());
@@ -156,7 +157,7 @@ public class CartServiceImpl implements CartService{
     }
 
     public OrderDto applyCoupon(Long userId,String code){
-        Order activeOrder = orderRepository.findByUserIdAndOrderStatus(userId, OrderStatus.PENDING);
+        Order activeOrder = orderRepository.findFirstByUserIdAndOrderStatus(userId, OrderStatus.PENDING);
         Coupon coupon = couponRepository.findByCode(code).orElseThrow(() ->new ValidationException("Coupon not found"));
         if (couponIsExpired(coupon)){
             throw new ValidationException("Coupon has Expired");
@@ -190,7 +191,7 @@ public class CartServiceImpl implements CartService{
     }
 
     public OrderDto increaseProductQuantity(AddProductInCartDto addProductInCartDto){
-        Order activeOrder = orderRepository.findByUserIdAndOrderStatus(addProductInCartDto.getUserId(), OrderStatus.PENDING);
+        Order activeOrder = orderRepository.findFirstByUserIdAndOrderStatus(addProductInCartDto.getUserId(), OrderStatus.PENDING);
         Optional<Product> optionalProduct = productRepository.findById(addProductInCartDto.getProductId());
         Optional<CartItems> optionalCartItems = cartItemsRepository.findByProductIdAndOrderIdAndUserId(addProductInCartDto.getProductId(), activeOrder.getId(),addProductInCartDto.getUserId());
 
@@ -221,7 +222,7 @@ public class CartServiceImpl implements CartService{
     }
 
     public OrderDto decreaseProductQuantity(AddProductInCartDto addProductInCartDto){
-        Order activeOrder = orderRepository.findByUserIdAndOrderStatus(addProductInCartDto.getUserId(), OrderStatus.PENDING);
+        Order activeOrder = orderRepository.findFirstByUserIdAndOrderStatus(addProductInCartDto.getUserId(), OrderStatus.PENDING);
         Optional<Product> optionalProduct = productRepository.findById(addProductInCartDto.getProductId());
         Optional<CartItems> optionalCartItems = cartItemsRepository.findByProductIdAndOrderIdAndUserId(addProductInCartDto.getProductId(), activeOrder.getId(),addProductInCartDto.getUserId());
 
@@ -252,7 +253,8 @@ public class CartServiceImpl implements CartService{
     }
 
     public OrderDto placeOrder(PlaceOrderDto placeOrderDto){
-        Order activeOrder = orderRepository.findByUserIdAndOrderStatusWithItems(placeOrderDto.getUserId(), OrderStatus.PENDING);
+        List<Order> pending = orderRepository.findByUserIdAndOrderStatusWithItems(placeOrderDto.getUserId(), OrderStatus.PENDING);
+        Order activeOrder = pending.isEmpty() ? null : pending.get(0);
         Optional<User> optionalUser = userRepository.findById(placeOrderDto.getUserId());
         if (optionalUser.isPresent()){
             activeOrder.setOrderDescription(placeOrderDto.getOrderDescription());
@@ -344,7 +346,8 @@ public class CartServiceImpl implements CartService{
     }
 
     public OrderDto removeFromCart(Long userId, Long productId) {
-        Order activeOrder = orderRepository.findByUserIdAndOrderStatusWithItems(userId, OrderStatus.PENDING);
+        List<Order> pending = orderRepository.findByUserIdAndOrderStatusWithItems(userId, OrderStatus.PENDING);
+        Order activeOrder = pending.isEmpty() ? null : pending.get(0);
         Optional<CartItems> optionalCartItems = cartItemsRepository.findByProductIdAndOrderIdAndUserId(
                 productId, activeOrder.getId(), userId);
 
