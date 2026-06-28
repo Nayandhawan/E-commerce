@@ -40,6 +40,7 @@ public class CartController {
 
     @PostMapping("/cart")
     public ResponseEntity<?> addProductToCart(@RequestBody AddProductInCartDto addProductInCartDto) {
+        addProductInCartDto.setUserId(securityUtils.getCurrentUserId());
         return cartService.addProductToCart(addProductInCartDto);
     }
 
@@ -63,11 +64,13 @@ public class CartController {
 
     @PutMapping("/cart/increase")
     public ResponseEntity<?> increaseProductQuantity(@RequestBody AddProductInCartDto addProductInCartDto) {
+        addProductInCartDto.setUserId(securityUtils.getCurrentUserId());
         return ResponseEntity.ok(cartService.increaseProductQuantity(addProductInCartDto));
     }
 
     @PutMapping("/cart/decrease")
     public ResponseEntity<?> decreaseProductQuantity(@RequestBody AddProductInCartDto addProductInCartDto) {
+        addProductInCartDto.setUserId(securityUtils.getCurrentUserId());
         return ResponseEntity.ok(cartService.decreaseProductQuantity(addProductInCartDto));
     }
 

@@ -24,11 +24,7 @@ export class CustomerService {
   }
 
   addToCart(productId: any): Observable<any> {
-    const cartDto = {
-      productId: productId,
-      userId: UserStorageService.getUserId()
-    };
-    return this.http.post(environment.apiUrl + `api/customer/cart`, cartDto, {
+    return this.http.post(environment.apiUrl + `api/customer/cart`, { productId }, {
       headers: this.createAuthorizationHeader(),
     });
   }
@@ -107,21 +103,13 @@ export class CustomerService {
   }
 
   increaseProductQuantity(productId: any): Observable<any> {
-    const cartDto = {
-      productId: productId,
-      userId: UserStorageService.getUserId()
-    };
-    return this.http.put(environment.apiUrl + `api/customer/cart/increase`, cartDto, {
+    return this.http.put(environment.apiUrl + `api/customer/cart/increase`, { productId }, {
       headers: this.createAuthorizationHeader(),
     });
   }
 
   descreaseProductQuantity(productId: any): Observable<any> {
-    const cartDto = {
-      productId: productId,
-      userId: UserStorageService.getUserId()
-    };
-    return this.http.put(environment.apiUrl + `api/customer/cart/decrease`, cartDto, {
+    return this.http.put(environment.apiUrl + `api/customer/cart/decrease`, { productId }, {
       headers: this.createAuthorizationHeader(),
     });
   }
