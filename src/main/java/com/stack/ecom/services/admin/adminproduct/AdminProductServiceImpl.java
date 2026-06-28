@@ -57,11 +57,11 @@ public class AdminProductServiceImpl implements AdminProductService {
     }
 
     public List<ProductDto> getAllProducts() {
-        return productRepository.findAll().stream().map(Product::getDto).collect(Collectors.toList());
+        return productRepository.findAllWithCategory().stream().map(Product::getDto).collect(Collectors.toList());
     }
 
     public List<ProductDto> getAllProductsByName(String name) {
-        return productRepository.findAllByNameContaining(name).stream().map(Product::getDto).collect(Collectors.toList());
+        return productRepository.findAllByNameContainingWithCategory(name).stream().map(Product::getDto).collect(Collectors.toList());
     }
 
     public boolean deleteProductById(Long id) {

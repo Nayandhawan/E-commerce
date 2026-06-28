@@ -34,14 +34,14 @@ public class CustomerProductServiceImpl implements CustomerProductService{
 
     public List<ProductDto> getAllProducts(){
         Map<Long, Double> ratingMap = buildRatingMap();
-        return productRepository.findAll().stream()
+        return productRepository.findAllWithCategory().stream()
             .map(p -> enrichDto(p.getDto(), ratingMap))
             .collect(Collectors.toList());
     }
 
     public List<ProductDto> searchProductByTitle(String name){
         Map<Long, Double> ratingMap = buildRatingMap();
-        return productRepository.findAllByNameContaining(name).stream()
+        return productRepository.findAllByNameContainingWithCategory(name).stream()
             .map(p -> enrichDto(p.getDto(), ratingMap))
             .collect(Collectors.toList());
     }
