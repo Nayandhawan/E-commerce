@@ -14,9 +14,12 @@ import java.util.UUID;
 @Service
 public class ImageStorageService {
 
-    private static final Set<String> ALLOWED_EXTENSIONS = Set.of("jpg", "jpeg", "png", "webp", "gif");
+    private static final Set<String> ALLOWED_EXTENSIONS = Set.of(
+            "jpg", "jpeg", "png", "webp", "gif", "avif", "svg", "bmp", "tiff", "tif", "ico"
+    );
     private static final Set<String> ALLOWED_MIME_TYPES = Set.of(
-            "image/jpeg", "image/png", "image/webp", "image/gif"
+            "image/jpeg", "image/png", "image/webp", "image/gif",
+            "image/avif", "image/svg+xml", "image/bmp", "image/tiff", "image/x-icon", "image/vnd.microsoft.icon"
     );
     private static final long MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
 
@@ -46,7 +49,7 @@ public class ImageStorageService {
         }
         String contentType = file.getContentType();
         if (contentType == null || !ALLOWED_MIME_TYPES.contains(contentType.toLowerCase())) {
-            throw new IllegalArgumentException("Only image files (JPEG, PNG, WebP, GIF) are allowed");
+            throw new IllegalArgumentException("Only image files (JPEG, PNG, WebP, GIF, AVIF, SVG, BMP, TIFF, ICO) are allowed");
         }
         String ext = getExtension(file.getOriginalFilename());
         if (!ALLOWED_EXTENSIONS.contains(ext)) {

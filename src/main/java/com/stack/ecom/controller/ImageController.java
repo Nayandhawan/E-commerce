@@ -22,13 +22,28 @@ public class ImageController {
     public ResponseEntity<byte[]> serveImage(@PathVariable String type, @PathVariable String filename) {
         try {
             byte[] data = imageStorageService.load(type, filename);
-            String mediaType = filename.endsWith(".png") ? "image/png" : "image/jpeg";
             return ResponseEntity.ok()
                     .header(HttpHeaders.CACHE_CONTROL, "max-age=31536000, immutable")
-                    .contentType(MediaType.parseMediaType(mediaType))
+                    .contentType(MediaType.parseMediaType(resolveMimeType(filename)))
                     .body(data);
         } catch (IOException e) {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    private String resolveMimeType(String filename) {
+        if (filename == null) return "image/jpeg";
+        String ext = filename.substring(filename.lastIndexOf('.') + 1).toLowerCase();
+        return switch (ext) {
+            case "png"        -> "image/png";
+            case "webp"       -> "image/webp";
+            case "gif"        -> "image/gif";
+            case "avif"       -> "image/avif";
+            case "svg"        -> "image/svg+xml";
+            case "bmp"        -> "image/bmp";
+            case "tiff", "tif"-> "image/tiff";
+            case "ico"        -> "image/x-icon";
+            default           -> "image/jpeg";
+        };
     }
 }

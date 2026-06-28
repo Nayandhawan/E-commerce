@@ -29,7 +29,7 @@
                  onmouseleave="this.style.borderColor='var(--border)';this.style.background='';this.style.color='var(--text-muted)'">
             <lucide-angular name="camera" [size]="18" strokeWidth="1.5" style="color:var(--primary);flex-shrink:0"></lucide-angular>
             <span>{{ selectedFile ? selectedFile.name : 'Click to upload image' }}</span>
-            <input type="file" hidden (change)="onFileSelected($event)" />
+            <input type="file" hidden accept="image/*" (change)="onFileSelected($event)" />
           </label>
           <img *ngIf="imagePreview" [src]="imagePreview"
                class="mt-3 w-24 h-24 object-cover rounded-xl shadow-sm"
