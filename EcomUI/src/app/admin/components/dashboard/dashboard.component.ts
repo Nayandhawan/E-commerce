@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { AdminService } from '../../service/admin.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MessageService } from 'primeng/api';
@@ -8,12 +8,13 @@ import { MessageService } from 'primeng/api';
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss'
 })
-export class DashboardComponent {
+export class DashboardComponent implements OnInit {
 
-  products: any[] = [];
+  allProducts: any[] = [];
   searchProductForm!: FormGroup;
   stockEditId: number | null = null;
   stockEditValue: number = 0;
+  activeTab: 'all' | 'in-stock' | 'low-stock' | 'oos' = 'all';
 
   constructor(
     private adminService: AdminService,
@@ -26,34 +27,57 @@ export class DashboardComponent {
     this.searchProductForm = this.fb.group({ title: [null, [Validators.required]] });
   }
 
+  get filteredProducts(): any[] {
+    switch (this.activeTab) {
+      case 'in-stock':  return this.allProducts.filter(p => p.stockQuantity > 10);
+      case 'low-stock': return this.allProducts.filter(p => p.stockQuantity > 0 && p.stockQuantity <= 10);
+      case 'oos':       return this.allProducts.filter(p => p.stockQuantity === 0);
+      default:          return this.allProducts;
+    }
+  }
+
+  get inStockCount()  { return this.allProducts.filter(p => p.stockQuantity > 10).length; }
+  get lowStockCount() { return this.allProducts.filter(p => p.stockQuantity > 0 && p.stockQuantity <= 10).length; }
+  get oosCount()      { return this.allProducts.filter(p => p.stockQuantity === 0).length; }
+
+  setTab(tab: 'all' | 'in-stock' | 'low-stock' | 'oos') {
+    this.activeTab = tab;
+    this.stockEditId = null;
+  }
+
   getAllProducts() {
-    this.products = [];
+    this.allProducts = [];
     this.adminService.getAllProducts().subscribe(res => {
-      res.forEach((element: any) => {
-        element.processedImg = element.imgUrl || (element.byteImg ? 'data:image/jpeg;base64,' + element.byteImg : null);
-        this.products.push(element);
-      });
+      this.allProducts = res.map((el: any) => ({
+        ...el,
+        processedImg: el.imgUrl || (el.byteImg ? 'data:image/jpeg;base64,' + el.byteImg : null)
+      }));
     });
   }
 
   submitForm() {
-    this.products = [];
     const title = this.searchProductForm.get('title')!.value;
     this.adminService.getAllProductsByName(title).subscribe(res => {
-      res.forEach((element: any) => {
-        element.processedImg = element.imgUrl || (element.byteImg ? 'data:image/jpeg;base64,' + element.byteImg : null);
-        this.products.push(element);
-      });
+      this.allProducts = res.map((el: any) => ({
+        ...el,
+        processedImg: el.imgUrl || (el.byteImg ? 'data:image/jpeg;base64,' + el.byteImg : null)
+      }));
+      this.activeTab = 'all';
     });
+  }
+
+  clearSearch() {
+    this.searchProductForm.reset();
+    this.getAllProducts();
   }
 
   deleteProduct(productId: number) {
     this.adminService.deleteProduct(productId).subscribe(res => {
       if (res == null) {
-        this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Product Deleted Successfully', life: 5000 });
+        this.messageService.add({ severity: 'success', summary: 'Deleted', detail: 'Product removed', life: 3000 });
         this.getAllProducts();
       } else {
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: res.message, life: 5000 });
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: res.message, life: 3000 });
       }
     });
   }
@@ -63,9 +87,7 @@ export class DashboardComponent {
     this.stockEditValue = product.stockQuantity ?? 0;
   }
 
-  cancelStockEdit() {
-    this.stockEditId = null;
-  }
+  cancelStockEdit() { this.stockEditId = null; }
 
   saveStock(product: any) {
     const qty = Number(this.stockEditValue);
@@ -86,7 +108,7 @@ export class DashboardComponent {
     this.adminService.updateStock(product.id, 0).subscribe({
       next: () => {
         product.stockQuantity = 0;
-        this.messageService.add({ severity: 'warn', summary: 'Out of Stock', detail: `${product.name} marked as out of stock`, life: 3000 });
+        this.messageService.add({ severity: 'warn', summary: 'Marked OOS', detail: product.name, life: 3000 });
       },
       error: () => {
         this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Could not update stock', life: 3000 });

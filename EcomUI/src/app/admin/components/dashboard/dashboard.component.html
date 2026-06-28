@@ -1,10 +1,10 @@
 <div class="page-wrap">
 
   <!-- Page header -->
-  <div class="flex items-center justify-between mb-6">
+  <div class="flex items-center justify-between mb-5">
     <div>
-      <h2 class="section-title mb-1">Products</h2>
-      <p class="text-sm" style="color:var(--text-muted)">Manage your product catalogue</p>
+      <h2 class="section-title mb-1">Product Catalogue</h2>
+      <p class="text-sm" style="color:var(--text-muted)">{{ allProducts.length }} products · {{ oosCount }} out of stock</p>
     </div>
     <a routerLink="/admin/product"
        class="flex items-center gap-2 px-4 py-2.5 font-semibold text-sm rounded-lg transition-colors"
@@ -14,36 +14,115 @@
     </a>
   </div>
 
+  <!-- Stats row -->
+  <div class="stats-row">
+    <div class="stat-tile stat-tile--blue" (click)="setTab('all')">
+      <div class="stat-icon">
+        <lucide-angular name="package" [size]="20" strokeWidth="1.8"></lucide-angular>
+      </div>
+      <div class="stat-body">
+        <span class="stat-value">{{ allProducts.length }}</span>
+        <span class="stat-label">Total Products</span>
+      </div>
+    </div>
+    <div class="stat-tile stat-tile--green" (click)="setTab('in-stock')">
+      <div class="stat-icon">
+        <lucide-angular name="package-check" [size]="20" strokeWidth="1.8"></lucide-angular>
+      </div>
+      <div class="stat-body">
+        <span class="stat-value">{{ inStockCount }}</span>
+        <span class="stat-label">In Stock (&gt;10)</span>
+      </div>
+    </div>
+    <div class="stat-tile stat-tile--orange" (click)="setTab('low-stock')">
+      <div class="stat-icon">
+        <lucide-angular name="alert-triangle" [size]="20" strokeWidth="1.8"></lucide-angular>
+      </div>
+      <div class="stat-body">
+        <span class="stat-value">{{ lowStockCount }}</span>
+        <span class="stat-label">Low Stock (≤10)</span>
+      </div>
+    </div>
+    <div class="stat-tile stat-tile--red" (click)="setTab('oos')">
+      <div class="stat-icon">
+        <lucide-angular name="package-x" [size]="20" strokeWidth="1.8"></lucide-angular>
+      </div>
+      <div class="stat-body">
+        <span class="stat-value">{{ oosCount }}</span>
+        <span class="stat-label">Out of Stock</span>
+      </div>
+    </div>
+  </div>
+
   <!-- Search -->
   <form [formGroup]="searchProductForm" class="search-bar" (submit)="submitForm()">
     <div class="search-inner">
       <lucide-angular name="search" [size]="18" class="search-icon" strokeWidth="1.5"></lucide-angular>
       <input class="search-input" formControlName="title" placeholder="Search products by name…" autocomplete="off" />
+      <button class="search-clear" type="button" *ngIf="searchProductForm.value.title" (click)="clearSearch()">
+        <lucide-angular name="x" [size]="14" strokeWidth="2.5"></lucide-angular>
+      </button>
       <button class="search-btn" type="submit" [disabled]="searchProductForm.invalid">Search</button>
     </div>
   </form>
 
+  <!-- Filter tabs -->
+  <div class="filter-tabs">
+    <button class="filter-tab" [class.active]="activeTab === 'all'" (click)="setTab('all')">
+      All <span class="tab-count">{{ allProducts.length }}</span>
+    </button>
+    <button class="filter-tab filter-tab--green" [class.active]="activeTab === 'in-stock'" (click)="setTab('in-stock')">
+      In Stock <span class="tab-count">{{ inStockCount }}</span>
+    </button>
+    <button class="filter-tab filter-tab--orange" [class.active]="activeTab === 'low-stock'" (click)="setTab('low-stock')">
+      Low Stock <span class="tab-count">{{ lowStockCount }}</span>
+    </button>
+    <button class="filter-tab filter-tab--red" [class.active]="activeTab === 'oos'" (click)="setTab('oos')">
+      Out of Stock <span class="tab-count">{{ oosCount }}</span>
+    </button>
+  </div>
+
   <!-- Product grid -->
   <div class="product-grid">
-    <div class="product-card" *ngFor="let product of products">
+    <div class="product-card"
+         [class.card--low-stock]="product.stockQuantity > 0 && product.stockQuantity <= 10"
+         [class.card--oos]="product.stockQuantity === 0"
+         *ngFor="let product of filteredProducts">
 
+      <!-- Image with overlaid chips -->
       <div class="card-img-wrap">
         <img [src]="product.processedImg" [alt]="product.name" loading="lazy" class="card-img" />
+        <span class="img-badge img-badge--category">{{ product.categoryName }}</span>
+        <span class="img-badge img-badge--stock"
+              [class.chip--green]="product.stockQuantity > 10"
+              [class.chip--orange]="product.stockQuantity > 0 && product.stockQuantity <= 10"
+              [class.chip--red]="product.stockQuantity === 0">
+          <lucide-angular
+            [name]="product.stockQuantity === 0 ? 'package-x' : product.stockQuantity <= 10 ? 'alert-triangle' : 'package-check'"
+            [size]="11" strokeWidth="2.5">
+          </lucide-angular>
+          {{ product.stockQuantity === 0 ? 'OOS' : product.stockQuantity <= 10 ? (product.stockQuantity + ' left') : (product.stockQuantity + ' in stock') }}
+        </span>
       </div>
 
+      <!-- Body -->
       <div class="card-body">
-        <p class="card-category">{{ product.categoryName }}</p>
         <h3 class="card-name">{{ product.name }}</h3>
-        <p class="card-desc">{{ product.description }}</p>
-        <div class="card-meta">
-          <span class="meta-price">₹{{ product.price }}</span>
-          <span class="stock-badge" [class.stock-badge--oos]="product.stockQuantity === 0">
-            <lucide-angular [name]="product.stockQuantity === 0 ? 'package-x' : 'package-check'" [size]="12" strokeWidth="2"></lucide-angular>
-            {{ product.stockQuantity === 0 ? 'Out of Stock' : (product.stockQuantity + ' in stock') }}
-          </span>
-        </div>
+        <p class="card-price">₹{{ product.price }}</p>
 
-        <!-- Stock inline editor -->
+        <!-- Stock editor -->
+        <div class="stock-row" *ngIf="stockEditId !== product.id">
+          <button class="stock-edit-trigger" (click)="openStockEdit(product)">
+            <lucide-angular name="pencil" [size]="11" strokeWidth="2"></lucide-angular>
+            Edit stock
+          </button>
+          <button class="quick-btn quick-btn--oos" *ngIf="product.stockQuantity > 0" (click)="markOutOfStock(product)">
+            Mark OOS
+          </button>
+          <button class="quick-btn quick-btn--restore" *ngIf="product.stockQuantity === 0" (click)="restoreStock(product)">
+            Restore
+          </button>
+        </div>
         <div class="stock-editor" *ngIf="stockEditId === product.id">
           <input type="number" class="stock-input" [(ngModel)]="stockEditValue" min="0" />
           <button class="stock-save-btn" (click)="saveStock(product)">
@@ -53,29 +132,18 @@
             <lucide-angular name="x" [size]="13" strokeWidth="2.5"></lucide-angular>
           </button>
         </div>
-
-        <div class="stock-actions" *ngIf="stockEditId !== product.id">
-          <button class="stock-btn" (click)="openStockEdit(product)" title="Update stock">
-            <lucide-angular name="pencil" [size]="12" strokeWidth="2"></lucide-angular> Update Stock
-          </button>
-          <button class="stock-btn stock-btn--oos" *ngIf="product.stockQuantity > 0" (click)="markOutOfStock(product)" title="Mark out of stock">
-            <lucide-angular name="package-x" [size]="12" strokeWidth="2"></lucide-angular> Mark OOS
-          </button>
-          <button class="stock-btn stock-btn--restore" *ngIf="product.stockQuantity === 0" (click)="restoreStock(product)" title="Restore stock to 100">
-            <lucide-angular name="package-check" [size]="12" strokeWidth="2"></lucide-angular> Restore
-          </button>
-        </div>
       </div>
 
+      <!-- Actions -->
       <div class="card-actions">
-        <button class="action-btn btn-faq" [routerLink]="['/admin/faq', product.id]">
-          <lucide-angular name="message-circle-question-mark" [size]="14" strokeWidth="2"></lucide-angular> FAQ
-        </button>
         <button class="action-btn btn-update" [routerLink]="['/admin/product', product.id]">
-          <lucide-angular name="pencil" [size]="14" strokeWidth="2"></lucide-angular> Edit
+          <lucide-angular name="pencil" [size]="13" strokeWidth="2"></lucide-angular> Edit
         </button>
-        <button class="action-btn btn-delete" (click)="deleteProduct(product.id)">
-          <lucide-angular name="trash-2" [size]="14" strokeWidth="2"></lucide-angular> Delete
+        <button class="action-btn btn-faq" [routerLink]="['/admin/faq', product.id]">
+          <lucide-angular name="message-circle-question-mark" [size]="13" strokeWidth="2"></lucide-angular> FAQ
+        </button>
+        <button class="action-btn btn-delete icon-only" (click)="deleteProduct(product.id)" title="Delete product">
+          <lucide-angular name="trash-2" [size]="14" strokeWidth="2"></lucide-angular>
         </button>
       </div>
 
@@ -83,7 +151,13 @@
   </div>
 
   <!-- Empty state -->
-  <div class="empty-state" *ngIf="products?.length === 0">
+  <div class="empty-state" *ngIf="filteredProducts.length === 0 && allProducts.length > 0">
+    <lucide-angular name="filter-x" [size]="48" strokeWidth="1" style="color:var(--text-dim)"></lucide-angular>
+    <h3>No products in this category</h3>
+    <p>Try a different filter or <button class="link-btn" (click)="setTab('all')">view all products</button>.</p>
+  </div>
+
+  <div class="empty-state" *ngIf="allProducts.length === 0">
     <lucide-angular name="package" [size]="48" strokeWidth="1" style="color:var(--text-dim)"></lucide-angular>
     <h3>No products yet</h3>
     <p>Add your first product to get started.</p>
