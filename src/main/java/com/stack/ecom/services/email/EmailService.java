@@ -3,6 +3,8 @@ package com.stack.ecom.services.email;
 import com.stack.ecom.entity.Order;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -15,6 +17,8 @@ import java.util.Locale;
 
 @Service
 public class EmailService {
+
+    private static final Logger log = LoggerFactory.getLogger(EmailService.class);
 
     @Autowired(required = false)
     private JavaMailSender mailSender;
@@ -30,7 +34,7 @@ public class EmailService {
             helper.setText(buildShippingHtml(customerName, order), true);
             mailSender.send(msg);
         } catch (MessagingException | RuntimeException e) {
-            // silently fail — email is non-critical
+            log.error("Failed to send email to {}: {}", toEmail, e.getMessage());
         }
     }
 
@@ -79,7 +83,7 @@ public class EmailService {
             helper.setText(buildHtml(customerName, order), true);
             mailSender.send(msg);
         } catch (MessagingException | RuntimeException e) {
-            // silently fail — email is non-critical
+            log.error("Failed to send email to {}: {}", toEmail, e.getMessage());
         }
     }
 
