@@ -20,16 +20,16 @@
         <td><code style="font-size:.75rem;color:var(--text-muted)">{{ order.trackingId }}</code></td>
         <td>{{ order.userName }}</td>
         <td><span style="font-family:var(--font-mono)">₹{{ order.amount }}</span></td>
-        <td>{{ order.orderDescription }}</td>
+        <td>{{ order.orderDescription || '—' }}</td>
         <td style="max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ order.address }}</td>
         <td>{{ order.date | date:'dd/MM/yyyy' }}</td>
-        <td style="max-width:140px;font-size:.75rem;color:#7c3aed;font-style:italic">
-          {{ order.returnReason || '—' }}
-        </td>
         <td>
           <p-tag [value]="order.orderStatus"
                  [severity]="order.orderStatus==='DELIVERED'?'success':order.orderStatus==='SHIPPED'?'warning':order.orderStatus==='RETURN_REQUESTED'?'danger':order.orderStatus==='RETURNED'?'secondary':'info'">
           </p-tag>
+        </td>
+        <td style="max-width:140px;font-size:.75rem;color:#7c3aed;font-style:italic">
+          {{ order.returnReason || '—' }}
         </td>
         <td>
           <button *ngIf="order.orderStatus === 'PLACED'"
