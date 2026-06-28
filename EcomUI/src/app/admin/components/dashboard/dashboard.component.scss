@@ -1,1 +1,49 @@
 // Global styles.scss handles: search-bar, product-grid, product-card, card-*, action-btn, btn-faq/update/delete
+
+.stock-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 11px; font-weight: 600; padding: 2px 8px;
+  border-radius: 20px; background: #d1fae5; color: #065f46;
+  &--oos { background: #fee2e2; color: #991b1b; }
+}
+
+.stock-actions {
+  display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap;
+}
+
+.stock-btn {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 11px; font-weight: 600; padding: 3px 8px;
+  border-radius: 6px; border: 1px solid #d1d5db;
+  background: #f9fafb; color: #374151; cursor: pointer;
+  transition: background 0.15s;
+  &:hover { background: #f3f4f6; }
+  &--oos { border-color: #fca5a5; color: #dc2626; background: #fff1f2;
+    &:hover { background: #fee2e2; } }
+  &--restore { border-color: #6ee7b7; color: #059669; background: #ecfdf5;
+    &:hover { background: #d1fae5; } }
+}
+
+.stock-editor {
+  display: flex; align-items: center; gap: 6px; margin-top: 8px;
+}
+
+.stock-input {
+  width: 80px; padding: 4px 8px; border: 1px solid #d1d5db;
+  border-radius: 6px; font-size: 13px;
+  &:focus { outline: none; border-color: #6366f1; }
+}
+
+.stock-save-btn {
+  padding: 4px 8px; border-radius: 6px; border: none;
+  background: #059669; color: #fff; cursor: pointer;
+  display: inline-flex; align-items: center;
+  &:hover { background: #047857; }
+}
+
+.stock-cancel-btn {
+  padding: 4px 8px; border-radius: 6px; border: 1px solid #d1d5db;
+  background: #f9fafb; color: #6b7280; cursor: pointer;
+  display: inline-flex; align-items: center;
+  &:hover { background: #f3f4f6; }
+}

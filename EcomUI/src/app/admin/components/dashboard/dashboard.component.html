@@ -37,6 +37,33 @@
         <p class="card-desc">{{ product.description }}</p>
         <div class="card-meta">
           <span class="meta-price">₹{{ product.price }}</span>
+          <span class="stock-badge" [class.stock-badge--oos]="product.stockQuantity === 0">
+            <lucide-angular [name]="product.stockQuantity === 0 ? 'package-x' : 'package-check'" [size]="12" strokeWidth="2"></lucide-angular>
+            {{ product.stockQuantity === 0 ? 'Out of Stock' : (product.stockQuantity + ' in stock') }}
+          </span>
+        </div>
+
+        <!-- Stock inline editor -->
+        <div class="stock-editor" *ngIf="stockEditId === product.id">
+          <input type="number" class="stock-input" [(ngModel)]="stockEditValue" min="0" />
+          <button class="stock-save-btn" (click)="saveStock(product)">
+            <lucide-angular name="check" [size]="13" strokeWidth="2.5"></lucide-angular>
+          </button>
+          <button class="stock-cancel-btn" (click)="cancelStockEdit()">
+            <lucide-angular name="x" [size]="13" strokeWidth="2.5"></lucide-angular>
+          </button>
+        </div>
+
+        <div class="stock-actions" *ngIf="stockEditId !== product.id">
+          <button class="stock-btn" (click)="openStockEdit(product)" title="Update stock">
+            <lucide-angular name="pencil" [size]="12" strokeWidth="2"></lucide-angular> Update Stock
+          </button>
+          <button class="stock-btn stock-btn--oos" *ngIf="product.stockQuantity > 0" (click)="markOutOfStock(product)" title="Mark out of stock">
+            <lucide-angular name="package-x" [size]="12" strokeWidth="2"></lucide-angular> Mark OOS
+          </button>
+          <button class="stock-btn stock-btn--restore" *ngIf="product.stockQuantity === 0" (click)="restoreStock(product)" title="Restore stock to 100">
+            <lucide-angular name="package-check" [size]="12" strokeWidth="2"></lucide-angular> Restore
+          </button>
         </div>
       </div>
 

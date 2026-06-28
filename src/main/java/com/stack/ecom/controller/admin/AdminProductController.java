@@ -114,6 +114,18 @@ public class AdminProductController {
         return ResponseEntity.noContent().build();
     }
 
+    @PatchMapping("/products/{productId}/stock")
+    public ResponseEntity<?> updateStock(@PathVariable Long productId, @RequestBody Map<String, Long> body) {
+        Optional<Product> optProduct = productRepository.findById(productId);
+        if (optProduct.isEmpty()) return ResponseEntity.notFound().build();
+        Product product = optProduct.get();
+        Long qty = body.get("stockQuantity");
+        if (qty == null || qty < 0) return ResponseEntity.badRequest().body("Invalid stock quantity");
+        product.setStockQuantity(qty);
+        productRepository.save(product);
+        return ResponseEntity.ok(Map.of("id", productId, "stockQuantity", qty));
+    }
+
     @GetMapping("/products/{productId}/images")
     public ResponseEntity<List<Map<String, Object>>> getProductImages(@PathVariable Long productId) {
         return ResponseEntity.ok(adminProductService.getProductImages(productId));
