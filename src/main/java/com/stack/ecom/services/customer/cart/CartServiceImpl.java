@@ -164,7 +164,7 @@ public class CartServiceImpl implements CartService{
         }
 
         double discountAmount = ((coupon.getDiscount()/100.0 ) * activeOrder.getTotalAmount());
-        double netAmount = activeOrder.getAmount() - discountAmount;
+        double netAmount = activeOrder.getTotalAmount() - discountAmount;
 
         activeOrder.setAmount((long)netAmount);
         activeOrder.setDiscount((long)discountAmount);
@@ -203,16 +203,14 @@ public class CartServiceImpl implements CartService{
             if (product.getPrice() == null) {
                 throw new IllegalArgumentException("Product price is missing.");
             }
-            activeOrder.setAmount(activeOrder.getAmount() + product.getPrice());
             activeOrder.setTotalAmount(activeOrder.getTotalAmount() + product.getPrice());
-
             cartItems.setQuantity(cartItems.getQuantity()+1);
             if (activeOrder.getCoupon() != null){
                 double discountAmount = ((activeOrder.getCoupon().getDiscount()/100.0 ) * activeOrder.getTotalAmount());
-                double netAmount = activeOrder.getAmount() - discountAmount;
-
-                activeOrder.setAmount((long)netAmount);
+                activeOrder.setAmount((long)(activeOrder.getTotalAmount() - discountAmount));
                 activeOrder.setDiscount((long)discountAmount);
+            } else {
+                activeOrder.setAmount(activeOrder.getAmount() + product.getPrice());
             }
             cartItemsRepository.save(cartItems);
             orderRepository.save(activeOrder);
@@ -234,16 +232,14 @@ public class CartServiceImpl implements CartService{
             if (product.getPrice() == null) {
                 throw new IllegalArgumentException("Product price is missing.");
             }
-            activeOrder.setAmount(activeOrder.getAmount() - product.getPrice());
             activeOrder.setTotalAmount(activeOrder.getTotalAmount() - product.getPrice());
-
             cartItems.setQuantity(cartItems.getQuantity()-1);
             if (activeOrder.getCoupon() != null){
                 double discountAmount = ((activeOrder.getCoupon().getDiscount()/100.0 ) * activeOrder.getTotalAmount());
-                double netAmount = activeOrder.getTotalAmount() - discountAmount;
-
-                activeOrder.setAmount((long)netAmount);
+                activeOrder.setAmount((long)(activeOrder.getTotalAmount() - discountAmount));
                 activeOrder.setDiscount((long)discountAmount);
+            } else {
+                activeOrder.setAmount(activeOrder.getAmount() - product.getPrice());
             }
             cartItemsRepository.save(cartItems);
             orderRepository.save(activeOrder);
