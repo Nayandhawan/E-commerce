@@ -316,17 +316,45 @@ div.p-selectbutton.coupon-type-btn {
   .p-multiselect-header {
     background: var(--bg-elevated) !important;
     border-bottom: 1px solid var(--border) !important;
-    padding: .5rem .75rem;
+    padding: .4rem .6rem;
+    gap: .5rem;
   }
 
-  .p-multiselect-filter-container .p-inputtext {
-    background: var(--bg-elevated) !important;
-    border: 1px solid var(--border) !important;
-    color: var(--text) !important;
-    border-radius: 6px !important;
-    font-size: 13px;
-    padding: .35rem .6rem;
-    &:focus { border-color: var(--primary) !important; box-shadow: none !important; }
+  .p-multiselect-filter-container {
+    position: relative;
+    flex: 1;
+
+    .p-multiselect-filter-icon {
+      position: absolute;
+      left: .5rem;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 11px !important;
+      width: 11px !important;
+      height: 11px !important;
+      color: var(--text-muted);
+      pointer-events: none;
+    }
+
+    .p-multiselect-filter {
+      width: 100% !important;
+      background: var(--bg-card) !important;
+      border: 1px solid var(--border) !important;
+      border-radius: 6px !important;
+      color: var(--text) !important;
+      font-size: 12px !important;
+      padding: .3rem .5rem .3rem 1.6rem !important;
+      height: 30px !important;
+      box-shadow: none !important;
+      outline: none !important;
+
+      &:focus {
+        border-color: var(--primary) !important;
+        box-shadow: none !important;
+      }
+
+      &::placeholder { color: var(--text-muted) !important; font-size: 12px !important; }
+    }
   }
 
   .p-multiselect-items {
