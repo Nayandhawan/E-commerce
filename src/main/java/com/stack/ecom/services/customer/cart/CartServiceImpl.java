@@ -150,6 +150,19 @@ public class CartServiceImpl implements CartService {
     }
 
     @Transactional
+    public OrderDto removeCoupon(Long userId) {
+        List<Order> pending = orderRepository.findByUserIdAndOrderStatusWithItems(userId, OrderStatus.PENDING);
+        Order activeOrder = pending.isEmpty() ? null : pending.get(0);
+        if (activeOrder == null) throw new ValidationException("No active cart found");
+
+        activeOrder.setCoupon(null);
+        activeOrder.setAmount(activeOrder.getTotalAmount());
+        activeOrder.setDiscount(0L);
+        orderRepository.save(activeOrder);
+        return activeOrder.getOrderDto();
+    }
+
+    @Transactional
     public OrderDto increaseProductQuantity(AddProductInCartDto addProductInCartDto) {
         Order activeOrder = orderRepository.findFirstByUserIdAndOrderStatus(addProductInCartDto.getUserId(), OrderStatus.PENDING);
         Optional<Product> optionalProduct = productRepository.findById(addProductInCartDto.getProductId());

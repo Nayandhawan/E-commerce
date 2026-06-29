@@ -56,6 +56,12 @@ export class CustomerService {
     });
   }
 
+  removeCoupon(): Observable<any> {
+    return this.http.delete(environment.apiUrl + `api/customer/cart/coupon`, {
+      headers: this.createAuthorizationHeader(),
+    });
+  }
+
   createPaymentOrder(amount: number): Observable<any> {
     const userId = UserStorageService.getUserId();
     return this.http.post(environment.apiUrl + `api/payment/create-order`, { amount, userId }, {

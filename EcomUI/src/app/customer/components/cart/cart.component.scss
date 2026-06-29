@@ -194,6 +194,24 @@
   i { font-size: 1rem; }
 }
 
+.remove-coupon-btn {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1px solid rgba(220,38,38,.4);
+  background: transparent;
+  color: #dc2626;
+  cursor: pointer;
+  transition: background .15s;
+  padding: 0;
+  flex-shrink: 0;
+  &:hover { background: rgba(220,38,38,.1); }
+}
+
 /* ── Empty State ── */
 .empty-state {
   text-align: center;

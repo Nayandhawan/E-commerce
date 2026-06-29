@@ -71,9 +71,9 @@
                   <button class="avail-chip"
                           [class.avail-chip--ok]="state.ok"
                           [class.avail-chip--no]="!state.ok"
-                          (click)="state.ok && couponForm.patchValue({code: c.code}); state.ok && applyCoupon()"
+                          (click)="state.ok && fillCouponCode(c.code)"
                           type="button"
-                          [title]="state.ok ? 'Click to apply' : 'No eligible products in cart'">
+                          [title]="state.ok ? 'Click to fill code' : 'No eligible products in cart'">
                     <strong>{{ c.code }}</strong> — {{ couponLabel(c) }}
                     <span *ngIf="!state.ok" class="chip-hint">Not applicable</span>
                   </button>
@@ -85,6 +85,9 @@
         <div class="coupon-applied" *ngIf="vm.order.couponName">
           <lucide-angular name="circle-check" [size]="16" strokeWidth="2"></lucide-angular>
           <strong>{{ vm.order.couponName }}</strong> applied
+          <button type="button" class="remove-coupon-btn" (click)="removeCoupon()" title="Remove coupon">
+            <lucide-angular name="x" [size]="13" strokeWidth="2.5"></lucide-angular>
+          </button>
         </div>
 
         <button type="button"

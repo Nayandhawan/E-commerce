@@ -8,6 +8,7 @@ import {
   loadCart, loadCartSuccess, loadCartFailure,
   increaseQuantity, decreaseQuantity, quantityChangeSuccess, quantityChangeFailure,
   applyCoupon, applyCouponSuccess, applyCouponFailure,
+  removeCoupon, removeCouponSuccess, removeCouponFailure,
   removeFromCart, removeFromCartSuccess, removeFromCartFailure
 } from './cart.actions';
 
@@ -23,7 +24,7 @@ export class CartEffects {
       switchMap(() =>
         this.customerService.getCartByUserId().pipe(
           map(res => {
-            const cartItems = (res.cartItems ?? []).map((item: any) => ({
+            const cartItems = (res?.cartItems ?? []).map((item: any) => ({
               ...item,
               processedImg: item.imgUrl || (item.returnedImg ? 'data:image/jpeg;base64,' + item.returnedImg : null)
             }));
@@ -93,6 +94,28 @@ export class CartEffects {
   reloadAfterCoupon$ = createEffect(() =>
     this.actions$.pipe(
       ofType(applyCouponSuccess),
+      map(() => loadCart())
+    )
+  );
+
+  removeCoupon$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(removeCoupon),
+      switchMap(() =>
+        this.customerService.removeCoupon().pipe(
+          map(() => {
+            this.messageService.add({ severity: 'info', summary: 'Coupon Removed', detail: 'Coupon has been removed', life: 3000 });
+            return removeCouponSuccess();
+          }),
+          catchError(err => of(removeCouponFailure({ error: err.message })))
+        )
+      )
+    )
+  );
+
+  reloadAfterRemoveCoupon$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(removeCouponSuccess),
       map(() => loadCart())
     )
   );
