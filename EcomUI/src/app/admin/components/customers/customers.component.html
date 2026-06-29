@@ -18,8 +18,8 @@
     <ng-template pTemplate="caption">
       <div class="cust-caption">
         <span class="cust-count">{{ customers.length }} customer{{ customers.length !== 1 ? 's' : '' }}</span>
-        <span class="p-input-icon-left cust-search">
-          <i class="pi pi-search"></i>
+        <span class="cust-search">
+          <i class="pi pi-search cust-search-icon"></i>
           <input pInputText type="text" placeholder="Search name, email, city…"
                  (input)="dt.filterGlobal($any($event.target).value, 'contains')" />
         </span>
