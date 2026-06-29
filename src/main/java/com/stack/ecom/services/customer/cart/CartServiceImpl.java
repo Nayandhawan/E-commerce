@@ -316,7 +316,15 @@ public class CartServiceImpl implements CartService {
             if (activeOrder.getCoupon() != null) {
                 activeOrder.getCartItems().remove(cartItem);
                 cartItemsRepository.delete(cartItem);
-                recalculateDiscount(activeOrder);
+                boolean hasEligibleItems = activeOrder.getCartItems().stream()
+                        .anyMatch(item -> isItemEligible(item, activeOrder.getCoupon()));
+                if (hasEligibleItems) {
+                    recalculateDiscount(activeOrder);
+                } else {
+                    activeOrder.setCoupon(null);
+                    activeOrder.setDiscount(0L);
+                    activeOrder.setAmount(activeOrder.getTotalAmount());
+                }
             } else {
                 activeOrder.setAmount(activeOrder.getAmount() - itemTotal);
                 activeOrder.getCartItems().remove(cartItem);
