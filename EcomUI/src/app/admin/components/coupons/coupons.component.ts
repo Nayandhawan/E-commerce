@@ -1,6 +1,7 @@
-import { Component, ViewEncapsulation } from '@angular/core';
+import { Component, OnDestroy, ViewEncapsulation } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MessageService } from 'primeng/api';
+import { Subscription } from 'rxjs';
 import { AdminService } from '../../service/admin.service';
 
 @Component({
@@ -9,7 +10,7 @@ import { AdminService } from '../../service/admin.service';
   styleUrl: './coupons.component.scss',
   encapsulation: ViewEncapsulation.None
 })
-export class CouponsComponent {
+export class CouponsComponent implements OnDestroy {
   coupons: any[] = [];
   couponForm!: FormGroup;
   editingCoupon: any = null;
@@ -18,7 +19,10 @@ export class CouponsComponent {
   filterYear: number = new Date().getFullYear();
 
   categories: any[] = [];
-  products: any[] = [];
+  allProducts: any[] = [];
+  filteredProducts: any[] = [];
+
+  private catSub!: Subscription;
 
   couponTypeOptions = [
     { label: 'Flat %', value: 'PERCENTAGE' },
@@ -53,15 +57,44 @@ export class CouponsComponent {
       applicableCategoryIds: [[]],
       applicableProductIds:  [[]]
     });
+
     const currentYear = new Date().getFullYear();
     for (let y = currentYear - 2; y <= currentYear + 5; y++) this.years.push(y);
+
     this.getCoupons();
+
     this.adminService.getAllCategories().subscribe((res: any[]) => {
       this.categories = res.map((c: any) => ({ label: c.name, value: c.id }));
     });
+
     this.adminService.getAllProducts().subscribe((res: any[]) => {
-      this.products = res.map((p: any) => ({ label: p.name, value: p.id }));
+      this.allProducts = res.map((p: any) => ({ label: p.name, value: p.id, categoryId: p.categoryId }));
+      this.filteredProducts = [...this.allProducts];
     });
+
+    // Filter products whenever selected categories change
+    this.catSub = this.couponForm.get('applicableCategoryIds')!.valueChanges.subscribe((selectedCatIds: number[]) => {
+      this.updateFilteredProducts(selectedCatIds);
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.catSub?.unsubscribe();
+  }
+
+  private updateFilteredProducts(selectedCatIds: number[]): void {
+    if (!selectedCatIds || selectedCatIds.length === 0) {
+      this.filteredProducts = [...this.allProducts];
+      return;
+    }
+    this.filteredProducts = this.allProducts.filter(p => selectedCatIds.includes(p.categoryId));
+
+    // Remove any selected products no longer in the filtered list
+    const currentProdIds: number[] = this.couponForm.get('applicableProductIds')!.value || [];
+    const validProdIds = currentProdIds.filter(id => this.filteredProducts.some(p => p.value === id));
+    if (validProdIds.length !== currentProdIds.length) {
+      this.couponForm.get('applicableProductIds')!.setValue(validProdIds, { emitEvent: false });
+    }
   }
 
   get isCapped(): boolean {
@@ -100,6 +133,7 @@ export class CouponsComponent {
         if (res.id != null) {
           this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Coupon added successfully', life: 4000 });
           this.couponForm.reset({ couponType: 'PERCENTAGE', applicableCategoryIds: [], applicableProductIds: [] });
+          this.filteredProducts = [...this.allProducts];
           this.getCoupons();
         } else {
           this.messageService.add({ severity: 'error', summary: 'Error', detail: res.message, life: 4000 });
@@ -112,6 +146,8 @@ export class CouponsComponent {
 
   editCoupon(coupon: any) {
     this.editingCoupon = coupon;
+    const catIds = coupon.applicableCategoryIds || [];
+    this.updateFilteredProducts(catIds);
     this.couponForm.patchValue({
       name: coupon.name,
       code: coupon.code,
@@ -120,7 +156,7 @@ export class CouponsComponent {
       couponType: coupon.couponType || 'PERCENTAGE',
       maxDiscount: coupon.maxDiscount || null,
       minOrderAmount: coupon.minOrderAmount || null,
-      applicableCategoryIds: coupon.applicableCategoryIds || [],
+      applicableCategoryIds: catIds,
       applicableProductIds: coupon.applicableProductIds || []
     });
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -129,6 +165,7 @@ export class CouponsComponent {
   cancelEdit() {
     this.editingCoupon = null;
     this.couponForm.reset({ couponType: 'PERCENTAGE', applicableCategoryIds: [], applicableProductIds: [] });
+    this.filteredProducts = [...this.allProducts];
   }
 
   updateCoupon() {
@@ -138,6 +175,7 @@ export class CouponsComponent {
           this.messageService.add({ severity: 'success', summary: 'Updated', detail: 'Coupon updated successfully', life: 4000 });
           this.editingCoupon = null;
           this.couponForm.reset({ couponType: 'PERCENTAGE', applicableCategoryIds: [], applicableProductIds: [] });
+          this.filteredProducts = [...this.allProducts];
           this.getCoupons();
         },
         error: () => this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to update coupon', life: 4000 })

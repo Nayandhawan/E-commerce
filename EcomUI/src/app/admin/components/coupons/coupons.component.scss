@@ -244,33 +244,33 @@
 .coupon-type-btn {
   &.p-selectbutton {
     display: flex;
-    border: 1.5px solid var(--border);
-    border-radius: 8px;
-    overflow: hidden;
-    gap: 0;
+    gap: 8px;
 
     .p-button {
       flex: 1;
-      padding: .45rem .75rem;
+      padding: .5rem .75rem;
       font-size: 13px;
       font-weight: 600;
       font-family: var(--font-ui);
-      border: none;
-      border-radius: 0;
+      border: 1.5px solid var(--border) !important;
+      border-radius: 8px !important;
       background: var(--bg-elevated);
       color: var(--text-muted);
-      transition: background .15s, color .15s;
+      transition: background .15s, color .15s, border-color .15s;
       justify-content: center;
 
-      &:not(:last-child) { border-right: 1px solid var(--border); }
-
       &.p-highlight {
-        background: var(--primary);
-        color: #0F1111;
+        background: var(--primary) !important;
+        border-color: var(--primary) !important;
+        color: #0F1111 !important;
         font-weight: 700;
       }
 
-      &:not(.p-highlight):hover { background: var(--bg-card); color: var(--text); }
+      &:not(.p-highlight):hover {
+        background: var(--bg-card) !important;
+        border-color: var(--primary) !important;
+        color: var(--text) !important;
+      }
 
       .p-button-label { font-size: 13px; font-weight: inherit; }
     }

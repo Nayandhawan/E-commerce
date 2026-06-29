@@ -102,15 +102,18 @@
                 <p-multiSelect [options]="categories" formControlName="applicableCategoryIds"
                                optionLabel="label" optionValue="value"
                                placeholder="All categories" [showClear]="true"
+                               [maxSelectedLabels]="1" selectedItemsLabel="{0} categories selected"
                                appendTo="body" styleClass="w-full">
                 </p-multiSelect>
               </div>
               <div class="form-group">
-                <label>Specific Products</label>
-                <p-multiSelect [options]="products" formControlName="applicableProductIds"
+                <label>Products <span *ngIf="filteredProducts.length < allProducts.length" style="color:var(--primary);font-size:11px">(filtered by category)</span></label>
+                <p-multiSelect [options]="filteredProducts" formControlName="applicableProductIds"
                                optionLabel="label" optionValue="value"
                                placeholder="All products" [showClear]="true"
-                               appendTo="body" [filter]="true" styleClass="w-full">
+                               [filter]="true" [maxSelectedLabels]="1" selectedItemsLabel="{0} products selected"
+                               appendTo="body" styleClass="w-full"
+                               [emptyMessage]="'Select a category first'">
                 </p-multiSelect>
               </div>
             </div>
