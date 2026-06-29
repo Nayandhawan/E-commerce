@@ -113,4 +113,13 @@ export class CartComponent implements OnInit {
   isProductDiscounted(productId: any, order: any): boolean {
     return order?.discountedProductIds?.includes(productId) ?? false;
   }
+
+  getDiscountedItemTotal(item: any, order: any): number {
+    const itemTotal = item.price * item.quantity;
+    if (!order?.discount || !order?.eligibleSubtotal || !this.isProductDiscounted(item.productId, order)) {
+      return itemTotal;
+    }
+    const proportion = itemTotal / order.eligibleSubtotal;
+    return Math.round(itemTotal - proportion * order.discount);
+  }
 }
