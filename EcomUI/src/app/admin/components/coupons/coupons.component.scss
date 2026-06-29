@@ -225,6 +225,22 @@
 .ct-edit-btn:hover   { background: var(--primary); color: #0F1111; border-color: var(--primary); }
 .ct-delete-btn:hover { background: var(--danger);  color: #fff;    border-color: var(--danger);  }
 
+// ── Targeting section ─────────────────────────────────────────────────────────
+.targeting-section {
+  border: 1px dashed var(--border);
+  border-radius: var(--radius);
+  padding: .75rem;
+  background: var(--bg-elevated);
+}
+.targeting-label {
+  display: flex; align-items: center; gap: .4rem;
+  font-size: 11px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .05em; color: var(--text-muted); margin: 0 0 .6rem;
+}
+.field-hint { font-size: 11px; color: var(--text-muted); margin: 4px 0 0; }
+.ct-scope { font-size: 12px; color: var(--text-muted); }
+.coupon-type-btn.p-selectbutton .p-button { padding: .35rem .75rem; font-size: 13px; }
+
 // ── Empty state ───────────────────────────────────────────────────────────────
 .empty-state {
   text-align: center;

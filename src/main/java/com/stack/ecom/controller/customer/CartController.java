@@ -3,12 +3,16 @@ package com.stack.ecom.controller.customer;
 import com.stack.ecom.dto.AddProductInCartDto;
 import com.stack.ecom.dto.OrderDto;
 import com.stack.ecom.dto.PlaceOrderDto;
+import com.stack.ecom.entity.Category;
+import com.stack.ecom.entity.Coupon;
+import com.stack.ecom.entity.Product;
 import com.stack.ecom.exceptions.ValidationException;
 import com.stack.ecom.repository.CouponRepository;
 import com.stack.ecom.services.customer.cart.CartService;
 import com.stack.ecom.utils.SecurityUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
@@ -29,13 +33,27 @@ public class CartController {
         this.securityUtils = securityUtils;
     }
 
+    @Transactional(readOnly = true)
     @GetMapping("/coupons")
     public ResponseEntity<?> getAvailableCoupons() {
         Date now = new Date();
         return ResponseEntity.ok(couponRepository.findAll().stream()
             .filter(c -> c.getExpirationDate() == null || c.getExpirationDate().after(now))
-            .map(c -> Map.of("name", c.getName(), "code", c.getCode(), "discount", c.getDiscount()))
-            .toList());
+            .map(c -> {
+                java.util.Map<String, Object> m = new java.util.HashMap<>();
+                m.put("name", c.getName());
+                m.put("code", c.getCode());
+                m.put("discount", c.getDiscount());
+                m.put("couponType", c.getCouponType() != null ? c.getCouponType().name() : "PERCENTAGE");
+                m.put("maxDiscount", c.getMaxDiscount());
+                m.put("minOrderAmount", c.getMinOrderAmount());
+                m.put("applicableCategoryIds", c.getApplicableCategories().stream()
+                    .map(Category::getId).collect(java.util.stream.Collectors.toList()));
+                m.put("applicableProductIds", c.getApplicableProducts().stream()
+                    .map(Product::getId).collect(java.util.stream.Collectors.toList()));
+                return m;
+            })
+            .collect(java.util.stream.Collectors.toList()));
     }
 
     @PostMapping("/cart")

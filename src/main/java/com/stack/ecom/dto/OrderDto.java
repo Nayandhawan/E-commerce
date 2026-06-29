@@ -44,6 +44,10 @@ public class OrderDto {
 
     private String couponName;
 
+    private List<Long> discountedProductIds = new java.util.ArrayList<>();
+
+    private Long eligibleSubtotal;
+
     public OrderStatus getOrderStatus() {
         return orderStatus;
     }
@@ -166,4 +170,9 @@ public class OrderDto {
     public void setCouponName(String couponName) {
         this.couponName = couponName;
     }
+
+    public List<Long> getDiscountedProductIds() { return discountedProductIds; }
+    public void setDiscountedProductIds(List<Long> discountedProductIds) { this.discountedProductIds = discountedProductIds; }
+    public Long getEligibleSubtotal() { return eligibleSubtotal; }
+    public void setEligibleSubtotal(Long eligibleSubtotal) { this.eligibleSubtotal = eligibleSubtotal; }
 }

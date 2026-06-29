@@ -1,6 +1,6 @@
 package com.stack.ecom.controller.admin;
 
-import com.stack.ecom.entity.Coupon;
+import com.stack.ecom.dto.CouponDto;
 import com.stack.ecom.exceptions.ValidationException;
 import com.stack.ecom.services.admin.coupon.AdminCouponService;
 import org.springframework.http.HttpStatus;
@@ -20,16 +20,16 @@ public class AdminCouponController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createCoupon(@RequestBody Coupon coupon){
+    public ResponseEntity<?> createCoupon(@RequestBody CouponDto couponDto){
         try {
-            return ResponseEntity.ok(adminCouponService.createCoupon(coupon));
+            return ResponseEntity.ok(adminCouponService.createCoupon(couponDto));
         } catch (ValidationException ex){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
         }
     }
 
     @GetMapping
-    public ResponseEntity<List<Coupon>> getAllCoupons(
+    public ResponseEntity<List<CouponDto>> getAllCoupons(
             @RequestParam(required = false) Integer month,
             @RequestParam(required = false) Integer year){
         if (month != null && year != null) {
@@ -39,9 +39,9 @@ public class AdminCouponController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateCoupon(@PathVariable Long id, @RequestBody Coupon coupon){
+    public ResponseEntity<?> updateCoupon(@PathVariable Long id, @RequestBody CouponDto couponDto){
         try {
-            return ResponseEntity.ok(adminCouponService.updateCoupon(id, coupon));
+            return ResponseEntity.ok(adminCouponService.updateCoupon(id, couponDto));
         } catch (ValidationException ex){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
         }

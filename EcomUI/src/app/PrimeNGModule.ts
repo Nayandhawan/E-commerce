@@ -29,6 +29,7 @@ import { MessagesModule } from 'primeng/messages';
 import { SplitButtonModule } from 'primeng/splitbutton';
 import { OverlayPanelModule } from 'primeng/overlaypanel';
 import { ChartModule } from 'primeng/chart';
+import { MultiSelectModule } from 'primeng/multiselect';
 
 import {
   LucideAngularModule,
@@ -104,6 +105,7 @@ const PRIME_MODULES = [
   SplitButtonModule,
   OverlayPanelModule,
   ChartModule,
+  MultiSelectModule,
 ];
 
 @NgModule({

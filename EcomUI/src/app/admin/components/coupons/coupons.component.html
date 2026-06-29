@@ -54,6 +54,32 @@
             </div>
           </div>
 
+          <!-- Coupon Type -->
+          <div class="form-group">
+            <label>Coupon Type</label>
+            <p-selectButton [options]="couponTypeOptions" formControlName="couponType"
+                            optionLabel="label" optionValue="value" styleClass="coupon-type-btn">
+            </p-selectButton>
+            <p class="field-hint" *ngIf="!isCapped">Applies full % on eligible items' subtotal.</p>
+            <p class="field-hint" *ngIf="isCapped">Applies % but caps the discount at a maximum amount.</p>
+          </div>
+
+          <div class="form-row-2" *ngIf="isCapped">
+            <div class="form-group">
+              <label>Max Discount (₹) <span style="color:var(--danger)">*</span></label>
+              <input pInputText type="number" formControlName="maxDiscount" placeholder="e.g. 200" min="1" />
+            </div>
+            <div class="form-group">
+              <label>Min Order Amount (₹)</label>
+              <input pInputText type="number" formControlName="minOrderAmount" placeholder="Optional" min="0" />
+            </div>
+          </div>
+
+          <div class="form-group" *ngIf="!isCapped">
+            <label>Min Order Amount (₹)</label>
+            <input pInputText type="number" formControlName="minOrderAmount" placeholder="Optional — leave blank for no minimum" min="0" />
+          </div>
+
           <div class="form-group">
             <label>Expiration Date <span style="color:var(--danger)">*</span></label>
             <p-calendar formControlName="expirationDate" dateFormat="dd/mm/yy" [showIcon]="true"
@@ -64,8 +90,33 @@
             </p>
           </div>
 
-          <div style="border-top:1px solid var(--border);padding-top:.75rem;display:flex;gap:.75rem">
+          <!-- Targeting -->
+          <div class="targeting-section">
+            <p class="targeting-label">
+              <lucide-angular name="layers" [size]="13" strokeWidth="2"></lucide-angular>
+              Applicable To (leave both empty = all products)
+            </p>
+            <div class="form-row-2">
+              <div class="form-group">
+                <label>Categories</label>
+                <p-multiSelect [options]="categories" formControlName="applicableCategoryIds"
+                               optionLabel="label" optionValue="value"
+                               placeholder="All categories" [showClear]="true"
+                               appendTo="body" styleClass="w-full">
+                </p-multiSelect>
+              </div>
+              <div class="form-group">
+                <label>Specific Products</label>
+                <p-multiSelect [options]="products" formControlName="applicableProductIds"
+                               optionLabel="label" optionValue="value"
+                               placeholder="All products" [showClear]="true"
+                               appendTo="body" [filter]="true" styleClass="w-full">
+                </p-multiSelect>
+              </div>
+            </div>
+          </div>
 
+          <div style="border-top:1px solid var(--border);padding-top:.75rem;display:flex;gap:.75rem">
             <button type="submit"
                     class="flex-1 h-11 flex items-center justify-center gap-2 rounded-lg font-bold text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     style="background:var(--primary);color:#0F1111"
@@ -75,14 +126,12 @@
               <lucide-angular [name]="editingCoupon ? 'save' : 'plus'" [size]="16" strokeWidth="2.5"></lucide-angular>
               {{ editingCoupon ? 'Update Coupon' : 'Add Coupon' }}
             </button>
-
             <button type="button" (click)="cancelEdit()"
                     class="h-11 px-4 flex items-center gap-2 rounded-lg font-bold text-sm border transition-colors"
                     style="border-color:var(--border);color:var(--text-muted);background:transparent">
               <lucide-angular [name]="editingCoupon ? 'x' : 'refresh-cw'" [size]="16" strokeWidth="2.5"></lucide-angular>
               {{ editingCoupon ? 'Cancel' : 'Reset' }}
             </button>
-
           </div>
 
         </form>
@@ -104,7 +153,6 @@
 
       <div class="coupon-panel-body">
 
-        <!-- Filter bar -->
         <div class="coupon-filter-bar">
           <div class="coupon-filter-fields">
             <div class="form-group" style="margin:0">
@@ -123,8 +171,7 @@
             </div>
           </div>
           <div class="coupon-filter-actions">
-            <button class="cf-btn cf-btn-primary" (click)="filterCoupons()"
-                    [disabled]="!filterMonth || !filterYear">
+            <button class="cf-btn cf-btn-primary" (click)="filterCoupons()" [disabled]="!filterMonth || !filterYear">
               <lucide-angular name="search" [size]="14" strokeWidth="2"></lucide-angular> Search
             </button>
             <button class="cf-btn cf-btn-ghost" (click)="clearFilter()">
@@ -133,30 +180,25 @@
           </div>
         </div>
 
-        <!-- Table -->
         <div *ngIf="coupons && coupons.length > 0" class="coupon-table-wrap">
           <table class="coupon-table">
             <thead>
               <tr>
-                <th>#</th>
-                <th>Name</th>
-                <th>Code</th>
-                <th>Discount</th>
-                <th>Expires</th>
-                <th>Status</th>
-                <th>Action</th>
+                <th>#</th><th>Name</th><th>Code</th><th>Discount</th><th>Scope</th><th>Expires</th><th>Status</th><th>Action</th>
               </tr>
             </thead>
             <tbody>
               <tr *ngFor="let c of coupons; let i = index" [class.ct-expired-row]="isExpired(c.expirationDate)">
                 <td class="ct-index">{{ i + 1 }}</td>
                 <td class="ct-name">{{ c.name }}</td>
+                <td><span class="ct-code">{{ c.code }}</span></td>
                 <td>
-                  <span class="ct-code">{{ c.code }}</span>
+                  <span class="ct-discount" [style.color]="discountColor(c.discount)">
+                    {{ c.couponType === 'CAPPED_PERCENTAGE' ? 'Upto ' : '' }}{{ c.discount }}% OFF
+                    <span *ngIf="c.maxDiscount" style="font-size:11px;opacity:.7"> (max ₹{{ c.maxDiscount }})</span>
+                  </span>
                 </td>
-                <td>
-                  <span class="ct-discount" [style.color]="discountColor(c.discount)">{{ c.discount }}% OFF</span>
-                </td>
+                <td><span class="ct-scope">{{ couponScope(c) }}</span></td>
                 <td class="ct-date">{{ c.expirationDate | date:'dd MMM yyyy' }}</td>
                 <td>
                   <span class="ct-badge" [class.ct-badge-expired]="isExpired(c.expirationDate)"
@@ -179,7 +221,6 @@
           </table>
         </div>
 
-        <!-- Empty state -->
         <div class="empty-state" *ngIf="!coupons || coupons.length === 0">
           <lucide-angular name="ticket" [size]="44" strokeWidth="1" style="color:var(--text-dim)"></lucide-angular>
           <h3>No coupons found</h3>
@@ -190,5 +231,4 @@
     </div>
 
   </div>
-
 </div>

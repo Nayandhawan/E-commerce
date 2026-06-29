@@ -16,7 +16,10 @@
         <div class="cart-item" *ngFor="let item of vm.items">
           <img [src]="item.processedImg" [alt]="item.productName" class="item-img" />
           <div class="item-info">
-            <p class="item-name">{{ item.productName }}</p>
+            <p class="item-name">
+              {{ item.productName }}
+              <span class="discount-badge" *ngIf="isProductDiscounted(item.productId, vm.order)">Coupon applied</span>
+            </p>
             <div class="qty-row">
               <button type="button" class="qty-btn" [disabled]="item.quantity == 1"
                       (click)="decreaseProductQuantity(item.productId)">
@@ -63,11 +66,19 @@
           <div class="avail-coupons" *ngIf="availableCoupons.length > 0">
             <p class="avail-label">Available coupons:</p>
             <div class="avail-chips">
-              <button class="avail-chip" *ngFor="let c of availableCoupons"
-                      (click)="couponForm.patchValue({code: c.code}); applyCoupon()"
-                      type="button" title="Click to apply">
-                <strong>{{ c.code }}</strong> — {{ c.discount }}% off
-              </button>
+              <ng-container *ngFor="let c of availableCoupons">
+                <ng-container *ngIf="{ ok: isCouponApplicable(c, (cartItems$ | async) || []) } as state">
+                  <button class="avail-chip"
+                          [class.avail-chip--ok]="state.ok"
+                          [class.avail-chip--no]="!state.ok"
+                          (click)="state.ok && couponForm.patchValue({code: c.code}); state.ok && applyCoupon()"
+                          type="button"
+                          [title]="state.ok ? 'Click to apply' : 'No eligible products in cart'">
+                    <strong>{{ c.code }}</strong> — {{ couponLabel(c) }}
+                    <span *ngIf="!state.ok" class="chip-hint">Not applicable</span>
+                  </button>
+                </ng-container>
+              </ng-container>
             </div>
           </div>
         </div>
