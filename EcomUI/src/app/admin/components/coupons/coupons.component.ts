@@ -14,8 +14,8 @@ export class CouponsComponent {
   couponForm!: FormGroup;
   editingCoupon: any = null;
 
-  filterMonth: number | null = null;
-  filterYear: number | null = null;
+  filterMonth: number = new Date().getMonth() + 1;
+  filterYear: number = new Date().getFullYear();
 
   categories: any[] = [];
   products: any[] = [];
@@ -69,8 +69,7 @@ export class CouponsComponent {
   }
 
   getCoupons() {
-    const now = new Date();
-    this.adminService.getCouponsByMonthYear(now.getMonth() + 1, now.getFullYear()).subscribe(res => {
+    this.adminService.getCouponsByMonthYear(this.filterMonth, this.filterYear).subscribe(res => {
       const all: any[] = Array.isArray(res) ? res : (res ? [res] : []);
       this.coupons = all.filter(c => !this.isExpired(c.expirationDate));
     });
@@ -160,16 +159,14 @@ export class CouponsComponent {
   }
 
   filterCoupons() {
-    if (this.filterMonth && this.filterYear) {
-      this.adminService.getCouponsByMonthYear(this.filterMonth, this.filterYear).subscribe(res => {
-        this.coupons = Array.isArray(res) ? res : (res ? [res] : []);
-      });
-    }
+    this.adminService.getCouponsByMonthYear(this.filterMonth, this.filterYear).subscribe(res => {
+      this.coupons = Array.isArray(res) ? res : (res ? [res] : []);
+    });
   }
 
   clearFilter() {
-    this.filterMonth = null;
-    this.filterYear = null;
+    this.filterMonth = new Date().getMonth() + 1;
+    this.filterYear = new Date().getFullYear();
     this.getCoupons();
   }
 
