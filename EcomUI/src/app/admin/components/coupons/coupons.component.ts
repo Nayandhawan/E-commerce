@@ -11,12 +11,19 @@ import { AdminService } from '../../service/admin.service';
 })
 export class CouponsComponent {
   coupons: any[] = [];
-  couponForm: FormGroup;
+  couponForm!: FormGroup;
   editingCoupon: any = null;
 
-  // Filter
   filterMonth: number | null = null;
   filterYear: number | null = null;
+
+  categories: any[] = [];
+  products: any[] = [];
+
+  couponTypeOptions = [
+    { label: 'Flat %', value: 'PERCENTAGE' },
+    { label: 'Upto % (capped)', value: 'CAPPED_PERCENTAGE' }
+  ];
 
   months = [
     { label: 'January', value: 1 }, { label: 'February', value: 2 },
@@ -26,7 +33,6 @@ export class CouponsComponent {
     { label: 'September', value: 9 },{ label: 'October', value: 10 },
     { label: 'November', value: 11 },{ label: 'December', value: 12 },
   ];
-
   years: number[] = [];
 
   constructor(
@@ -37,14 +43,29 @@ export class CouponsComponent {
 
   ngOnInit(): void {
     this.couponForm = this.fb.group({
-      name:           [null, [Validators.required]],
-      code:           [null, [Validators.required]],
-      discount:       [null, [Validators.required, Validators.min(1), Validators.max(100)]],
-      expirationDate: [null, [Validators.required]]
+      name:                  [null, [Validators.required]],
+      code:                  [null, [Validators.required]],
+      discount:              [null, [Validators.required, Validators.min(1), Validators.max(100)]],
+      expirationDate:        [null, [Validators.required]],
+      couponType:            ['PERCENTAGE'],
+      maxDiscount:           [null],
+      minOrderAmount:        [null],
+      applicableCategoryIds: [[]],
+      applicableProductIds:  [[]]
     });
     const currentYear = new Date().getFullYear();
     for (let y = currentYear - 2; y <= currentYear + 5; y++) this.years.push(y);
     this.getCoupons();
+    this.adminService.getAllCategories().subscribe((res: any[]) => {
+      this.categories = res.map((c: any) => ({ label: c.name, value: c.id }));
+    });
+    this.adminService.getAllProducts().subscribe((res: any[]) => {
+      this.products = res.map((p: any) => ({ label: p.name, value: p.id }));
+    });
+  }
+
+  get isCapped(): boolean {
+    return this.couponForm.get('couponType')?.value === 'CAPPED_PERCENTAGE';
   }
 
   getCoupons() {
@@ -56,20 +77,30 @@ export class CouponsComponent {
   }
 
   submitForm() {
-    if (this.editingCoupon) {
-      this.updateCoupon();
-    } else {
-      this.addCoupon();
-    }
+    if (this.editingCoupon) { this.updateCoupon(); } else { this.addCoupon(); }
+  }
+
+  private buildPayload(): any {
+    const v = this.couponForm.value;
+    return {
+      name: v.name,
+      code: v.code,
+      discount: Number(v.discount),
+      expirationDate: v.expirationDate,
+      couponType: v.couponType || 'PERCENTAGE',
+      maxDiscount: v.couponType === 'CAPPED_PERCENTAGE' && v.maxDiscount ? Number(v.maxDiscount) : null,
+      minOrderAmount: v.minOrderAmount ? Number(v.minOrderAmount) : null,
+      applicableCategoryIds: v.applicableCategoryIds || [],
+      applicableProductIds: v.applicableProductIds || []
+    };
   }
 
   addCoupon() {
     if (this.couponForm.valid) {
-      const payload = { ...this.couponForm.value, discount: Number(this.couponForm.value.discount) };
-      this.adminService.addCoupon(payload).subscribe(res => {
+      this.adminService.addCoupon(this.buildPayload()).subscribe(res => {
         if (res.id != null) {
           this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Coupon added successfully', life: 4000 });
-          this.couponForm.reset();
+          this.couponForm.reset({ couponType: 'PERCENTAGE', applicableCategoryIds: [], applicableProductIds: [] });
           this.getCoupons();
         } else {
           this.messageService.add({ severity: 'error', summary: 'Error', detail: res.message, life: 4000 });
@@ -83,27 +114,31 @@ export class CouponsComponent {
   editCoupon(coupon: any) {
     this.editingCoupon = coupon;
     this.couponForm.patchValue({
-      name:           coupon.name,
-      code:           coupon.code,
-      discount:       coupon.discount,
-      expirationDate: new Date(coupon.expirationDate)
+      name: coupon.name,
+      code: coupon.code,
+      discount: coupon.discount,
+      expirationDate: new Date(coupon.expirationDate),
+      couponType: coupon.couponType || 'PERCENTAGE',
+      maxDiscount: coupon.maxDiscount || null,
+      minOrderAmount: coupon.minOrderAmount || null,
+      applicableCategoryIds: coupon.applicableCategoryIds || [],
+      applicableProductIds: coupon.applicableProductIds || []
     });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   cancelEdit() {
     this.editingCoupon = null;
-    this.couponForm.reset();
+    this.couponForm.reset({ couponType: 'PERCENTAGE', applicableCategoryIds: [], applicableProductIds: [] });
   }
 
   updateCoupon() {
     if (this.couponForm.valid) {
-      const payload = { ...this.couponForm.value, discount: Number(this.couponForm.value.discount) };
-      this.adminService.updateCoupon(this.editingCoupon.id, payload).subscribe({
+      this.adminService.updateCoupon(this.editingCoupon.id, this.buildPayload()).subscribe({
         next: () => {
           this.messageService.add({ severity: 'success', summary: 'Updated', detail: 'Coupon updated successfully', life: 4000 });
           this.editingCoupon = null;
-          this.couponForm.reset();
+          this.couponForm.reset({ couponType: 'PERCENTAGE', applicableCategoryIds: [], applicableProductIds: [] });
           this.getCoupons();
         },
         error: () => this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to update coupon', life: 4000 })
@@ -136,6 +171,16 @@ export class CouponsComponent {
     this.filterMonth = null;
     this.filterYear = null;
     this.getCoupons();
+  }
+
+  couponScope(coupon: any): string {
+    const cats = coupon.applicableCategoryIds?.length || 0;
+    const prods = coupon.applicableProductIds?.length || 0;
+    if (!cats && !prods) return 'All products';
+    const parts: string[] = [];
+    if (cats) parts.push(`${cats} categor${cats > 1 ? 'ies' : 'y'}`);
+    if (prods) parts.push(`${prods} product${prods > 1 ? 's' : ''}`);
+    return parts.join(' + ');
   }
 
   discountColor(discount: number): string {

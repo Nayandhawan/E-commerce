@@ -99,6 +99,9 @@ public class CartItems {
         } else {
             cartItemsDto.setReturnedImg(getProduct().getImg());
         }
+        if (getProduct().getCategory() != null) {
+            cartItemsDto.setCategoryId(getProduct().getCategory().getId());
+        }
 
         return cartItemsDto;
     }

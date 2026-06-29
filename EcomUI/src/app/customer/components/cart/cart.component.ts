@@ -69,4 +69,25 @@ export class CartComponent implements OnInit {
     this.dialogAmount = order?.amount ?? 0;
     this.showOrderDialog = true;
   }
+
+  isCouponApplicable(coupon: any, cartItems: any[]): boolean {
+    const noCats = !coupon.applicableCategoryIds?.length;
+    const noProds = !coupon.applicableProductIds?.length;
+    if (noCats && noProds) return true;
+    return cartItems.some(item => {
+      const inCat = !noCats && coupon.applicableCategoryIds.includes(item.categoryId);
+      const inProd = !noProds && coupon.applicableProductIds.includes(item.productId);
+      return inCat || inProd;
+    });
+  }
+
+  couponLabel(coupon: any): string {
+    const prefix = coupon.couponType === 'CAPPED_PERCENTAGE' ? 'Upto ' : '';
+    const cap = coupon.maxDiscount ? `, max ₹${coupon.maxDiscount}` : '';
+    return `${prefix}${coupon.discount}% off${cap}`;
+  }
+
+  isProductDiscounted(productId: any, order: any): boolean {
+    return order?.discountedProductIds?.includes(productId) ?? false;
+  }
 }

@@ -19,7 +19,7 @@ public interface OrderRepository extends JpaRepository<Order,Long> {
     Order findFirstByUserIdAndOrderStatus(Long userId, OrderStatus orderStatus);
 
     // Loads order + cart items + their products + user + coupon in minimal queries
-    @EntityGraph(attributePaths = {"cartItems", "cartItems.product", "cartItems.user", "coupon"})
+    @EntityGraph(attributePaths = {"cartItems", "cartItems.product", "cartItems.product.category", "cartItems.user", "coupon"})
     @Query("SELECT o FROM Order o WHERE o.user.id = :userId AND o.orderStatus = :status ORDER BY o.id DESC")
     List<Order> findByUserIdAndOrderStatusWithItems(@Param("userId") Long userId, @Param("status") OrderStatus status);
 
