@@ -96,11 +96,12 @@ export class CartComponent implements OnInit {
     const noCats = !coupon.applicableCategoryIds?.length;
     const noProds = !coupon.applicableProductIds?.length;
     if (noCats && noProds) return true;
-    return cartItems.some(item => {
-      const inCat = !noCats && coupon.applicableCategoryIds.includes(item.categoryId);
-      const inProd = !noProds && coupon.applicableProductIds.includes(item.productId);
-      return inCat || inProd;
-    });
+    // Product-level targeting takes full precedence
+    if (!noProds) {
+      return cartItems.some(item => coupon.applicableProductIds.includes(item.productId));
+    }
+    // Category-only targeting
+    return cartItems.some(item => coupon.applicableCategoryIds.includes(item.categoryId));
   }
 
   couponLabel(coupon: any): string {

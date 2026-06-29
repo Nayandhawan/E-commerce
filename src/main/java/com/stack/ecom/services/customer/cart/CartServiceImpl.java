@@ -333,15 +333,18 @@ public class CartServiceImpl implements CartService {
         if (noTargeting) return true;
 
         Long productId = item.getProduct().getId();
-        Long categoryId = item.getProduct().getCategory() != null ? item.getProduct().getCategory().getId() : null;
 
-        boolean inCategory = coupon.getApplicableCategories() != null && !coupon.getApplicableCategories().isEmpty()
+        // Product-level targeting takes full precedence over category targeting
+        boolean hasProductTargeting = coupon.getApplicableProducts() != null && !coupon.getApplicableProducts().isEmpty();
+        if (hasProductTargeting) {
+            return coupon.getApplicableProducts().stream().anyMatch(p -> p.getId().equals(productId));
+        }
+
+        // Category-only targeting
+        Long categoryId = item.getProduct().getCategory() != null ? item.getProduct().getCategory().getId() : null;
+        return coupon.getApplicableCategories() != null && !coupon.getApplicableCategories().isEmpty()
                 && categoryId != null
                 && coupon.getApplicableCategories().stream().anyMatch(c -> c.getId().equals(categoryId));
-        boolean inProducts = coupon.getApplicableProducts() != null && !coupon.getApplicableProducts().isEmpty()
-                && coupon.getApplicableProducts().stream().anyMatch(p -> p.getId().equals(productId));
-
-        return inCategory || inProducts;
     }
 
     private void recalculateDiscount(Order activeOrder) {
