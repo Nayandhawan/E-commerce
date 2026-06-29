@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
+import { take } from 'rxjs/operators';
+import { MessageService } from 'primeng/api';
 import { CustomerService } from '../../services/customer.service';
 import { loadCart, increaseQuantity, decreaseQuantity, applyCoupon, removeCoupon, removeFromCart } from '../../../store/cart/cart.actions';
 import { selectCartItems, selectCartOrder, selectCartLoading } from '../../../store/cart/cart.selectors';
@@ -22,7 +24,7 @@ export class CartComponent implements OnInit {
   dialogAmount = 0;
   deliveryEstimate = '';
 
-  constructor(private store: Store, private fb: FormBuilder, private customerService: CustomerService) {
+  constructor(private store: Store, private fb: FormBuilder, private customerService: CustomerService, private messageService: MessageService) {
     this.cartItems$ = this.store.select(selectCartItems);
     this.order$ = this.store.select(selectCartOrder);
     this.loading$ = this.store.select(selectCartLoading);
@@ -49,8 +51,20 @@ export class CartComponent implements OnInit {
   }
 
   applyCoupon() {
-    const code = this.couponForm.get(['code'])!.value;
-    this.store.dispatch(applyCoupon({ code }));
+    const code = (this.couponForm.get('code')!.value || '').trim();
+    if (!code) return;
+    const matched = this.availableCoupons.find(c => c.code.toUpperCase() === code.toUpperCase());
+    if (matched) {
+      this.cartItems$.pipe(take(1)).subscribe(items => {
+        if (!this.isCouponApplicable(matched, items || [])) {
+          this.messageService.add({ severity: 'error', summary: 'Coupon not applicable', detail: 'This coupon is not valid for the products in your cart', life: 4000 });
+          return;
+        }
+        this.store.dispatch(applyCoupon({ code }));
+      });
+    } else {
+      this.store.dispatch(applyCoupon({ code }));
+    }
   }
 
   fillCouponCode(code: string) {

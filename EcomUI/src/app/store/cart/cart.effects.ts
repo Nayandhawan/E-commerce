@@ -24,7 +24,7 @@ export class CartEffects {
       switchMap(() =>
         this.customerService.getCartByUserId().pipe(
           map(res => {
-            const cartItems = (res.cartItems ?? []).map((item: any) => ({
+            const cartItems = (res?.cartItems ?? []).map((item: any) => ({
               ...item,
               processedImg: item.imgUrl || (item.returnedImg ? 'data:image/jpeg;base64,' + item.returnedImg : null)
             }));
