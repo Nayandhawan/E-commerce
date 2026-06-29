@@ -114,6 +114,7 @@ export class CouponsComponent implements OnDestroy {
 
   private buildPayload(): any {
     const v = this.couponForm.value;
+    const prodIds: number[] = v.applicableProductIds || [];
     return {
       name: v.name,
       code: v.code,
@@ -122,8 +123,8 @@ export class CouponsComponent implements OnDestroy {
       couponType: v.couponType || 'PERCENTAGE',
       maxDiscount: v.couponType === 'CAPPED_PERCENTAGE' && v.maxDiscount ? Number(v.maxDiscount) : null,
       minOrderAmount: v.minOrderAmount ? Number(v.minOrderAmount) : null,
-      applicableCategoryIds: v.applicableCategoryIds || [],
-      applicableProductIds: v.applicableProductIds || []
+      applicableCategoryIds: prodIds.length > 0 ? [] : (v.applicableCategoryIds || []),
+      applicableProductIds: prodIds
     };
   }
 
