@@ -1,39 +1,37 @@
 # ShopKart — E-Commerce Platform
 
-A full-stack e-commerce platform built with **Spring Boot microservices** and **Angular 18**, inspired by Flipkart's UI. Supports product browsing, cart, wishlist, orders, coupons, and an admin dashboard.
+A full-stack e-commerce platform built with **Spring Boot 3.3** and **Angular 18 + PrimeNG**, inspired by Flipkart's UI. Supports product browsing, cart, wishlist, orders, targeted coupons, and an admin dashboard.
 
 ---
 
-## Architecture
+## Current Architecture
+
+The app is a **monolith** serving the Angular SPA as static files. The target is microservices with Kafka/Redis/Eureka — that work is tracked under the `website-enhancement` branch.
 
 ```
-                        ┌─────────────┐
-                        │  Angular 18 │  :4200
-                        │  (Frontend) │
-                        └──────┬──────┘
-                               │
-                        ┌──────▼──────┐
-                        │ API Gateway │  :8080  (JWT validation)
-                        └──────┬──────┘
-                               │
-              ┌────────────────┼────────────────┐
-              │                │                │
-      ┌───────▼──────┐ ┌───────▼──────┐ ┌──────▼───────┐
-      │ User Service │ │Product Service│ │Order Service │
-      │    :8081     │ │    :8082      │ │    :8083     │
-      └───────┬──────┘ └───────┬──────┘ └──────┬───────┘
-              │                │               │
-              └────────────────▼───────────────┘
-                               │
-                   ┌───────────┴───────────┐
-                   │        MySQL          │
-                   │  ecom_users           │
-                   │  ecom_products        │
-                   │  ecom_orders          │
-                   └───────────────────────┘
-
-       Service Registry: Eureka  :8761
-       Cache:            Redis
+  ┌──────────────────────────────────────┐
+  │         Browser (Angular 18)         │
+  │  NgRx Store │ PrimeNG │ Lucide Icons │
+  └────────────────────┬─────────────────┘
+                       │ HTTP/JWT
+  ┌────────────────────▼─────────────────┐
+  │       Spring Boot 3.3.2  :8080       │
+  │  Spring Security (JWT)               │
+  │  Spring Data JPA (Hibernate)         │
+  │                                      │
+  │  Controllers                         │
+  │   ├── /api/auth          (public)    │
+  │   ├── /api/customer/**   (CUSTOMER)  │
+  │   └── /api/admin/**      (ADMIN)     │
+  └────────────────────┬─────────────────┘
+                       │
+  ┌────────────────────▼─────────────────┐
+  │            MySQL 8.0                 │
+  │  users · products · orders           │
+  │  cart_items · coupons · category     │
+  │  coupon_categories · coupon_products │
+  │  wishlist · reviews · notifications  │
+  └──────────────────────────────────────┘
 ```
 
 ---
@@ -42,85 +40,124 @@ A full-stack e-commerce platform built with **Spring Boot microservices** and **
 
 | Layer | Technology |
 |---|---|
-| Frontend | Angular 18, Angular Material |
-| Backend | Spring Boot 3.3, Spring Security |
-| Auth | JWT (RS256 via API Gateway) |
-| Databases | MySQL 8.0 |
-| Cache | Redis 7 |
-| Service Registry | Netflix Eureka |
-| Containerization | Docker, Docker Compose |
+| Frontend | Angular 18, PrimeNG 17, Lucide Icons, NgRx |
+| Backend | Spring Boot 3.3.2, Spring Security, Spring Data JPA |
+| Auth | JWT (HMAC-SHA256, extracted server-side from `SecurityContext`) |
+| Database | MySQL 8.0 |
+| ORM | Hibernate 6 (`ddl-auto=update`) |
 
 ---
 
-## Services
+## Database Schema (key tables)
 
-| Service | Port | Responsibility |
-|---|---|---|
-| `api-gateway` | 8080 | Route requests, validate JWT |
-| `user-service` | 8081 | Auth, signup, login, user management |
-| `product-service` | 8082 | Products, categories, FAQs, reviews |
-| `order-service` | 8083 | Cart, orders, coupons, wishlist |
-| `eureka-server` | 8761 | Service discovery |
-| `frontend` | 4200 / 80 | Angular SPA |
+| Table | Purpose |
+|---|---|
+| `users` | Customers and admins |
+| `category` | Product categories |
+| `product` | Product catalog with image paths |
+| `orders` | Cart (PENDING) and placed orders |
+| `cart_items` | Line items linked to an order |
+| `coupons` | Discount coupons with type and targeting |
+| `coupon_categories` | Join: which categories a coupon targets |
+| `coupon_products` | Join: which specific products a coupon targets |
+| `wishlist` | User wishlist items |
+| `reviews` | Product reviews |
+| `notifications` | Per-user notification feed |
 
 ---
 
 ## Features
 
 ### Customer
-- Browse products with (hover zoom + slide-up Add to Cart)
-- Search products by name
-- Filter by category with icon nav
+- Browse products — hover zoom, slide-up Add to Cart
+- Search products by name; filter by category icon nav
+- Product detail page with images, related products, reviews, Q&A
 - Wishlist with heart toggle (add/remove)
-- Cart with quantity controls and coupon codes
-- Place orders and track order history
-- Product detail page with reviews
+- Cart with quantity controls (+ / −)
+- **Targeted coupons** — coupon chips show **green** when at least one eligible product is in cart, **red** when none; applied discount highlights the eligible items
+- Coupon types: **Flat %** and **Upto % (capped at a max amount)**
+- Coupon discount calculated on eligible items' subtotal only, not the whole cart
+- Place orders, address selection, order history, cancel and return requests
+- Payment integration (Razorpay)
+- Stock-back subscription notifications
 
 ### Admin
 - Add / update / delete products with image upload
 - Manage categories
 - Add product FAQs
-- View and manage orders
-- Create discount coupons
+- View and manage all orders, change order status
+- **Create targeted coupons** — choose coupon type (Flat % / Upto % capped), set max discount, min order amount, target specific categories and/or products via multi-select dropdowns
+- View customers
 
 ---
 
-## Getting Started
+## Coupon System
+
+### Types
+
+| Type | Behaviour |
+|---|---|
+| `PERCENTAGE` | Flat `X%` off the eligible items' subtotal |
+| `CAPPED_PERCENTAGE` | Up to `X%` off, but capped at `maxDiscount` (₹) |
+
+### Targeting
+
+When creating a coupon the admin can optionally select:
+- **Applicable Categories** — coupon applies to items in those categories
+- **Applicable Products** — coupon applies to those specific products
+
+If both lists are empty the coupon is universal (all items eligible).  
+If both are set, OR logic applies: an item is eligible if it matches either list.
+
+A `minOrderAmount` can also be set — the eligible subtotal must meet this threshold.
+
+### Cart UI
+
+Available coupon chips are coloured at render time:
+- **Green border** — at least one cart item is eligible
+- **Red border** — no eligible items; chip is non-clickable
+- Each eligible item shows a small green "Coupon applied" badge
+
+---
+
+## Security
+
+- `userId` is **never trusted from the request body** for cart operations — it is always read from the JWT via `SecurityUtils.getCurrentUserId()`
+- Path-param `userId` endpoints (get cart, place order, cancel, etc.) verify `securityUtils.isCurrentUser(userId)` before serving data
+
+---
+
+## Getting Started (local dev)
 
 ### Prerequisites
-- Docker & Docker Compose
-- Node.js 18+ (for local Angular dev only)
-- Java 17+ (for local Spring Boot dev only)
+- Java 17+
+- Node.js 18+
+- MySQL 8.0
 
-### Run with Docker Compose
+### Backend
+```bash
+# Set env vars or fill application.properties
+./mvnw spring-boot:run
+# Runs on :8080
+```
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/Nayandhawan/E-commerce.git
-   cd E-commerce
-   ```
+### Frontend
+```bash
+cd EcomUI
+npm install
+ng serve
+# Runs on :4200; proxies /api to :8080
+```
 
-2. Create your `.env` file from the example:
-   ```bash
-   cp .env.example .env
-   ```
+### Database setup
+```sql
+CREATE DATABASE ecom;
+-- Hibernate auto-creates tables on first boot (ddl-auto=update)
 
-3. Fill in the values in `.env`:
-   ```env
-   DB_USERNAME=root
-   DB_PASSWORD=your_strong_password
-   JWT_SECRET=your_64_char_hex_secret   # openssl rand -hex 64
-   ```
-
-4. Build and start all services:
-   ```bash
-   docker compose up --build
-   ```
-
-5. Open the app:
-   - Frontend: http://localhost:4200
-   - API Gateway: http://localhost:8080
-   - Eureka Dashboard: http://localhost:8761
+-- One-time fix if upgrading from older schema:
+CREATE INDEX idx_cart_order ON cart_items (order_id);
+ALTER TABLE cart_items DROP INDEX UKshvxaq4vg05f3q75fnnel0klb;
+```
 
 ### Default Admin Account
 ```
@@ -134,42 +171,57 @@ Password: admin
 
 ```
 E-commerce/
-├── EcomUI/                  # Angular 18 frontend
+├── EcomUI/                        # Angular 18 frontend
 │   └── src/app/
-│       ├── admin/           # Admin module
-│       ├── customer/        # Customer module
-│       ├── login/
-│       └── signup/
-├── api-gateway/             # Spring Cloud Gateway + JWT filter
-├── eureka-server/           # Netflix Eureka service registry
-├── user-service/            # Auth & user management
-├── product-service/         # Product catalog & reviews
-├── order-service/           # Cart, orders, wishlist, coupons
-├── src/                     # Legacy monolith (reference)
-├── docker-compose.yml
-├── init-db.sql              # Creates databases on first run
-└── .env.example
+│       ├── admin/                 # Admin module (products, orders, coupons, customers)
+│       ├── customer/              # Customer module (dashboard, cart, orders, wishlist)
+│       ├── store/                 # NgRx store (cart, wishlist, auth)
+│       ├── login/ signup/
+│       └── PrimeNGModule.ts       # Central PrimeNG + Lucide imports
+└── src/main/java/com/stack/ecom/
+    ├── controller/
+    │   ├── admin/                 # Admin REST controllers
+    │   └── customer/              # Customer REST controllers
+    ├── services/
+    │   ├── admin/                 # Coupon, product, order, analytics services
+    │   └── customer/              # Cart, wishlist, review services
+    ├── entity/                    # JPA entities
+    ├── dto/                       # Request/response DTOs
+    ├── repository/                # Spring Data JPA repos
+    ├── enums/                     # OrderStatus, UserRole, CouponType
+    ├── filters/                   # JwtRequestFilter
+    ├── utils/                     # SecurityUtils (getCurrentUserId)
+    └── config/                    # SecurityConfig, SpaFallbackController
 ```
 
 ---
 
 ## API Overview
 
-All requests go through the API Gateway at `http://localhost:8080`.
+All endpoints at `http://localhost:8080`.  
+Protected endpoints require `Authorization: Bearer <token>`.
 
-| Method | Endpoint | Description |
-|---|---|---|
-| POST | `/api/auth/signup` | Register new user |
-| POST | `/api/auth/login` | Login, returns JWT |
-| GET | `/api/customer/products` | List all products |
-| GET | `/api/customer/products/search?name=` | Search products |
-| POST | `/api/customer/cart` | Add item to cart |
-| GET | `/api/customer/cart/{userId}` | Get cart |
-| POST | `/api/customer/cart/place-order` | Place order |
-| POST | `/api/customer/wishlist/{userId}/{productId}` | Add to wishlist |
-| DELETE | `/api/customer/wishlist/{userId}/{productId}` | Remove from wishlist |
-| POST | `/api/admin/product` | Add product (admin) |
-| GET | `/api/admin/orders` | List all orders (admin) |
+| Method | Endpoint | Auth | Description |
+|---|---|---|---|
+| POST | `/api/auth/signup` | Public | Register |
+| POST | `/api/auth/login` | Public | Login, returns JWT |
+| GET | `/api/customer/products` | CUSTOMER | List products |
+| GET | `/api/customer/products/search?name=` | CUSTOMER | Search |
+| GET | `/api/customer/coupons` | CUSTOMER | Available coupons with targeting info |
+| POST | `/api/customer/cart` | CUSTOMER | Add to cart (userId from JWT) |
+| GET | `/api/customer/cart/{userId}` | CUSTOMER | Get cart with discounted product IDs |
+| PUT | `/api/customer/cart/increase` | CUSTOMER | Increase quantity |
+| PUT | `/api/customer/cart/decrease` | CUSTOMER | Decrease quantity |
+| POST | `/api/customer/cart/{userId}/coupon?code=` | CUSTOMER | Apply coupon |
+| POST | `/api/customer/cart/place-order` | CUSTOMER | Place order |
+| DELETE | `/api/customer/cart/{userId}/{productId}` | CUSTOMER | Remove item |
+| GET | `/api/customer/cart/{userId}/orders` | CUSTOMER | Order history |
+| POST | `/api/admin/coupons` | ADMIN | Create targeted coupon |
+| PUT | `/api/admin/coupons/{id}` | ADMIN | Update coupon |
+| GET | `/api/admin/coupons` | ADMIN | List coupons |
+| DELETE | `/api/admin/coupons/{id}` | ADMIN | Delete coupon |
+| GET | `/api/admin/orders` | ADMIN | All orders |
+| GET | `/api/admin/orders/{id}/{status}` | ADMIN | Update order status |
 
 ---
 
