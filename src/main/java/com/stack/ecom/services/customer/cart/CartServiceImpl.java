@@ -50,7 +50,7 @@ public class CartServiceImpl implements CartService {
             }
         }
 
-        Optional<CartItems> optionalCartItems = cartItemsRepository.findByProductIdAndOrderIdAndUserId(
+        Optional<CartItems> optionalCartItems = cartItemsRepository.findFirstByProductIdAndOrderIdAndUserId(
                 addProductInCartDto.getProductId(), activeOrder.getId(), addProductInCartDto.getUserId());
 
         if (optionalCartItems.isPresent()) {
@@ -166,7 +166,7 @@ public class CartServiceImpl implements CartService {
     public OrderDto increaseProductQuantity(AddProductInCartDto addProductInCartDto) {
         Order activeOrder = orderRepository.findFirstByUserIdAndOrderStatus(addProductInCartDto.getUserId(), OrderStatus.PENDING);
         Optional<Product> optionalProduct = productRepository.findById(addProductInCartDto.getProductId());
-        Optional<CartItems> optionalCartItems = cartItemsRepository.findByProductIdAndOrderIdAndUserId(
+        Optional<CartItems> optionalCartItems = cartItemsRepository.findFirstByProductIdAndOrderIdAndUserId(
                 addProductInCartDto.getProductId(), activeOrder.getId(), addProductInCartDto.getUserId());
 
         if (optionalProduct.isPresent() && optionalCartItems.isPresent()) {
@@ -194,7 +194,7 @@ public class CartServiceImpl implements CartService {
     public OrderDto decreaseProductQuantity(AddProductInCartDto addProductInCartDto) {
         Order activeOrder = orderRepository.findFirstByUserIdAndOrderStatus(addProductInCartDto.getUserId(), OrderStatus.PENDING);
         Optional<Product> optionalProduct = productRepository.findById(addProductInCartDto.getProductId());
-        Optional<CartItems> optionalCartItems = cartItemsRepository.findByProductIdAndOrderIdAndUserId(
+        Optional<CartItems> optionalCartItems = cartItemsRepository.findFirstByProductIdAndOrderIdAndUserId(
                 addProductInCartDto.getProductId(), activeOrder.getId(), addProductInCartDto.getUserId());
 
         if (optionalProduct.isPresent() && optionalCartItems.isPresent()) {
@@ -305,7 +305,7 @@ public class CartServiceImpl implements CartService {
     public OrderDto removeFromCart(Long userId, Long productId) {
         List<Order> pending = orderRepository.findByUserIdAndOrderStatusWithItems(userId, OrderStatus.PENDING);
         Order activeOrder = pending.isEmpty() ? null : pending.get(0);
-        Optional<CartItems> optionalCartItems = cartItemsRepository.findByProductIdAndOrderIdAndUserId(
+        Optional<CartItems> optionalCartItems = cartItemsRepository.findFirstByProductIdAndOrderIdAndUserId(
                 productId, activeOrder.getId(), userId);
 
         if (optionalCartItems.isPresent()) {
@@ -316,7 +316,15 @@ public class CartServiceImpl implements CartService {
             if (activeOrder.getCoupon() != null) {
                 activeOrder.getCartItems().remove(cartItem);
                 cartItemsRepository.delete(cartItem);
-                recalculateDiscount(activeOrder);
+                boolean hasEligibleItems = activeOrder.getCartItems().stream()
+                        .anyMatch(item -> isItemEligible(item, activeOrder.getCoupon()));
+                if (hasEligibleItems) {
+                    recalculateDiscount(activeOrder);
+                } else {
+                    activeOrder.setCoupon(null);
+                    activeOrder.setDiscount(0L);
+                    activeOrder.setAmount(activeOrder.getTotalAmount());
+                }
             } else {
                 activeOrder.setAmount(activeOrder.getAmount() - itemTotal);
                 activeOrder.getCartItems().remove(cartItem);

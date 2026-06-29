@@ -179,8 +179,20 @@
             <lucide-angular name="git-compare" [size]="13" strokeWidth="2"></lucide-angular>
           </button>
 
-          <!-- Add to Cart CTA (hidden when OOS) -->
-          <div class="pk-tile__cta" *ngIf="product.stockQuantity !== 0"
+          <!-- Qty controls when already in cart -->
+          <div class="pk-tile__qty-ctrl" *ngIf="product.stockQuantity !== 0 && getCartQty(product.id) > 0"
+               (click)="$event.stopPropagation()">
+            <button class="pk-tile__qty-btn" (click)="decreaseQty(product.id, getCartQty(product.id), $event)">
+              <lucide-angular name="minus" [size]="13" strokeWidth="2.5"></lucide-angular>
+            </button>
+            <span class="pk-tile__qty-val">{{ getCartQty(product.id) }}</span>
+            <button class="pk-tile__qty-btn" (click)="increaseQty(product.id, $event)">
+              <lucide-angular name="plus" [size]="13" strokeWidth="2.5"></lucide-angular>
+            </button>
+          </div>
+
+          <!-- Add to Cart CTA (slide-up on hover, hidden when OOS or already in cart) -->
+          <div class="pk-tile__cta" *ngIf="product.stockQuantity !== 0 && getCartQty(product.id) === 0"
                (click)="addToCart(product.id, product.name, product.stockQuantity !== 0, $event)">
             <lucide-angular name="shopping-cart" [size]="15" strokeWidth="2"></lucide-angular>
             <span>Add to Cart</span>

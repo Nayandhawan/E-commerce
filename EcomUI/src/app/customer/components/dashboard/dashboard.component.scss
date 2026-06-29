@@ -508,6 +508,43 @@
   .pk-tile__img { filter: grayscale(.5); }
 }
 
+/* qty controls (always visible when in cart) */
+.pk-tile__qty-ctrl {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  background: rgba(255,153,0,.95);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 7px 0;
+  z-index: 2;
+}
+
+.pk-tile__qty-btn {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: #0F1111;
+  cursor: pointer;
+  border-radius: 50%;
+  transition: background .15s;
+  flex-shrink: 0;
+  &:hover { background: rgba(0,0,0,.12); }
+}
+
+.pk-tile__qty-val {
+  width: 30px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 700;
+  color: #0F1111;
+  font-family: var(--font-mono);
+}
+
 /* slide-up Add to Cart */
 .pk-tile__cta {
   position: absolute;

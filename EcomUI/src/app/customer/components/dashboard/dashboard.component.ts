@@ -8,6 +8,8 @@ import { CustomerService } from '../../services/customer.service';
 import { CompareService } from '../../../services/compare/compare.service';
 import { loadWishlist, addToWishlist, removeFromWishlist } from '../../../store/wishlist/wishlist.actions';
 import { selectWishlistIds } from '../../../store/wishlist/wishlist.selectors';
+import { loadCart, increaseQuantity, decreaseQuantity, removeFromCart } from '../../../store/cart/cart.actions';
+import { selectCartItems } from '../../../store/cart/cart.selectors';
 
 const CAT_ICONS: Record<string, string> = {
   fashion:     'shirt',
@@ -75,6 +77,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   showAddedDialog = false;
   addedProductName = '';
   compareItems$: Observable<any[]>;
+  cartQtyMap: Record<number, number> = {};
   flashCountdown = '';
   private countdownTimer: any;
 
@@ -95,6 +98,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.getAllProducts();
     this.store.dispatch(loadWishlist());
     this.wishlistedIds$.subscribe(ids => { this._wishlistedIds = ids; });
+    this.store.dispatch(loadCart());
+    this.store.select(selectCartItems).subscribe(items => {
+      this.cartQtyMap = {};
+      (items || []).forEach((item: any) => { this.cartQtyMap[item.productId] = item.quantity; });
+    });
     this.loadRecentlyViewed();
     this.loadSearchHistory();
     this.startFlashCountdown();
@@ -281,12 +289,31 @@ export class DashboardComponent implements OnInit, OnDestroy {
       next: () => {
         this.addedProductName = name;
         this.showAddedDialog = true;
+        this.store.dispatch(loadCart());
       },
       error: (err: any) => {
         const detail = err.status === 409 ? `${name} is already in your cart.` : 'Could not add to cart. Please try again.';
         this.messageService.add({ severity: err.status === 409 ? 'warn' : 'error', summary: err.status === 409 ? 'Already in Cart' : 'Error', detail, life: 3000 });
       }
     });
+  }
+
+  getCartQty(productId: number): number {
+    return this.cartQtyMap[productId] ?? 0;
+  }
+
+  increaseQty(productId: number, event: Event) {
+    event.stopPropagation();
+    this.store.dispatch(increaseQuantity({ productId }));
+  }
+
+  decreaseQty(productId: number, currentQty: number, event: Event) {
+    event.stopPropagation();
+    if (currentQty > 1) {
+      this.store.dispatch(decreaseQuantity({ productId }));
+    } else {
+      this.store.dispatch(removeFromCart({ productId }));
+    }
   }
 
   goToCart() { this.showAddedDialog = false; this.router.navigateByUrl('/customer/cart'); }
