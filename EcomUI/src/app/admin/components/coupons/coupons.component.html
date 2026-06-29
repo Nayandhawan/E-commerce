@@ -102,15 +102,18 @@
                 <p-multiSelect [options]="categories" formControlName="applicableCategoryIds"
                                optionLabel="label" optionValue="value"
                                placeholder="All categories" [showClear]="true"
+                               [maxSelectedLabels]="1" selectedItemsLabel="{0} categories selected"
                                appendTo="body" styleClass="w-full">
                 </p-multiSelect>
               </div>
               <div class="form-group">
-                <label>Specific Products</label>
-                <p-multiSelect [options]="products" formControlName="applicableProductIds"
+                <label>Products <span *ngIf="filteredProducts.length < allProducts.length" style="color:var(--primary);font-size:11px">(filtered by category)</span></label>
+                <p-multiSelect [options]="filteredProducts" formControlName="applicableProductIds"
                                optionLabel="label" optionValue="value"
                                placeholder="All products" [showClear]="true"
-                               appendTo="body" [filter]="true" styleClass="w-full">
+                               [filter]="true" [maxSelectedLabels]="1" selectedItemsLabel="{0} products selected"
+                               appendTo="body" styleClass="w-full"
+                               [emptyMessage]="'Select a category first'">
                 </p-multiSelect>
               </div>
             </div>
@@ -146,7 +149,7 @@
           <lucide-angular name="ticket" [size]="20" strokeWidth="1.5"></lucide-angular>
         </div>
         <div>
-          <h3>{{ (filterMonth && filterYear) ? 'Filtered Coupons' : 'Active This Month' }}</h3>
+          <h3>Active Coupons</h3>
           <p>{{ coupons?.length || 0 }} coupon{{ (coupons?.length !== 1) ? 's' : '' }} found</p>
         </div>
       </div>
@@ -158,20 +161,18 @@
             <div class="form-group" style="margin:0">
               <label>Month</label>
               <select class="coupon-select" [(ngModel)]="filterMonth">
-                <option [ngValue]="null">All months</option>
                 <option *ngFor="let m of months" [value]="m.value">{{ m.label }}</option>
               </select>
             </div>
             <div class="form-group" style="margin:0">
               <label>Year</label>
               <select class="coupon-select" [(ngModel)]="filterYear">
-                <option [ngValue]="null">All years</option>
                 <option *ngFor="let y of years" [value]="y">{{ y }}</option>
               </select>
             </div>
           </div>
           <div class="coupon-filter-actions">
-            <button class="cf-btn cf-btn-primary" (click)="filterCoupons()" [disabled]="!filterMonth || !filterYear">
+            <button class="cf-btn cf-btn-primary" (click)="filterCoupons()">
               <lucide-angular name="search" [size]="14" strokeWidth="2"></lucide-angular> Search
             </button>
             <button class="cf-btn cf-btn-ghost" (click)="clearFilter()">
