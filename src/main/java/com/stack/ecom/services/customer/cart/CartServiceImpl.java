@@ -68,7 +68,12 @@ public class CartServiceImpl implements CartService {
 
             CartItems updatedCart = cartItemsRepository.save(cartItems);
             activeOrder.setTotalAmount(activeOrder.getTotalAmount() + cartItems.getPrice());
-            activeOrder.setAmount(activeOrder.getAmount() + cartItems.getPrice());
+
+            if (activeOrder.getCoupon() != null) {
+                recalculateDiscount(activeOrder);
+            } else {
+                activeOrder.setAmount(activeOrder.getAmount() + cartItems.getPrice());
+            }
             orderRepository.save(activeOrder);
 
             return ResponseEntity.status(HttpStatus.CREATED).body(updatedCart.cartItemsDto());
@@ -99,13 +104,18 @@ public class CartServiceImpl implements CartService {
         if (activeOrder.getCoupon() != null) {
             Coupon coupon = activeOrder.getCoupon();
             orderDto.setCouponName(coupon.getName());
-            List<Long> discountedProductIds = activeOrder.getCartItems() != null
+            List<CartItems> eligibleItems = activeOrder.getCartItems() != null
                     ? activeOrder.getCartItems().stream()
                         .filter(item -> isItemEligible(item, coupon))
-                        .map(item -> item.getProduct().getId())
                         .collect(Collectors.toList())
                     : Collections.emptyList();
-            orderDto.setDiscountedProductIds(discountedProductIds);
+            orderDto.setDiscountedProductIds(eligibleItems.stream()
+                    .map(item -> item.getProduct().getId())
+                    .collect(Collectors.toList()));
+            long eligibleSubtotal = eligibleItems.stream()
+                    .mapToLong(item -> item.getPrice() * item.getQuantity())
+                    .sum();
+            orderDto.setEligibleSubtotal(eligibleSubtotal);
         }
         return orderDto;
     }

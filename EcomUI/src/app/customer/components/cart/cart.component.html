@@ -33,7 +33,15 @@
             </div>
           </div>
           <div class="item-right">
-            <p class="item-total">₹{{ item.price * item.quantity | number }}</p>
+            <div class="item-price-wrap">
+              <ng-container *ngIf="vm.order?.couponName && isProductDiscounted(item.productId, vm.order); else normalPrice">
+                <span class="item-total item-total--strike">₹{{ item.price * item.quantity | number }}</span>
+                <span class="item-total item-total--final">₹{{ getDiscountedItemTotal(item, vm.order) | number }}</span>
+              </ng-container>
+              <ng-template #normalPrice>
+                <span class="item-total">₹{{ item.price * item.quantity | number }}</span>
+              </ng-template>
+            </div>
             <button type="button" class="item-delete-btn" (click)="removeProduct(item.productId)" title="Remove item">
               <lucide-angular name="trash-2" [size]="15" strokeWidth="2"></lucide-angular>
             </button>
