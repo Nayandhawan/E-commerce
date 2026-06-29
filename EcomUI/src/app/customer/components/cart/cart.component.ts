@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
 import { CustomerService } from '../../services/customer.service';
-import { loadCart, increaseQuantity, decreaseQuantity, applyCoupon, removeFromCart } from '../../../store/cart/cart.actions';
+import { loadCart, increaseQuantity, decreaseQuantity, applyCoupon, removeCoupon, removeFromCart } from '../../../store/cart/cart.actions';
 import { selectCartItems, selectCartOrder, selectCartLoading } from '../../../store/cart/cart.selectors';
 
 @Component({
@@ -51,6 +51,14 @@ export class CartComponent implements OnInit {
   applyCoupon() {
     const code = this.couponForm.get(['code'])!.value;
     this.store.dispatch(applyCoupon({ code }));
+  }
+
+  fillCouponCode(code: string) {
+    this.couponForm.patchValue({ code });
+  }
+
+  removeCoupon() {
+    this.store.dispatch(removeCoupon());
   }
 
   increaseProductQuantity(productId: any) {

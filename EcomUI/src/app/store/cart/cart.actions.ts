@@ -13,6 +13,10 @@ export const applyCoupon = createAction('[Cart] Apply Coupon', props<{ code: str
 export const applyCouponSuccess = createAction('[Cart] Apply Coupon Success');
 export const applyCouponFailure = createAction('[Cart] Apply Coupon Failure', props<{ error: string }>());
 
+export const removeCoupon = createAction('[Cart] Remove Coupon');
+export const removeCouponSuccess = createAction('[Cart] Remove Coupon Success');
+export const removeCouponFailure = createAction('[Cart] Remove Coupon Failure', props<{ error: string }>());
+
 export const removeFromCart = createAction('[Cart] Remove From Cart', props<{ productId: any }>());
 export const removeFromCartSuccess = createAction('[Cart] Remove From Cart Success');
 export const removeFromCartFailure = createAction('[Cart] Remove From Cart Failure', props<{ error: string }>());

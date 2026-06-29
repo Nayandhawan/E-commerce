@@ -80,6 +80,12 @@ public class CartController {
         }
     }
 
+    @DeleteMapping("/cart/coupon")
+    public ResponseEntity<?> removeCoupon() {
+        Long userId = securityUtils.getCurrentUserId();
+        return ResponseEntity.ok(cartService.removeCoupon(userId));
+    }
+
     @PutMapping("/cart/increase")
     public ResponseEntity<?> increaseProductQuantity(@RequestBody AddProductInCartDto addProductInCartDto) {
         addProductInCartDto.setUserId(securityUtils.getCurrentUserId());
