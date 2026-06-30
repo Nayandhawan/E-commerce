@@ -511,7 +511,6 @@
 .pk-tile--phantom {
   background: var(--bg-card);
   pointer-events: none;
-  visibility: hidden;
   @media (max-width: 1200px) { display: none; }
 }
 
