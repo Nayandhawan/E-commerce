@@ -508,12 +508,6 @@
   .pk-tile__img { filter: grayscale(.5); }
 }
 
-.pk-tile--phantom {
-  pointer-events: none;
-  visibility: hidden;
-  background: transparent;
-  @media (max-width: 1200px) { display: none; }
-}
 
 /* qty controls — floating pill (always visible when in cart) */
 .pk-tile__qty-ctrl {

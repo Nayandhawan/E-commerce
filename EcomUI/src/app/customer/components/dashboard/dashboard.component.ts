@@ -69,14 +69,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
   readonly starRange = [1, 2, 3, 4, 5];
 
   currentPage = 1;
-  readonly pageSize = 12;
+  readonly pageSize = 10;
   get totalPages(): number { return Math.max(1, Math.ceil(this.products.length / this.pageSize)); }
   get paginatedProducts(): any[] { return this.products.slice((this.currentPage - 1) * this.pageSize, this.currentPage * this.pageSize); }
   get pageNumbers(): number[] { return Array.from({ length: this.totalPages }, (_, i) => i + 1); }
-  get phantomCount(): number[] {
-    const rem = this.paginatedProducts.length % 5;
-    return rem === 0 ? [] : Array(5 - rem).fill(0);
-  }
+
 
   showAddedDialog = false;
   addedProductName = '';
